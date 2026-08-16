@@ -37,6 +37,9 @@ sbom.json
 sbom.xml
 *.sig
 
+# Local password-cracking wordlists (large; never submit)
+labs/week03-cryptography/rockyou.txt
+
 # Secrets — never commit
 .env
 *.pem

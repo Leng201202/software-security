@@ -21,6 +21,15 @@
 2. **ECB oracle:** observe identical plaintext blocks → identical ciphertext; exploit to leak structure.
 3. **Remediate:** rewrite the sample service to use argon2id for passwords and AES-GCM (authenticated) for data, with keys from a secrets manager / env (never hardcoded).
 
+Run the completed solution with a fresh development key supplied through the environment:
+
+```bash
+export ENC_KEY_HEX="$(openssl rand -hex 32)"
+docker compose up
+```
+
+`solution_skeleton.py` intentionally refuses to run without this variable so that a missing production secret cannot silently become a temporary or hardcoded key.
+
 ## Deliverable
 Before/after code + a short note on which CWE each change closes.
 

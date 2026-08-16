@@ -4,6 +4,8 @@ services:
     working_dir: /lab
     volumes:
       - ./:/lab
+    environment:
+      ENC_KEY_HEX: ${ENC_KEY_HEX:?Set ENC_KEY_HEX to 64 hexadecimal characters}
     command: >
       bash -c "pip install --no-cache-dir pycryptodome argon2-cffi &&
                python vulnerable_crypto.py &&
