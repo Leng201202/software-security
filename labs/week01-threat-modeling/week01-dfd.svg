@@ -1,0 +1,57 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="650" viewBox="0 0 1200 650" role="img" aria-labelledby="title desc">
+  <title id="title">Week 1 sample application data-flow diagram</title>
+  <desc id="desc">A web client sends notes, upload, and file requests across a dashed Internet-to-application trust boundary to a Flask application. The application reads and writes a SQLite notes database and an uploads file store.</desc>
+  <defs>
+    <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#243447"/>
+    </marker>
+    <style>
+      .node { fill: #f7fafc; stroke: #243447; stroke-width: 3; }
+      .store { fill: #fff8e1; stroke: #8a5a00; stroke-width: 3; }
+      .flow { fill: none; stroke: #243447; stroke-width: 2.5; marker-end: url(#arrow); }
+      .boundary { stroke: #c62828; stroke-width: 4; stroke-dasharray: 12 10; }
+      .title { font: 700 25px sans-serif; fill: #17202a; text-anchor: middle; }
+      .label { font: 18px sans-serif; fill: #17202a; text-anchor: middle; }
+      .small { font: 16px sans-serif; fill: #243447; text-anchor: middle; }
+      .boundary-label { font: 700 17px sans-serif; fill: #a31313; text-anchor: middle; }
+    </style>
+  </defs>
+  <rect width="1200" height="650" fill="#ffffff"/>
+  <text x="600" y="42" class="title">Week 1 Sample Flask App — Data-Flow Diagram</text>
+
+  <rect x="65" y="250" width="220" height="120" rx="8" class="node"/>
+  <text x="175" y="300" class="title">Web Client</text>
+  <text x="175" y="333" class="label">browser / curl</text>
+
+  <line x1="395" y1="90" x2="395" y2="595" class="boundary"/>
+  <text x="395" y="620" class="boundary-label">Internet → application trust boundary</text>
+
+  <rect x="510" y="235" width="250" height="150" rx="30" class="node"/>
+  <text x="635" y="298" class="title">Flask App</text>
+  <text x="635" y="332" class="label">sample-app/app.py</text>
+
+  <path d="M 285 270 L 510 270" class="flow"/>
+  <text x="397" y="248" class="small">GET/POST /notes</text>
+  <path d="M 285 310 L 510 310" class="flow"/>
+  <text x="397" y="300" class="small">POST /upload</text>
+  <path d="M 285 350 L 510 350" class="flow"/>
+  <text x="397" y="385" class="small">GET /files/&lt;name&gt;</text>
+  <path d="M 510 370 C 430 445, 340 445, 285 370" class="flow"/>
+  <text x="397" y="465" class="small">JSON / file response</text>
+
+  <path d="M 760 275 L 890 180" class="flow"/>
+  <text x="820" y="208" class="small">SQL read/write</text>
+  <path d="M 890 210 L 760 305" class="flow"/>
+
+  <path d="M 760 335 L 890 440" class="flow"/>
+  <text x="820" y="410" class="small">save/read file</text>
+  <path d="M 890 470 L 760 365" class="flow"/>
+
+  <path d="M 890 125 h230 v120 h-230 z M 890 145 h230 M 890 225 h230" class="store"/>
+  <text x="1005" y="178" class="title">notes.db</text>
+  <text x="1005" y="211" class="label">SQLite data store</text>
+
+  <path d="M 890 405 h230 v130 h-230 z M 890 428 h230 M 890 512 h230" class="store"/>
+  <text x="1005" y="465" class="title">uploads/</text>
+  <text x="1005" y="498" class="label">file data store</text>
+</svg>

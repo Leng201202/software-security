@@ -1,6 +1,6 @@
 # Worksheet N — <Topic> (<X> hrs)
 
-**Course:** Software Security (KOSEN69) · **Week 0**
+**Course:** Software Security (KOSEN69) · **Week N**
 **Aligned to:** OWASP <Axx / API / LLM> · CWE <...>
 **Signature game:** <name>
 
@@ -12,14 +12,14 @@
 
 | Name | Student ID | Date | Group |
 |------|-----------|------|-------|
-|   Sai Shang Hlang   |    6631503129   |  15 Aug 26    |  -     |
+|      |           |      |       |
 
 ---
 
 ## Part 2 — Lecture Questions
 *Answer in your own words (3–5 sentences each).*
 
-1. 
+1. …
 2. …
 3. …
 4. …
