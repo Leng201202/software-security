@@ -242,7 +242,7 @@ The vulnerable script stores passwords with a very fast unsalted hash, encrypts 
 
 > Complete `solution_skeleton.py` using Argon2id with automatic salts for password storage, a rehash-on-login function that upgrades valid legacy MD5 records, AES-256-GCM with a fresh 12-byte CSPRNG nonce for every message, a required 64-hex-character `ENC_KEY_HEX` environment variable with no fallback key, authenticated decryption that rejects a modified ciphertext, and `secrets.token_urlsafe(16)` for reset tokens. Catch only expected Argon2 verification errors, compare the legacy MD5 digest with `hmac.compare_digest()`, and add tests for valid and invalid passwords, migration, encryption round trip, tamper rejection, key validation, and token length.
 
-**Verification result to capture:** Run the fixed script with a newly generated `ENC_KEY_HEX`. The expected output shows successful Argon2 verification and migration, `gcm round-trip: b'secret'`, `tamper check: rejected`, and a long URL-safe token; replace this note with your identity-stamped output after rerunning it.
+**Automated verification:** `python -m unittest -v test_solution.py` passes all six tests for password verification, legacy migration, fresh GCM nonces, tamper rejection, key validation, and token generation. Running the fixed script also prints successful Argon2 verification and migration, `gcm round-trip: b'secret'`, `tamper check: rejected`, and a long URL-safe token; rerun these commands and capture your own identity-stamped output before submission.
 
 ---
 
