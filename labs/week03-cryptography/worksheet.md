@@ -146,7 +146,7 @@ The observed certificate has subject `example.com`, issuer `Cloudflare TLS Issui
 
 The fixed script requires `ENC_KEY_HEX` to decode to exactly 32 bytes instead of silently creating a temporary key. It also demonstrates an Argon2id migration, an AES-GCM round trip, rejection of modified ciphertext, and a CSPRNG reset token.
 
-**Code-fix commit:** [link added after the cleaned Week 3 commit](COMMIT_URL_TO_REPLACE)
+**Code-fix commit:** [`c9e6b17`](https://github.com/Leng201202/software-security/commit/c9e6b17b341b99ac036ddf12ec9b5af634820ce8)
 
 ## Part 4 — Reflection
 1. Map each of the four misuses to its CWE and to OWASP A04, in one line each.
