@@ -1,0 +1,70 @@
+name: Week 02 security gate
+
+on:
+  push:
+    branches: [wk02]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  tests:
+    name: Remediation tests
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+      - name: Install dependencies
+        run: pip install -r labs/week02-sdlc-tooling/vulnerable-repo/requirements.txt
+      - name: Run regression tests
+        working-directory: labs/week02-sdlc-tooling/vulnerable-repo
+        run: python -m unittest -v
+
+  semgrep:
+    name: SAST (Semgrep)
+    runs-on: ubuntu-latest
+    container:
+      image: semgrep/semgrep:latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Fail on Semgrep findings
+        run: >-
+          semgrep scan
+          --config p/default
+          --config p/owasp-top-ten
+          --error
+          labs/week02-sdlc-tooling/vulnerable-repo
+          project/starter-app
+
+  trivy:
+    name: SCA (Trivy HIGH/CRITICAL gate)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Fail on HIGH or CRITICAL dependency vulnerabilities
+        uses: aquasecurity/trivy-action@0.28.0
+        with:
+          scan-type: fs
+          scan-ref: project/starter-app
+          scanners: vuln
+          severity: HIGH,CRITICAL
+          ignore-unfixed: false
+          exit-code: "1"
+
+  gitleaks:
+    name: Secrets (Gitleaks)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Fail if a secret is detected
+        run: >-
+          docker run --rm
+          -v "$PWD:/repo"
+          zricethezav/gitleaks:latest
+          detect --no-git --source /repo --exit-code 1 --verbose
