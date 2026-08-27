@@ -108,7 +108,20 @@ NoteVault stores passwords as unsalted MD5 in `seed()`, `register()`, and `login
 
 **Task 6 — Password storage migration (25 min)** · *Goal:* fix it the way real apps do. *Steps:* write `store_password`/`verify_password` with **argon2id**, and a **rehash-on-login** path that upgrades a legacy MD5 record to argon2id the next time the user logs in. *Deliverable:* the code + a short note on why migration matters.
 
-![alt text](image-5.png)
+```python
+def verify_and_upgrade(stored_hash: str, pw: str) -> tuple[bool, str | None]:
+    if stored_hash.startswith("$argon2id"):
+        if not verify_password(stored_hash, pw):
+            return False, None
+        if ph.check_needs_rehash(stored_hash):
+            return True, store_password(pw)
+        return True, None
+
+    candidate = hashlib.md5(pw.encode()).hexdigest()
+    if hmac.compare_digest(candidate, stored_hash):
+        return True, store_password(pw)
+    return False, None
+```
 
 ![alt text](image-6.png)
 
@@ -116,7 +129,7 @@ Forcing every user to reset their password immediately would be disruptive and m
 
 The corrected migration verifies an existing Argon2id record normally, upgrades a matching legacy MD5 record, and returns no replacement hash for an incorrect password. Only the successful-login path should write the returned Argon2id value back to the database.
 
-> **Personal evidence required:** Replace `image-5.png` or remove it; that screenshot does not contain the identity stamp. Retain a stamped screenshot proving successful legacy verification and the new `$argon2id$` hash.
+> **Personal evidence required:** Retain a stamped screenshot proving successful legacy verification and the new `$argon2id$` hash.
 
 **Task 7 — Authenticated encryption round-trip (20 min)** · *Goal:* use AEAD correctly. *Steps:* encrypt+decrypt a message with **AES-GCM** using a random 12-byte nonce and a key from an env var; then flip one ciphertext byte and show decryption **fails** (tag check). *Deliverable:* the round-trip output + the tampered-fails proof.
 
