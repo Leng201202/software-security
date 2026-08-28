@@ -137,8 +137,11 @@ Trivy's CVE row is intentionally not fabricated: dependency databases and curren
 ![alt text](image-9.png)
 ![alt text](image-10.png)
 **Task 6 — Build a security CI gate (25 min)** · *Goal:* automate the scan (previews Week 15). *Steps:* adapt `../week15-devsecops-pipeline/security-ci.yml` into a workflow that runs Semgrep + Trivy + Gitleaks and **fails on HIGH/CRITICAL**; run it locally (`act`) or commit to your fork and read the Actions log. *Deliverable:* the workflow file + a screenshot of a failing run.
+![alt text](image-12.png)
 
-Implemented workflow: [`.github/workflows/week02-security-ci.yml`](../../.github/workflows/week02-security-ci.yml). It runs the remediation unit tests, Semgrep with `--error`, Trivy filesystem vulnerability scanning with `severity: HIGH,CRITICAL` and `exit-code: "1"`, and Gitleaks with `--exit-code 1`. The workflow is designed to fail on a real high/critical SCA result or any secret; run it on GitHub Actions (or `act`) and attach the required identity-stamped failing-run screenshot: ![alt text](image-11.png)
+Actions page: <https://github.com/Leng201202/software-security/actions>
+
+Implemented workflow: [`.github/workflows/week02-security-ci.yml`](../../.github/workflows/week02-security-ci.yml). It runs the remediation unit tests, Semgrep with `--error`, Trivy filesystem vulnerability scanning with `severity: HIGH,CRITICAL` and `exit-code: "1"`, and Gitleaks with `--exit-code 1`. The attached run shows Gitleaks finding two `curl-auth-header` secrets in `docs/lesson-plans/week15-devsecops-pipeline.md` at lines 107 and 115, then exiting with code 1. Replace the attached image with a full-screen identity-stamped capture if the terminal stamp is not visible in the same image.
 
 **Task 7 — SAST blind spots (20 min)** · *Goal:* see what scanners miss. *Steps:* find one real bug in `vulnerable-repo/app.py` (or NoteVault) that Semgrep did **not** flag, and explain why a pattern-based tool missed it. *Deliverable:* the bug + a 2-sentence explanation.
 
