@@ -9,7 +9,7 @@
 ## Part 1 — Student Information
 | Name | Student ID | Date | Group | AI use disclosure |
 |---|---|---|---|---|
-| **[ENTER YOUR NAME]** | 6631503129 | 2026-08-28 | **[ENTER YOUR GROUP]** | I used Codex to help audit the repository, draft explanations, remediate the sample app, and write regression tests. I reviewed the output and will provide my own screenshots and scan results. |
+| Sai Shang Hlang | 6631503129 | 2026-08-28 | - | I used Codex to help audit the repository, draft explanations, remediate the sample app, and write regression tests. I reviewed the output and will provide my own screenshots and scan results. |
 
 ## Part 2 — Lecture Questions
 Answer in your own words (2–4 sentences each).
@@ -53,11 +53,15 @@ Target under scan: `vulnerable-repo/app.py` (plus `requirements.txt`). It contai
 
 **My command:** `printf '%s | %s | ' "$(whoami)" '6631503129'; date '+%F %T %Z'; bash scan.sh`
 
-**Evidence:** `[INSERT identity-stamped screenshot showing the Semgrep and Gitleaks sections here]`.
+**Evidence:** ![alt text](image.png)
+![alt text](image-1.png)
 
 The scan target is the supplied lab directory only. I will not treat a screenshot copied from another student as evidence because the identity stamp is part of the deliverable.
 
 **Task 1 — SAST sweep with Semgrep (25 min)** · *Goal:* find code flaws. *Steps:* read the Semgrep output; locate the SQL injection in `/user` (CWE-89, string-formatted query), the OS command injection in `/ping` (CWE-78, `shell=True`), the weak `md5` password hash (CWE-327), and `debug=True` (CWE-489). *Deliverable:* one screenshot per finding with the file:line.
+![alt text](image-2.png)
+![alt text](image-3.png)
+![alt text](image-4.png)
 
 **My command:** `docker run --rm -v "$PWD/vulnerable-repo:/src" semgrep/semgrep semgrep --config p/default --config p/owasp-top-ten /src`
 
@@ -73,6 +77,10 @@ The scan target is the supplied lab directory only. I will not treat a screensho
 **Evidence:** `[INSERT four separate identity-stamped Semgrep screenshots showing the finding and baseline file:line]`.
 
 **Task 2 — Secret scan with Gitleaks (15 min)** · *Goal:* find leaked credentials. *Steps:* read the Gitleaks output; identify `AWS_SECRET_ACCESS_KEY` and `DB_PASSWORD` (CWE-798). *Deliverable:* screenshot + the rule that fired for each.
+![alt text](image-5.png)
+![alt text](image-6.png)
+
+
 
 **My command:** `docker run --rm -v "$PWD/vulnerable-repo:/repo" zricethezav/gitleaks:latest detect --no-git -s /repo -v`
 
@@ -99,7 +107,8 @@ The six planted findings are true positives because each is directly reachable f
 
 **My command:** `docker run --rm -v "$PWD/../toolbox:/work" -w /work clang:latest sh -lc 'clang -g -fsanitize=address,fuzzer harness.c -o fuzz; mkdir -p corpus; printf FUZ > corpus/seed; ./fuzz corpus'`
 
-The crash is caused by the three-byte seed passing the first three checks and then reading `data[3]` without proving that a fourth byte exists. Coverage guidance mutates toward the nested `F`, `U`, `Z` checks, while a pattern-based SAST rule may see only ordinary indexing and not infer the runtime size/path relationship; seeding makes the reproducer deterministic instead of waiting for a lucky mutation. **Evidence:** `[INSERT identity-stamped ASan crash screenshot; expected location harness.c:23]`.
+The crash is caused by the three-byte seed passing the first three checks and then reading `data[3]` without proving that a fourth byte exists. Coverage guidance mutates toward the nested `F`, `U`, `Z` checks, while a pattern-based SAST rule may see only ordinary indexing and not infer the runtime size/path relationship; seeding makes the reproducer deterministic instead of waiting for a lucky mutation. **Evidence:** .
+![alt text](image-7.png)
 
 **Task 5 — Scan the project target (40 min)** · *Goal:* apply the tools to your term project. *Steps:* run Semgrep + Gitleaks against **NoteVault** (`../../project/starter-app`); also run an SCA scan: `docker run --rm -v "$PWD/../../project/starter-app:/src" aquasec/trivy fs /src`. *Deliverable:* a findings list (tool, file:line/CVE, CWE) — reuse it in your project vuln report.
 
@@ -124,11 +133,12 @@ docker run --rm -v "$PWD/../../project/starter-app:/src" aquasec/trivy fs /src
 | Semgrep | `project/starter-app/app.py:209` | Flask debug mode enabled | CWE-489 |
 | Trivy | `project/starter-app/requirements.txt` | `[PASTE exact CVE, package, installed/fixed version, and severity from local Trivy output]` | `[CWE from advisory]` |
 
-Trivy's CVE row is intentionally not fabricated: dependency databases and current CVE results change over time, so I will paste the exact output from the required local command. **Evidence:** `[INSERT identity-stamped Semgrep, Gitleaks, and Trivy screenshots]`.
-
+Trivy's CVE row is intentionally not fabricated: dependency databases and current CVE results change over time, so I will paste the exact output from the required local command. **Evidence:** ![alt text](image-8.png)
+![alt text](image-9.png)
+![alt text](image-10.png)
 **Task 6 — Build a security CI gate (25 min)** · *Goal:* automate the scan (previews Week 15). *Steps:* adapt `../week15-devsecops-pipeline/security-ci.yml` into a workflow that runs Semgrep + Trivy + Gitleaks and **fails on HIGH/CRITICAL**; run it locally (`act`) or commit to your fork and read the Actions log. *Deliverable:* the workflow file + a screenshot of a failing run.
 
-Implemented workflow: [`.github/workflows/week02-security-ci.yml`](../../.github/workflows/week02-security-ci.yml). It runs the remediation unit tests, Semgrep with `--error`, Trivy filesystem vulnerability scanning with `severity: HIGH,CRITICAL` and `exit-code: "1"`, and Gitleaks with `--exit-code 1`. The workflow is designed to fail on a real high/critical SCA result or any secret; run it on GitHub Actions (or `act`) and attach the required identity-stamped failing-run screenshot: `[INSERT screenshot and Actions run URL]`.
+Implemented workflow: [`.github/workflows/week02-security-ci.yml`](../../.github/workflows/week02-security-ci.yml). It runs the remediation unit tests, Semgrep with `--error`, Trivy filesystem vulnerability scanning with `severity: HIGH,CRITICAL` and `exit-code: "1"`, and Gitleaks with `--exit-code 1`. The workflow is designed to fail on a real high/critical SCA result or any secret; run it on GitHub Actions (or `act`) and attach the required identity-stamped failing-run screenshot: ![alt text](image-11.png)
 
 **Task 7 — SAST blind spots (20 min)** · *Goal:* see what scanners miss. *Steps:* find one real bug in `vulnerable-repo/app.py` (or NoteVault) that Semgrep did **not** flag, and explain why a pattern-based tool missed it. *Deliverable:* the bug + a 2-sentence explanation.
 
