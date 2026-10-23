@@ -45,7 +45,7 @@ docker compose up         # INSECURE API on :8080, SECURE API on :8081
 ### Task 0 — Onboarding (15 min)
 Confirm both APIs respond: `curl http://localhost:8080/` and `curl http://localhost:8081/`. Note which port is insecure. Record the three seeded users.
 **Deliverable:** both root responses + the user table.
-
+![alt text](image.png)
 **Answer / transcript:**
 
 ```text
@@ -100,7 +100,7 @@ HTTP/1.1 200 OK
 The vulnerable route returns whichever user's orders appear in the URL and never checks a caller, so changing `uid` leaks another user's object (API1 BOLA). The secure route first requires an identity and then checks `caller["id"] != uid and not caller["is_admin"]`, giving the expected 401/403/200 ladder.
 
 > **Screenshot needed:** capture the commands above with your identity stamp. Replace the demo flag with your personalized `FLAG_BOLA` value if the course platform provides one.
-
+![alt text](image-1.png)
 ### Task 2 — Mass assignment: self-promote to admin (30 min)
 **Goal:** Smuggle `is_admin` + `balance` into user creation — API3:2023.
 **Steps:**
@@ -122,6 +122,7 @@ SECURE :8081 — HTTP 201
 `user.update(body)` binds every JSON property on the insecure API, so the client can set server-owned fields (API3 broken object property-level authorization). The secure API builds the record only from `ALLOWED_CREATE_FIELDS` and then sets `balance` and `is_admin` itself, so unexpected privileged fields cannot survive binding.
 
 > **Screenshot needed:** run the two POST requests with the identity stamp visible and replace the demo flag with your personalized `FLAG_MASSASSIGN` value if issued.
+> ![alt text](image-2.png)
 
 ### Task 3 — Unrestricted resource consumption: brute-force login (25 min)
 **Goal:** Show `/api/login` has no throttle — API4:2023.
@@ -147,6 +148,7 @@ $ for i in $(seq 1 7); do ...; done
 The insecure endpoint processes every password guess and even accepts the fourth supplied password, `alice123`; it has no attempt budget (API4). The secure implementation records attempts per source IP in a 60-second window and returns `429 Too Many Requests` after five attempts, reducing brute-force speed and resource exhaustion. A production service should also use a shared limiter store, trusted-proxy configuration, monitoring, and carefully designed account protections.
 
 > **Screenshot needed:** capture both the insecure password loop and the secure seven-attempt sequence with the identity stamp.
+> ![alt text](image-3.png)
 
 ### Task 4 — Bonus: crAPI Raid (optional, 20 min)
 Against your own OWASP crAPI instance (`git clone https://github.com/OWASP/crAPI.git`), capture one BOLA or mass-assignment flag.
@@ -200,7 +202,7 @@ Against your own OWASP crAPI instance (`git clone https://github.com/OWASP/crAPI
   cropped window carries nothing that identifies you, and the lab's own output is
   byte-identical for the whole cohort *by design*, so the stamp is the only thing that makes
   the shot yours. Generic or borrowed evidence is not accepted.
-- **Personalized flag (if this lab issues one):** ____________________
+- **Personalized flag (if this lab issues one):** ___massassign_demo__
   *Flags are unique per student — submitting another student's flag is a violation. How to submit: **learn.zcr.ai/submit** (full guide: `SUBMISSION.md` in the repo root).*
 - **Explain in your own words** *(graded on your reasoning, not copied text):*
   1. What did you do, and **why did the vulnerability work**?
