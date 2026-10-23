@@ -52,3 +52,6 @@ crash-*
 
 # /codex skill session-continuity state (Codex thread ID for resume)
 .context/
+
+# optional Week 10 bonus target (cloned repo — never commit)
+labs/week10-api-security/crAPI/
