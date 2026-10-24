@@ -119,7 +119,7 @@ idna      2.10      PYSEC-2024-60     3.7
 > capture here. The exact CVE list grows over time as new advisories land, so
 > the row set you capture may be a superset of the three rows above — that's
 > expected and fine.
-
+![alt text](image.png)
 **Remediation table — three findings picked for the worklist:**
 
 | Package | Installed | CVE / Advisory | Severity | Fixed version |
