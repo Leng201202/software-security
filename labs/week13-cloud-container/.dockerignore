@@ -1,0 +1,17 @@
+# Keep source-control metadata, local secrets, keys, and generated files out of
+# the Docker build context (CWE-538).
+.git
+.gitignore
+.env
+.env.*
+*.pem
+*.key
+*.p12
+*.pfx
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+node_modules/
+image-*.png
+worksheet.md
