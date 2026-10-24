@@ -266,6 +266,8 @@ check a provenance gate runs before deploy.
 4. **Provenance gate:** state how the `cosign verify` from `sign.sh` becomes a gate before a simulated deploy.
 **Deliverable:** the `--require-hashes` refusal output (step 1) + the simulation's before/after verdict for merged vs. single index (from Task 2) + the one defense you found most effective and why.
 
+![alt text](image-1.png)
+
 **Answer / verified results:**
 
 **1. Pin + hashes — pip refuses to install without hashes:**

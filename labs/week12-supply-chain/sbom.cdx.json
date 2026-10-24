@@ -2,10 +2,10 @@
   "$schema": "http://cyclonedx.org/schema/bom-1.7.schema.json",
   "bomFormat": "CycloneDX",
   "specVersion": "1.7",
-  "serialNumber": "urn:uuid:170dc72e-ab0a-4eec-8aa8-5e6b7415f1ec",
+  "serialNumber": "urn:uuid:1053ff41-5b8a-43c3-baa4-eea5b5511fe5",
   "version": 1,
   "metadata": {
-    "timestamp": "2026-10-23T15:45:12+00:00",
+    "timestamp": "2026-10-24T04:09:14+00:00",
     "tools": {
       "components": [
         {
@@ -20,10 +20,10 @@
       ]
     },
     "component": {
-      "bom-ref": "pkg:oci/week12-supplychain@sha256:48ca67d20f9ff86906640a17c08b31a88fb2df2d21ff8b2f5bec4fb7276cb384?arch=arm64&repository_url=index.docker.io%2Flibrary%2Fweek12-supplychain",
+      "bom-ref": "pkg:oci/week12-supplychain@sha256:e46a963a75206b8a10176069dc2ea6986355873aa6e39d3d095490cae55096c8?arch=arm64&repository_url=index.docker.io%2Flibrary%2Fweek12-supplychain",
       "type": "container",
       "name": "week12-supplychain:lab",
-      "purl": "pkg:oci/week12-supplychain@sha256:48ca67d20f9ff86906640a17c08b31a88fb2df2d21ff8b2f5bec4fb7276cb384?arch=arm64&repository_url=index.docker.io%2Flibrary%2Fweek12-supplychain",
+      "purl": "pkg:oci/week12-supplychain@sha256:e46a963a75206b8a10176069dc2ea6986355873aa6e39d3d095490cae55096c8?arch=arm64&repository_url=index.docker.io%2Flibrary%2Fweek12-supplychain",
       "properties": [
         {
           "name": "aquasecurity:trivy:DiffID",
@@ -59,7 +59,7 @@
         },
         {
           "name": "aquasecurity:trivy:ImageID",
-          "value": "sha256:48ca67d20f9ff86906640a17c08b31a88fb2df2d21ff8b2f5bec4fb7276cb384"
+          "value": "sha256:e46a963a75206b8a10176069dc2ea6986355873aa6e39d3d095490cae55096c8"
         },
         {
           "name": "aquasecurity:trivy:Reference",
@@ -67,7 +67,7 @@
         },
         {
           "name": "aquasecurity:trivy:RepoDigest",
-          "value": "week12-supplychain@sha256:48ca67d20f9ff86906640a17c08b31a88fb2df2d21ff8b2f5bec4fb7276cb384"
+          "value": "week12-supplychain@sha256:e46a963a75206b8a10176069dc2ea6986355873aa6e39d3d095490cae55096c8"
         },
         {
           "name": "aquasecurity:trivy:RepoTag",
@@ -86,7 +86,7 @@
   },
   "components": [
     {
-      "bom-ref": "a6ee5c2f-fee6-4941-916b-5ab247d82542",
+      "bom-ref": "88ebb532-1602-4453-9c77-96dbeadf6832",
       "type": "operating-system",
       "name": "debian",
       "version": "13.1",
@@ -102,45 +102,7 @@
       ]
     },
     {
-      "bom-ref": "d60b729f-e2de-4f77-a007-5fa964f57229",
-      "type": "library",
-      "name": "wheel",
-      "version": "0.45.1",
-      "hashes": [
-        {
-          "alg": "SHA-1",
-          "content": "6240a67a4c1cb1501e12755e659b71f8d78e2260"
-        }
-      ],
-      "licenses": [
-        {
-          "license": {
-            "id": "MIT"
-          }
-        }
-      ],
-      "purl": "pkg:pypi/wheel@0.45.1",
-      "properties": [
-        {
-          "name": "aquasecurity:trivy:FilePath",
-          "value": "usr/local/lib/python3.9/site-packages/wheel-0.45.1.dist-info/METADATA"
-        },
-        {
-          "name": "aquasecurity:trivy:LayerDiffID",
-          "value": "sha256:27fee45b64c8d2c2727dd221c60b4c37e5ff35fcf66186fe243ae2bf9c603a39"
-        },
-        {
-          "name": "aquasecurity:trivy:LayerDigest",
-          "value": "sha256:ebfe7d4fa0c501a81a5ba6d1e1e2958e4b005d3ce3827b0adb869d47b8c51229"
-        },
-        {
-          "name": "aquasecurity:trivy:PkgType",
-          "value": "python-pkg"
-        }
-      ]
-    },
-    {
-      "bom-ref": "e9ef534c-eb7a-4fd0-8412-be0be77901ba",
+      "bom-ref": "a27a90a2-9d58-4cd2-b811-1172880ca31c",
       "type": "library",
       "name": "wheel",
       "version": "0.45.1",
@@ -162,6 +124,44 @@
         {
           "name": "aquasecurity:trivy:FilePath",
           "value": "usr/local/lib/python3.9/site-packages/setuptools/_vendor/wheel-0.45.1.dist-info/METADATA"
+        },
+        {
+          "name": "aquasecurity:trivy:LayerDiffID",
+          "value": "sha256:27fee45b64c8d2c2727dd221c60b4c37e5ff35fcf66186fe243ae2bf9c603a39"
+        },
+        {
+          "name": "aquasecurity:trivy:LayerDigest",
+          "value": "sha256:ebfe7d4fa0c501a81a5ba6d1e1e2958e4b005d3ce3827b0adb869d47b8c51229"
+        },
+        {
+          "name": "aquasecurity:trivy:PkgType",
+          "value": "python-pkg"
+        }
+      ]
+    },
+    {
+      "bom-ref": "bed818f6-3f0c-46fd-8e4c-d251fa2f09f4",
+      "type": "library",
+      "name": "wheel",
+      "version": "0.45.1",
+      "hashes": [
+        {
+          "alg": "SHA-1",
+          "content": "6240a67a4c1cb1501e12755e659b71f8d78e2260"
+        }
+      ],
+      "licenses": [
+        {
+          "license": {
+            "id": "MIT"
+          }
+        }
+      ],
+      "purl": "pkg:pypi/wheel@0.45.1",
+      "properties": [
+        {
+          "name": "aquasecurity:trivy:FilePath",
+          "value": "usr/local/lib/python3.9/site-packages/wheel-0.45.1.dist-info/METADATA"
         },
         {
           "name": "aquasecurity:trivy:LayerDiffID",
@@ -8030,7 +8030,7 @@
   ],
   "dependencies": [
     {
-      "ref": "a6ee5c2f-fee6-4941-916b-5ab247d82542",
+      "ref": "88ebb532-1602-4453-9c77-96dbeadf6832",
       "dependsOn": [
         "pkg:deb/debian/apt@3.0.3?arch=arm64&distro=debian-13.1",
         "pkg:deb/debian/bash@5.2.37-2%2Bb5?arch=arm64&distro=debian-13.1",
@@ -8070,11 +8070,11 @@
       ]
     },
     {
-      "ref": "d60b729f-e2de-4f77-a007-5fa964f57229",
+      "ref": "a27a90a2-9d58-4cd2-b811-1172880ca31c",
       "dependsOn": []
     },
     {
-      "ref": "e9ef534c-eb7a-4fd0-8412-be0be77901ba",
+      "ref": "bed818f6-3f0c-46fd-8e4c-d251fa2f09f4",
       "dependsOn": []
     },
     {
@@ -8629,11 +8629,11 @@
       ]
     },
     {
-      "ref": "pkg:oci/week12-supplychain@sha256:48ca67d20f9ff86906640a17c08b31a88fb2df2d21ff8b2f5bec4fb7276cb384?arch=arm64&repository_url=index.docker.io%2Flibrary%2Fweek12-supplychain",
+      "ref": "pkg:oci/week12-supplychain@sha256:e46a963a75206b8a10176069dc2ea6986355873aa6e39d3d095490cae55096c8?arch=arm64&repository_url=index.docker.io%2Flibrary%2Fweek12-supplychain",
       "dependsOn": [
-        "a6ee5c2f-fee6-4941-916b-5ab247d82542",
-        "d60b729f-e2de-4f77-a007-5fa964f57229",
-        "e9ef534c-eb7a-4fd0-8412-be0be77901ba",
+        "88ebb532-1602-4453-9c77-96dbeadf6832",
+        "a27a90a2-9d58-4cd2-b811-1172880ca31c",
+        "bed818f6-3f0c-46fd-8e4c-d251fa2f09f4",
         "pkg:pypi/autocommand@2.2.2",
         "pkg:pypi/backports.tarfile@1.2.0",
         "pkg:pypi/certifi@2026.10.23",
