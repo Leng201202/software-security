@@ -12,7 +12,9 @@
 
 | Name | Student ID | Date | Group |
 |------|-----------|------|-------|
-|      |           |      |       |
+| Sai Shang Hlang | 6631503129 | 5 Nov 2026 | - |
+
+**AI-use disclosure:** I used Codex to prepare the separate Week 15 branch and worksheet identity section. Task results and explanations will be added only after I run and verify the corresponding lab steps myself.
 
 ---
 
@@ -113,7 +115,7 @@ curl -s localhost:5001/admin -H 'Authorization: alice-token'  # 200 (admin)
   cropped window carries nothing that identifies you, and the lab's own output is
   byte-identical for the whole cohort *by design*, so the stamp is the only thing that makes
   the shot yours. Generic or borrowed evidence is not accepted.
-- **Personalized flag (if this lab issues one):** ____________________
+- **Personalized flag (if this lab issues one):** ____________________ *(pending access to my own self-started Break the Build instance on `ctf.zcr.ai`)*
   *Flags are unique per student — submitting another student's flag is a violation. How to submit: **learn.zcr.ai/submit** (full guide: `SUBMISSION.md` in the repo root).*
 - **Explain in your own words** *(graded on your reasoning, not copied text):*
   1. What did you do, and **why did the vulnerability work**?
