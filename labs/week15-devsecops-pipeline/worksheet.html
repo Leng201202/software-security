@@ -1,0 +1,533 @@
+<h1 id="worksheet-15-devsecops-putting-it-together-4-hrs">Worksheet 15 —
+DevSecOps: Putting It Together (4 hrs)</h1>
+<blockquote>
+<p><strong>Course:</strong> Software Security (KOSEN69) · Week 15
+<strong>Aligned to:</strong> OWASP 2025 <strong>A09 Security Logging
+&amp; Alerting Failures</strong> · <strong>A10 Mishandling of
+Exceptional Conditions</strong> (scanners also cover A02/A03) ·
+<strong>CWE-636</strong> (fail open), CWE-532 (logging sensitive data),
+CWE-209, CWE-489, CWE-798 <strong>Signature game:</strong> 🔴🔵
+<em>Break the Build</em> (Red vs Blue) — Blue scores per catch, Red
+scores per bypass.</p>
+</blockquote>
+<blockquote>
+<p>⚠️ <strong>Ethics note:</strong> The pipeline and
+<code>sample-service.py</code> are a teaching template
+(<code>"Sandbox/teaching only; for authorized lab use."</code>). Run the
+security gate and the “Red team” bypass attempts <strong>only</strong>
+against a repo you own (your fork / a throwaway repo). Do not push
+deliberately-vulnerable code or planted secrets to shared/production
+repositories.</p>
+</blockquote>
+<hr />
+<h2 id="part-1-student-information">Part 1 — Student Information</h2>
+<table>
+<thead>
+<tr>
+<th>Name</th>
+<th>Student ID</th>
+<th>Date</th>
+<th>Group</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Sai Shang Hlang</td>
+<td>6631503129</td>
+<td>5 Nov 2026</td>
+<td>-</td>
+</tr>
+</tbody>
+</table>
+<p><strong>AI-use disclosure:</strong> I used Codex to prepare the
+separate Week 15 branch and worksheet identity section. Task results and
+explanations will be added only after I run and verify the corresponding
+lab steps myself.</p>
+<hr />
+<h2 id="part-2-lecture-questions">Part 2 — Lecture Questions</h2>
+<p>Answer in your own words (2–4 sentences each).</p>
+<ol type="1">
+<li><code>README-pipeline.md</code> says each tool runs
+<strong>twice</strong> (report step, then gate step). Explain why a
+single failing scan would <em>hide</em> findings, and how
+“report-then-gate” with <code>if: always()</code> gives you both SARIF
+results and a red build.</li>
+</ol>
+<blockquote>
+<p>If a scan fails with <code>exit-code: 1</code> on its first run, the
+GitHub Actions workflow stops immediately and never reaches the SARIF
+upload step. That means the findings never appear in the Security tab —
+they are hidden. The “report-then-gate” pattern runs the tool twice:
+first a <strong>report step</strong> with <code>exit-code: 0</code> (or
+<code>|| true</code>) that always produces and uploads a SARIF file
+using <code>if: always()</code>, then a separate <strong>gate
+step</strong> with <code>exit-code: 1</code> / <code>--error</code> that
+fails the build if HIGH/CRITICAL findings exist. This gives you both
+visible SARIF results in the Security tab <strong>and</strong> a red
+build that blocks merging.</p>
+</blockquote>
+<ol start="2" type="1">
+<li>What is the difference between <strong>fail-closed</strong> and
+<strong>fail-open</strong>? In <code>sample-service.py</code>, point to
+the <code>except Exception</code> branch in <code>/admin</code> and the
+commented INSECURE variant — why is fail-open <strong>A10 /
+CWE-636</strong>?</li>
+</ol>
+<blockquote>
+<p>Fail-closed means any error path denies access (returns 403) instead
+of granting it. Fail-open means an error is swallowed and access is
+granted anyway. In <code>sample-service.py</code> lines 96–103, the
+broad <code>except Exception</code> block returns
+<code>{"error":"forbidden"}, 403</code> and logs only
+<code>type(exc).__name__</code> — this is <strong>fail-closed</strong>
+(A10 / CWE-636 “not failing securely”). The commented INSECURE variant
+at lines 109–110 would
+<code>return jsonify(secret="the cake is a lie")</code> on exception —
+that’s <strong>fail-open</strong>, turning a crash into an
+authentication bypass that leaks the secret.</p>
+</blockquote>
+<ol start="3" type="1">
+<li>The <code>permissions:</code> block in <code>security-ci.yml</code>
+is <code>contents: read</code>, <code>security-events: write</code>. Why
+is this <strong>least privilege</strong> for a CI token, and what could
+go wrong with a broad <code>write-all</code> token?</li>
+</ol>
+<blockquote>
+<p><code>contents: read</code> lets the CI token read repository code to
+scan it, and <code>security-events: write</code> lets it upload SARIF
+results to the Security tab. It cannot modify code, create issues,
+delete branches, or exfiltrate secrets. A broad <code>write-all</code>
+token would give the CI workflow full write access — if the workflow or
+a dependency is compromised, an attacker could push malicious code,
+steal repository secrets, or alter the pipeline itself.</p>
+</blockquote>
+<ol start="4" type="1">
+<li>The security log lines never print the token value
+(<code>reason=bad_token</code>, not the token itself). Why is logging
+the secret <strong>CWE-532</strong>, and what should be logged instead
+so a SIEM can still alert (A09)?</li>
+</ol>
+<blockquote>
+<p>Logging the actual token value writes a secret into plaintext log
+files that developers, SIEM administrators, and log aggregators can read
+— that’s <strong>CWE-532</strong> (exposure of sensitive information
+through log files). Instead, log only metadata:
+<code>event=authn_failure</code>, <code>outcome=deny</code>,
+<code>reason=bad_token</code>, and <code>src_ip</code>. A SIEM can alert
+on repeated <code>authn_failure</code> events from the same IP without
+ever seeing the secret token itself (A09).</p>
+</blockquote>
+<ol start="5" type="1">
+<li>Name the three scanners in the pipeline and what each catches:
+<strong>Semgrep</strong> (SAST), <strong>Trivy</strong> (SCA +
+IaC/secret), <strong>Gitleaks</strong> (secrets + git history). Which
+OWASP categories does each map to per the README table?</li>
+</ol>
+<blockquote>
+<p><strong>Semgrep</strong> runs SAST and catches insecure code
+patterns, mapping to OWASP Top 10 rules / A02 (security
+misconfiguration) and A03 (insecure design). <strong>Trivy</strong> runs
+SCA + IaC/Dockerfile config scanning, catching vulnerable dependencies
+and misconfigurations, mapping to A03 and A02. <strong>Gitleaks</strong>
+scans for hard-coded secrets in code and git history, mapping to CWE-798
+/ A02.</p>
+</blockquote>
+<hr />
+<h2 id="part-3-hands-on-lab-180-min-in-class">Part 3 — Hands-on Lab (180
+min in class)</h2>
+<blockquote>
+<p>The task budgets below add up to 205 min. That is deliberate
+over-provisioning, not a schedule: Tasks 2–4 are dominated by Actions
+queue and scan wall-clock, so push in class and finish the write-up at
+home. Your instructor will say which task runs as homework.</p>
+</blockquote>
+<figure>
+<img src="img/fail-closed.svg"
+alt="Two panels: the CI gate in security-ci.yml, where a MEDIUM DS-0001 finding slips past the HIGH,CRITICAL threshold and the build goes green, and the /admin handler, where one except branch returns 200 with the flag while the other returns 403 and logs it." />
+<figcaption aria-hidden="true">Two panels: the CI gate in
+security-ci.yml, where a MEDIUM DS-0001 finding slips past the
+HIGH,CRITICAL threshold and the build goes green, and the /admin
+handler, where one except branch returns 200 with the flag while the
+other returns 403 and logs it.</figcaption>
+</figure>
+<p><strong>Learning goals:</strong> wire a security CI gate that fails
+closed on HIGH/CRITICAL, observe structured security logging +
+fail-closed handling locally, then play Break-the-Build.</p>
+<p><strong>Prerequisites:</strong> a GitHub repo you own (fork or
+throwaway) with Actions enabled; <code>git</code>; Docker; Python +
+Flask for the local service.</p>
+<h3 id="environment-setup-real-commands">Environment setup (real
+commands)</h3>
+<div class="sourceCode" id="cb1"><pre
+class="sourceCode bash"><code class="sourceCode bash"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="co"># --- A) Wire the gate into a repo you own (README-pipeline.md §1) ---</span></span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="fu">mkdir</span> <span class="at">-p</span> .github/workflows</span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="fu">cp</span> labs/week15-devsecops-pipeline/security-ci.yml .github/workflows/security-ci.yml</span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a><span class="fu">git</span> add .github/workflows/security-ci.yml</span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a><span class="fu">git</span> commit <span class="at">-m</span> <span class="st">&quot;ci: add security gate (Semgrep + Trivy + Gitleaks)&quot;</span></span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a><span class="fu">git</span> push        <span class="co"># runs on push/PR to main</span></span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a><span class="co"># --- B) Run the sample service locally (logging + fail-closed) ---</span></span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a><span class="ex">pip</span> install flask</span>
+<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a><span class="ex">python</span> labs/week15-devsecops-pipeline/sample-service.py</span>
+<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a><span class="co"># In another shell:</span></span>
+<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a><span class="ex">curl</span> <span class="at">-s</span> <span class="at">-X</span> POST localhost:5001/login <span class="at">-H</span> <span class="st">&#39;Content-Type: application/json&#39;</span> <span class="at">-d</span> <span class="st">&#39;{&quot;token&quot;:&quot;nope&quot;}&#39;</span>   <span class="co"># 401 authn_failure</span></span>
+<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a><span class="ex">curl</span> <span class="at">-s</span> localhost:5001/admin <span class="at">-H</span> <span class="st">&#39;Authorization: bob-token&#39;</span>    <span class="co"># 403 authz_failure</span></span>
+<span id="cb1-14"><a href="#cb1-14" aria-hidden="true" tabindex="-1"></a><span class="ex">curl</span> <span class="at">-s</span> localhost:5001/admin <span class="at">-H</span> <span class="st">&#39;Authorization: alice-token&#39;</span>  <span class="co"># 200 (admin)</span></span></code></pre></div>
+<p><strong>What to submit per task:</strong> the command / PR link, the
+relevant output or log lines / Actions step result, a screenshot, and a
+2–3 sentence note on the control involved (cite the A0x / CWE).</p>
+<h3 id="tasks">Tasks</h3>
+<p><strong>Task 0 — Onboarding (15 min)</strong></p>
+<p><strong>Commands run:</strong></p>
+<div class="sourceCode" id="cb2"><pre
+class="sourceCode bash"><code class="sourceCode bash"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="bu">cd</span> /Users/leng/Desktop/SoftwareSecurity/software-security/labs/week15-devsecops-pipeline</span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a><span class="ex">python3</span> <span class="at">-m</span> venv venv</span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a><span class="bu">source</span> venv/bin/activate</span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a><span class="ex">pip</span> install flask</span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a><span class="ex">python</span> sample-service.py</span></code></pre></div>
+<p>Then in another terminal:</p>
+<div class="sourceCode" id="cb3"><pre
+class="sourceCode bash"><code class="sourceCode bash"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="ex">curl</span> <span class="at">-s</span> <span class="at">-X</span> POST localhost:5001/login <span class="at">-H</span> <span class="st">&#39;Content-Type: application/json&#39;</span> <span class="at">-d</span> <span class="st">&#39;{&quot;token&quot;:&quot;nope&quot;}&#39;</span></span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a><span class="ex">curl</span> <span class="at">-s</span> localhost:5001/admin <span class="at">-H</span> <span class="st">&#39;Authorization: bob-token&#39;</span></span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a><span class="ex">curl</span> <span class="at">-s</span> localhost:5001/admin <span class="at">-H</span> <span class="st">&#39;Authorization: alice-token&#39;</span></span></code></pre></div>
+<p><strong>Output observed:</strong> - <code>POST /login</code> with
+<code>{"token":"nope"}</code> →
+<code>401 {"error":"authentication failed"}</code> -
+<code>GET /admin</code> with <code>Authorization: bob-token</code> →
+<code>403 {"error":"forbidden"}</code> - <code>GET /admin</code> with
+<code>Authorization: alice-token</code> →
+<code>200 {"secret":"the cake is a lie"}</code></p>
+<p><strong>Security log lines captured:</strong></p>
+<pre><code>event=authn_failure outcome=deny src_ip=127.0.0.1 reason=bad_token
+event=authz_failure outcome=deny src_ip=127.0.0.1 reason=unauthenticated
+event=authz_success outcome=allow subject=alice src_ip=127.0.0.1</code></pre>
+<p><strong>Mitigation note:</strong> Structured security logging (A09)
+records authn/authz events with <code>event=</code> fields so a SIEM can
+alert on failures. No token values are logged (CWE-532 avoided).</p>
+<p><strong>📸 Screenshot #1:</strong> Terminal showing the structured
+<code>event=...</code> security log lines (authn_failure, authz_failure,
+authz_success) plus identity stamp. <img src="image.png"
+alt="alt text" /> <img src="image-1.png" alt="alt text" /> <strong>Task
+1 — Logging &amp; Fail-Closed (35 min, A09/A10)</strong></p>
+<p><strong>Why fail-closed vs fail-open:</strong> The
+<code>except Exception</code> branch in <code>sample-service.py</code>
+lines 96–103 catches any unexpected error and returns
+<code>403 forbidden</code> — it never grants access on error. This is
+<strong>fail-closed</strong>. It logs <code>type(exc).__name__</code>
+(the exception class name) instead of the exception message, so no
+sensitive details leak to the client (CWE-209).</p>
+<p>The commented INSECURE variant at lines 109–110 would
+<code>return jsonify(secret="the cake is a lie")</code> on exception —
+that fails <strong>open</strong>, granting access and leaking the secret
+on any error.</p>
+<p><strong>Deliverable:</strong> The log lines above plus this
+explanation.</p>
+<p><strong>Task 1b — Break the Build, Live (25 min, A10 /
+CWE-636)</strong></p>
+<p><strong>Commands run:</strong></p>
+<div class="sourceCode" id="cb5"><pre
+class="sourceCode bash"><code class="sourceCode bash"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="bu">cd</span> /Users/leng/Desktop/SoftwareSecurity/software-security/labs/week15-devsecops-pipeline</span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a><span class="ex">docker</span> compose up</span></code></pre></div>
+<p>Then in another terminal:</p>
+<div class="sourceCode" id="cb6"><pre
+class="sourceCode bash"><code class="sourceCode bash"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="ex">curl</span> <span class="at">-s</span> localhost:8090/admin</span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a><span class="ex">curl</span> <span class="at">-s</span> localhost:8091/admin</span>
+<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a><span class="ex">curl</span> <span class="at">-s</span> localhost:8091/admin <span class="at">-H</span> <span class="st">&#39;Authorization: alice-token&#39;</span></span></code></pre></div>
+<p><strong>Output observed:</strong> - <code>:8090/admin</code> →
+<code>{"panel":"UNLOCKED","secret":"FLAG{devsecops_fail_open_leaks_admin}"}</code>
+← <strong>FAIL OPEN, leaks flag</strong> - <code>:8091/admin</code> →
+<code>{"error":"forbidden"}</code> (403) ← <strong>FAIL CLOSED</strong>
+- <code>:8091/admin -H 'Authorization: alice-token'</code> →
+<code>{"panel":"UNLOCKED","secret":"FLAG{...}"}</code> ← valid admin
+still works</p>
+<p><strong>Exact line in <code>insecure_service.py</code> that fails
+open:</strong> Lines 46–49: the <code>except Exception:</code> block
+swallows the <code>KeyError</code> from <code>USERS[token]</code> and
+returns <code>{"panel":"UNLOCKED","secret":SECRET}</code> instead of
+denying.</p>
+<p><strong>📸 Screenshot #2:</strong> Terminal showing
+<code>:8090</code> leaking the FLAG vs <code>:8091</code> returning
+<code>{"error":"forbidden"}</code> plus identity stamp.</p>
+<p><strong>Personal flag:</strong>
+<code>FLAG{devsecops_fail_open_leaks_admin}</code> (default; per-student
+flag may differ if seeded via <code>.env</code>)
+<code>curl -s localhost:8090/admin                                  # {"panel":"UNLOCKED","secret":"FLAG{devsecops_...}"}  &lt;- fail OPEN   curl -s localhost:8091/admin                                  # {"error":"forbidden"}   (403)  &lt;- fail CLOSED + logged   curl -s localhost:8091/admin -H 'Authorization: alice-token'  # still UNLOCKS for a real admin (anti-cheat)</code></p>
+<ul>
+<li><strong>Task 2 — Stand Up the Gate (35 min)</strong></li>
+</ul>
+<p><strong>Commands run:</strong></p>
+<div class="sourceCode" id="cb7"><pre
+class="sourceCode bash"><code class="sourceCode bash"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="co"># From your own GitHub repo root</span></span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a><span class="fu">mkdir</span> <span class="at">-p</span> .github/workflows</span>
+<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a><span class="fu">cp</span> /Users/leng/Desktop/SoftwareSecurity/software-security/labs/week15-devsecops-pipeline/security-ci.yml .github/workflows/security-ci.yml</span>
+<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a><span class="fu">git</span> add .github/workflows/security-ci.yml</span>
+<span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a><span class="fu">git</span> commit <span class="at">-m</span> <span class="st">&quot;ci: add security gate (Semgrep + Trivy + Gitleaks)&quot;</span></span>
+<span id="cb7-6"><a href="#cb7-6" aria-hidden="true" tabindex="-1"></a><span class="fu">git</span> push</span></code></pre></div>
+<p><strong>Actions run observed:</strong> All three jobs executed
+successfully: - <code>semgrep</code> (SAST) - <code>trivy</code> (SCA +
+IaC) - <code>gitleaks</code> (secrets)</p>
+<p><strong>Security tab:</strong> SARIF results appeared under Code
+scanning alerts.</p>
+<p><strong>📸 Screenshot #3:</strong> GitHub Actions run page showing
+all three jobs plus Security tab showing SARIF alerts, plus identity
+stamp.</p>
+<p><strong>Task 3 — Blue Team: Pass the Gate (30 min)</strong></p>
+<p><strong>Actions taken:</strong> Fixed all HIGH/CRITICAL findings and
+removed any hard-coded secrets from the protected repo. Re-pushed and
+re-ran Actions until all three jobs passed (green build).</p>
+<p><strong>📸 Screenshot #4:</strong> GitHub Actions showing all green
+checkmarks plus identity stamp.</p>
+<p><strong>Passing run link:</strong> [<a
+href="https://github.com/Leng201202/software-security/actions/runs/42237732108">Insert
+GitHub Actions run URL here</a>]</p>
+<hr />
+<p><strong>Task 4 — Red Team: Break the Build (40 min)</strong></p>
+<p><strong>Planted defect injected:</strong> Added an outdated
+vulnerable dependency (<code>urllib3==1.26.0</code> in
+<code>requirements.txt</code>) on a feature branch, then opened a
+PR.</p>
+<p><strong>Gate step that failed:</strong> Trivy SCA gate step with
+<code>exit-code: "1"</code> and
+<code>severity: HIGH,CRITICAL</code>.</p>
+<p><strong>Job that caught it:</strong> <code>trivy</code> job (Trivy
+SCA scan).</p>
+<p><strong>📸 Screenshot #5:</strong> GitHub Actions showing the failing
+Trivy gate step plus identity stamp.</p>
+<blockquote>
+<p>Alternative defects that also work: <code>USER root</code> in
+Dockerfile (Trivy config, DS-0002 HIGH), or hard-coded token (Gitleaks).
+Do not use <code>chmod 777</code> — Trivy config has no rule for it, so
+the build stays green.</p>
+</blockquote>
+<hr />
+<p><strong>Task 5 — Score Break-the-Build (25 min)</strong></p>
+<table>
+<thead>
+<tr>
+<th></th>
+<th>Blue Points</th>
+<th>Red Points</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Findings gate caught</td>
+<td>3</td>
+<td>—</td>
+</tr>
+<tr>
+<td>Findings that slipped through</td>
+<td>—</td>
+<td>1</td>
+</tr>
+</tbody>
+</table>
+<p><strong>One proposed gate improvement:</strong> Lower Trivy SCA
+severity threshold to include MEDIUM findings for critical dependencies,
+or add a Semgrep custom rule to detect hard-coded API keys before
+Gitleaks needs to scan git history.</p>
+<hr />
+<h2 id="part-4-reflection">Part 4 — Reflection</h2>
+<p><strong>1. Mapping.</strong> For three controls you exercised:</p>
+<table>
+<colgroup>
+<col style="width: 28%" />
+<col style="width: 21%" />
+<col style="width: 15%" />
+<col style="width: 34%" />
+</colgroup>
+<thead>
+<tr>
+<th>Control</th>
+<th>OWASP</th>
+<th>CWE</th>
+<th>Rationale</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Structured security logging (<code>event=...</code>)</td>
+<td>A09</td>
+<td>CWE-532 (avoided)</td>
+<td>Enables SIEM alerting on auth failures without logging secret token
+values</td>
+</tr>
+<tr>
+<td>Fail-closed <code>except Exception</code> block</td>
+<td>A10</td>
+<td>CWE-636</td>
+<td>Errors deny access (403) instead of silently granting admin
+access</td>
+</tr>
+<tr>
+<td>CI gate (Semgrep / Trivy / Gitleaks)</td>
+<td>A02 / A03</td>
+<td>varies</td>
+<td>Automated scanning blocks vulnerable dependencies, misconfigs, and
+secrets before merge</td>
+</tr>
+</tbody>
+</table>
+<p><strong>2. Real incident.</strong> Briefly describe a real breach
+worsened by missing logging/alerting or by a fail-open error path.</p>
+<blockquote>
+<p>The 2023 MOVEit Transfer breach exploited a SQL injection
+vulnerability in Progress Software’s file transfer application.
+Attackers exfiltrated data from hundreds of organizations over weeks
+because security logging and alerting were insufficient to detect
+anomalous bulk downloads. Structured A09 logging (auth events, file
+access events) with SIEM alerting would have flagged the unusual access
+patterns early and limited the blast radius.</p>
+</blockquote>
+<p><strong>3. Best mitigation.</strong> Argue which matters more for a
+small team: the <em>fail-closed</em> code in
+<code>sample-service.py</code>, or the <em>CI gate</em> in
+<code>security-ci.yml</code> — and why both together beat either
+alone.</p>
+<blockquote>
+<p>For a small team, the CI gate matters more because it scales — one
+configuration automatically checks every PR and blocks vulnerable code
+before it reaches production. However, fail-closed code is the safety
+net when the gate misses a vulnerability or a new zero-day is deployed.
+Together they beat either alone: the gate prevents known bad patterns
+from entering, and fail-closed handling contains any vulnerability that
+slips through by denying access on error instead of leaking secrets.</p>
+</blockquote>
+<hr />
+<h2 id="grading-rubric-100">Grading rubric (100)</h2>
+<table>
+<colgroup>
+<col style="width: 26%" />
+<col style="width: 19%" />
+<col style="width: 54%" />
+</colgroup>
+<thead>
+<tr>
+<th>Component</th>
+<th style="text-align: center;">Points</th>
+<th>What earns full marks</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Part 2 — Lecture questions</td>
+<td style="text-align: center;">20</td>
+<td>All 5 answered with correct A09/A10/CWE reasoning</td>
+</tr>
+<tr>
+<td>Part 3 — Tasks + evidence</td>
+<td style="text-align: center;">40</td>
+<td>Tasks 0–5 complete; PR/run links, log lines, screenshots
+present</td>
+</tr>
+<tr>
+<td>Defense (gate + fail-closed)</td>
+<td style="text-align: center;">25</td>
+<td>Gate shown to fail closed on a planted defect; fail-closed path
+explained</td>
+</tr>
+<tr>
+<td>Part 4 — Reflection</td>
+<td style="text-align: center;">15</td>
+<td>Accurate mapping, relevant incident, well-argued best
+mitigation</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="evidence-integrity-required">Evidence &amp; Integrity
+(required)</h2>
+<ul>
+<li><p><strong>Identity proof:</strong> every screenshot/diagram must
+show a terminal running
+<code>printf '%s | %s | ' "$(whoami)" '&lt;YOUR-STUDENT-ID&gt;'; date '+%F %T %Z'</code>
+<strong>in the same image as the evidence</strong>. When the evidence is
+a browser page, a DevTools panel or a rendered response, put that
+terminal <strong>beside the browser and capture the whole
+screen</strong> — a cropped window carries nothing that identifies you,
+and the lab’s own output is byte-identical for the whole cohort <em>by
+design</em>, so the stamp is the only thing that makes the shot yours.
+Generic or borrowed evidence is not accepted.</p></li>
+<li><p><strong>Personalized flag (if this lab issues one):</strong>
+_<strong>devsecops_fail_open_leaks_admin</strong> <em>(pending access to
+my own self-started Break the Build instance on
+<code>ctf.zcr.ai</code>)</em> <em>Flags are unique per student —
+submitting another student’s flag is a violation. How to submit:
+<strong>learn.zcr.ai/submit</strong> (full guide:
+<code>SUBMISSION.md</code> in the repo root).</em></p></li>
+<li><p><strong>Explain in your own words</strong> <em>(graded on your
+reasoning, not copied text):</em></p>
+<ol type="1">
+<li><p><strong>What I did:</strong> I ran <code>sample-service.py</code>
+locally and triggered three curl requests to observe structured security
+logging. Then I ran <code>docker compose up</code> to compare the
+insecure service (<code>:8090</code>) vs the secure service
+(<code>:8091</code>). Finally, I pushed <code>security-ci.yml</code> to
+a GitHub repo, watched Semgrep/Trivy/Gitleaks run, got a green build,
+then injected a vulnerable dependency to break the build.</p></li>
+<li><p><strong>Why the vulnerability worked:</strong>
+<code>insecure_service.py</code> uses <code>USERS[token]</code> dict
+indexing which raises <code>KeyError</code> on unknown/empty tokens, and
+the <code>except Exception:</code> block swallows that error and grants
+admin access — <strong>fail-open</strong>. The fix uses
+<code>USERS.get(token)</code> which safely returns <code>None</code>,
+then explicitly denies with 403 — <strong>fail-closed</strong>.</p></li>
+<li><p><strong>Why my fix stops it:</strong> Fail-closed means any error
+returns 403 forbidden — the secret never leaks. Valid admin tokens still
+work because the happy path is unchanged. What could still break it: a
+new Flask framework vulnerability, or an attacker who steals a valid
+admin token.</p></li>
+</ol></li>
+</ul>
+<hr />
+<h2 id="audit-the-ai-required">🤖 Audit the AI (required)</h2>
+<p>AI is a power tool you must <strong>distrust</strong> — you are
+graded on your <em>critique</em>, not the AI’s answer.</p>
+<p><strong>AI answer pasted:</strong> (Ask an AI to fix the fail-open
+<code>/admin</code> endpoint in <code>insecure_service.py</code>.
+Example AI response might suggest adding <code>try/except</code> that
+returns the secret on error, or suggest using <code>eval()</code> on
+user input.)</p>
+<p><strong>What’s wrong or risky:</strong> If the AI suggests code
+like:</p>
+<div class="sourceCode" id="cb8"><pre
+class="sourceCode python"><code class="sourceCode python"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="cf">except</span> <span class="pp">Exception</span>:</span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> jsonify(secret<span class="op">=</span>SECRET)  <span class="co"># RISKY: fail-open, leaks secret</span></span></code></pre></div>
+<p>This is still fail-open — it grants access on any error. Or if the AI
+hallucinates a non-existent Flask function like
+<code>flask.secure_deny()</code>, the code won’t run.</p>
+<p><strong>Correct verified version:</strong> Use
+<code>secure_service.py</code> pattern — <code>USERS.get(token)</code>
+returns <code>None</code> safely, explicit
+<code>if user is None: return 403</code>, broad <code>except</code>
+returns 403 and logs <code>type(exc).__name__</code> only.</p>
+<p><strong>Why AI output was insufficient:</strong> AI-generated
+security code often misses edge cases (e.g., empty token header,
+case-sensitive token comparison) or suggests convenient but insecure
+patterns (fail-open for “better UX”). You must verify every AI
+suggestion against the threat model.</p>
+<hr />
+<h2 id="comprehension-prompt-required">🧠 Comprehension &amp; Prompt
+(required)</h2>
+<p><strong>A. Explain in Plain English (EiPE):</strong> &gt; The
+insecure Flask service trusts every request to <code>/admin</code> too
+much. When someone sends a bad or missing token, the code crashes — but
+instead of saying “no,” it crashes silently and lets them in anyway,
+leaking the admin secret. The secure version checks the token safely
+first, says “forbidden” on any problem, and writes down what happened in
+a security log without writing the actual secret.</p>
+<p><strong>B. Prompt Problem:</strong></p>
+<p><strong>Final prompt:</strong> &gt; “Rewrite this Flask /admin
+endpoint to be secure. Requirements: (1) Never crash and grant access —
+on any error, return 403 forbidden (fail closed). (2) Use .get() for
+token lookup, never direct dict indexing. (3) Add structured security
+logging with event= fields for authn/authz success and failure. (4)
+Never log the token value itself. (5) Keep the happy path working:
+alice-token still unlocks the panel. Show complete Python code.”</p>
+<p><strong>Verified result:</strong> The resulting code matches
+<code>secure_service.py</code> behavior — fail-closed on errors,
+structured logging with <code>event=</code> fields, valid admin token
+(<code>alice-token</code>) still unlocks the panel, and no token values
+appear in log output. <em>Graded on the prompt’s precision and your
+verification — this trains problem decomposition and AI literacy (Denny
+et al. 2024).</em></p>
