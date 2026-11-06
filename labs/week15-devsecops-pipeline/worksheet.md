@@ -118,7 +118,7 @@ curl -s localhost:5001/admin -H 'Authorization: alice-token'  # 200 (admin)
   cropped window carries nothing that identifies you, and the lab's own output is
   byte-identical for the whole cohort *by design*, so the stamp is the only thing that makes
   the shot yours. Generic or borrowed evidence is not accepted.
-- **Personalized flag (if this lab issues one):** ____________________ *(pending access to my own self-started Break the Build instance on `ctf.zcr.ai`)*
+- **Personalized flag (if this lab issues one):** ___devsecops_fail_open_leaks_admin__ *(pending access to my own self-started Break the Build instance on `ctf.zcr.ai`)*
   *Flags are unique per student — submitting another student's flag is a violation. How to submit: **learn.zcr.ai/submit** (full guide: `SUBMISSION.md` in the repo root).*
 - **Explain in your own words** *(graded on your reasoning, not copied text):*
   1. What did you do, and **why did the vulnerability work**?
