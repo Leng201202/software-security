@@ -92,7 +92,7 @@ sqli-parse
 **Task 4 — Unrestricted upload (25 min, optional extension) 🐉 Hit #4.**
 - *Goal:* show the upload accepts a dangerous file type with no checks (CWE-434).
 - *Steps:* `GET /upload` (form), then upload a file named `shell.py`. Confirm `saved to /tmp/uploads/shell.py`. Via the browser form this just works; via `curl` the file field is named **`f`**: `curl -F "f=@shell.py" "http://localhost:8080/upload"`. Discuss: if `UPLOAD_DIR` were web-served or executed, this is the RCE chain (here the dir is **not** served, so document the missing control rather than claiming auto-RCE).
-- *Deliverable:* upload command/screenshot + 2–3 sentences on why extension allow-listing matters. For the bonus, also re-fire the upload against `solution_app.py` (Task 5's setup) and show `file type not allowed` (fix lines L86–93).
+- *Deliverable (optional, ungraded):* upload command/screenshot + 2–3 sentences on why extension allow-listing matters. You may also re-fire the upload against `solution_app.py` and show `file type not allowed` (fix lines L86–93). This extension adds no points.
 
 **Task 5 — Defend / fix it (40 min, in class, guided) 🛡️ Warm-up cleared.**
 - *Goal:* write the two bounded defenses in `student_patch.py` and prove normal behavior still works while the SQLi and command-injection payloads fail.
@@ -129,7 +129,7 @@ Re-fire the Task 1–3 payloads. Expected: `Login failed`, no credential dump, a
 
 ## Part 4 — Reflection
 
-1. **CWE/OWASP mapping:** map each of your core exploits to its CWE (89/78 — and 434 if you did the Task 4 bonus) and to OWASP 2025 **A05 Injection**.
+1. **CWE/OWASP mapping:** map each of your core exploits to its CWE (89/78 — and 434 if you did the optional Task 4 extension) and to OWASP 2025 **A05 Injection**.
 2. **Real breach:** the **2017 Equifax breach** exposed ~147M people after attackers exploited a known input-handling flaw (Apache Struts CVE-2017-5638). In 3–4 sentences, connect that failure to the lessons in this lab (untrusted input reaching a powerful interpreter; the cost of an unpatched/unvalidated input path).
 3. **Best mitigation:** of parameterized queries, allow-list validation, least privilege, and avoiding `shell=True`, which single control would have prevented the most damage in this lab, and why?
 
