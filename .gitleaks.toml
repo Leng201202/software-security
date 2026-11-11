@@ -20,6 +20,9 @@ regexes = [
   # A prior documentation commit in PR #210 was misread by generic-api-key:
   # the words "token cases" describe a Week 6 exercise, not a credential.
   '''IDOR/token cases, ownership/verification correction and positive/negative controls''',
+  # Public SHA-256 fingerprint of the Week 12 teaching fixture's public key.
+  # Keep this exact value scoped to the manifest field; it is not a credential.
+  '''"trusted_key_sha256": "cb81245ddf0657cda978f14f3827e65a4746148b494128e0eec259f6c5eef916"''',
 ]
 paths = [
   '''labs/week02-sdlc-tooling/vulnerable-repo/.*''',

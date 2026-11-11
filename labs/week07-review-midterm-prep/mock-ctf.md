@@ -1,30 +1,33 @@
-# Week 7 — Mock CTF (Midterm dry-run)
+# Week 7 — Two bounded mock checkpoints
 
-**Covers:** Weeks 1–6 · **Format:** same as the Week 9 midterm practical · **Ungraded** (participation).
-**Time:** ~150 min of challenges — about 75 min in class, finish the rest at home (it is ungraded practice) · individual or pairs · Sandbox targets only (ethics policy applies).
+**02005094 · formative · 70 minutes within the 150-minute review session.** Use the already taught Week 4 and Week 6 local tasks. This is practice, with no new worksheet or exam mark. Start each checkpoint with the untouched starter's failing check, make your own edit, and keep both the legitimate and attack control. Work only in the supplied lab or a personal copy.
 
-> This is practice — **hints are included** and solutions point back to the labs. No real
-> exam flags here. Goal: get comfortable with the format so Week 9 has no surprises.
+## Checkpoint 1 — Injection control, 35 minutes
 
-![A revision map of weeks 1 to 6: each week's core idea and OWASP/CWE tag, arranged so untrusted input crosses a trust boundary and the week's control sits at the crossing](img/revision-map.svg)
+**File:** [Week 4 student patch](../week04-injection/student_patch.py). Complete `authenticate()` with bound SQL values and `ping_argv()` with one parsed IPv4 argument list. Run the [provided checks](../week04-injection/student_checks.py) from `labs/week04-injection`:
 
-**Targets:** `labs/week03-cryptography`, `labs/week04-injection`, `labs/week05-xss-client-side`,
-`labs/week06-authn-authz` (`docker compose up` in each).
+```sh
+docker run --rm --pull never --network none -e PYTHONDONTWRITEBYTECODE=1 \
+  -v "$PWD:/exam:ro" -w /exam week04-injection-injection-lab:latest \
+  python3 student_checks.py
+```
 
-| # | Challenge | Topic | Hint | Self-check |
-|---|-----------|-------|------|-----------|
-| 1 | Log in as another user without their password | SQLi (W4) | the username field isn't parameterized | `solution_app.py` |
-| 2 | Run a command on the server | cmd injection (W4) | `host` is passed to a shell | `solution_app.py` |
-| 3 | Pop `alert(1)` that another user would trigger | stored XSS (W5) | the comment body is rendered raw | `fixed_app.py` (CSP) |
-| 4 | Read an order that isn't yours | IDOR (W6) | change the id; no ownership check | `attack.md` |
-| 5 | Become admin with a crafted token | weak JWT (W6) | `alg:none` / weak secret `"secret"` | `attack.md` |
-| 6 | Recover a password from its hash | crypto (Cryptography course hash lab) | unsalted MD5 + a wordlist; practise on Week 3's `hashes.txt` | `solution_skeleton.py` |
+Record an ordinary login and IPv4 request that still work, plus a SQL payload and shell-metacharacter host that are denied. In one sentence, explain how parameter binding and `shell=False` keep data out of code. The checker mocks the ping subprocess; it does not contact a network target.
 
-**For each:** note your payload/command + a one-line fix. Compare with the linked solution.
+## Checkpoint 2 — Token and object boundary, 35 minutes
 
-## Warm-up (concepts)
-- Draw a 3-element STRIDE table for any one target above.
-- Name the CWE for each challenge you solved.
+**File:** [Week 6 student patch](../week06-authn-authz/student_patch.py). Complete pinned JWT verification and the server-side order-owner decision. Run the [provided checks](../week06-authn-authz/student_checks.py) from `labs/week06-authn-authz`:
 
-> Then take the **[cumulative review quiz (Quiz 1)](../../quizzes/quiz1.md)** this week,
-> and review weak spots before the Week 8/9 midterm.
+```sh
+docker run --rm --pull never --network none -e PYTHONDONTWRITEBYTECODE=1 \
+  -v "$PWD:/lab:ro" -w /lab kosen-swsec-week06:local \
+  python3 student_checks.py
+```
+
+Record owner success, cross-user denial, and one unsigned/wrong-audience token denial. Explain why a valid identity alone does not authorize another person's order. The checker uses Flask's in-process client, without starting a listener.
+
+## Debrief, in the session's 120–145 minute block
+
+Use the [Week 3 migration starter](../week03-cryptography/migrate.py) to explain why a wrong password leaves a legacy record unchanged and why a correct login can trigger Argon2id rehashing. Review one scanner error versus a clean result from Week 2. These are explanation prompts, not extra 35-minute code tasks.
+
+For each checkpoint keep: your diff, exact command and observed result, root cause/trust boundary, legitimate and negative controls, and one limit. The actual midterm practical uses its own sitting pack. [Review schedule](README.md) · [Practical blueprint](../week09-midterm-practical/ctf.md). The historical optional bank is archived in the course source.

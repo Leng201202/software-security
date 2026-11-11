@@ -1,0 +1,6 @@
+{
+  "format": "real RSA/SHA-256 key-based teaching fixture; not Sigstore/OIDC",
+  "trusted_key_sha256": "cb81245ddf0657cda978f14f3827e65a4746148b494128e0eec259f6c5eef916",
+  "artifact_sha256": "8858c8b80fc78ffdac4557450eca2f4e4a1c7afa3b2fabfcee0206987f4a8e14",
+  "trust_anchor": "The instructor supplies the trusted public-key fingerprint separately; do not accept arbitrary incoming keys."
+}

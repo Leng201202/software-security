@@ -1,19 +1,15 @@
-# Week 17 — Reflection & Review (pre-Final)
+# Week 17 — Reflection and review
 
-No new content. Consolidate **Weeks 10–16** (with a quick callback to first-half core concepts) and prepare for the final (Weeks 18–19).
+**Software Security 2 (02005094) · Weeks 10–15, with first-half callbacks · 150 minutes.** No new examinable content.
 
-## ✅ This week — what to do
-1. **Before class** — review **Weeks 10–16** (+ first-half callbacks).
-2. **In class (150 min)** — cumulative review quiz (`../../quizzes/quiz2.md`) → **Security Jeopardy: Champions** → **mock CTF** (`mock-ctf.md`) → debrief.
-3. **Prepare** — the **final is Weeks 18–19**.
+| Minutes | Activity |
+|---|---|
+| 0–30 | Cumulative review quiz: [Quiz 2](../../quizzes/quiz2.md) |
+| 30–50 | Selected Security Jeopardy clues; explain the reasoning |
+| 50–120 | Two bounded mock checkpoints, 35 minutes each |
+| 120–145 | Compare controls, correct misunderstandings, plan revision |
+| 145–150 | Save evidence and a personal revision list |
 
-*Time breakdown: [AGENDA.md](../../AGENDA.md).*
+The review quiz uses the approved Quiz/participation category; do not create an additional worksheet or exam mark. The lowest one regular weekly quiz is dropped. Mock work and game scores are formative; leaderboard / first-blood / House points are engagement only.
 
-## 🎯 Signature activity — "Security Jeopardy: Champions Edition"
-Whole-course quiz-show: API · memory safety · supply chain · cloud/container · AI/LLM · DevSecOps (plus first-half callbacks).
-
-## 🧪 Mock Final CTF
-A practice CTF in the **exact format of Week 19** — mixed web/API/supply-chain/LLM/binary challenges. → **[mock-ctf.md](mock-ctf.md)** (with hints).
-
-## Covers
-Weeks 10–16: [API](../week10-api-security/), [memory safety](../week11-memory-safety-exploitation/), [supply chain](../week12-supply-chain/), [cloud/container](../week13-cloud-container/), [AI/LLM](../week14-ai-llm-security/), [DevSecOps](../week15-devsecops-pipeline/), [capstone studio](../week16-capstone/).
+[Current 70-minute mock](mock-ctf.md) · Historical optional bank archived in the course source. The current practical uses fixed criteria for analysis, correction and evidence; a flag alone does not earn full academic marks.

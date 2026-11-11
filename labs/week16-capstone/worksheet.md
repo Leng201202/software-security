@@ -1,10 +1,12 @@
-# Worksheet 16 — Capstone Studio & CTF Warm-up
+# Week 16 — Formative project checkpoint
+
+**Assessment:** Formative — project checkpoint; no separate worksheet marks.
 
 > **Course:** Software Security (KOSEN69) · Week 16
 > **Aligned to:** All prior weeks + OWASP Top 10 (2025) — https://owasp.org/Top10/2025/ ; CWE mapping required throughout.
 > **Signature game:** practice **CTF tournament** (web · API · binary · supply-chain · cloud · LLM) previewing Week 19, plus cross-team peer review.
 
-> ⚠️ **Ethics note:** This is a **project studio**, not an exploit lab. Demo your attack → root cause → fix **only** against your own term-project application (see `project/README.md` in the repo root) or the provided practice-CTF targets. The graded final presentation + full CTF tournament are in **Week 19**; this week is the work-in-progress warm-up.
+> ⚠️ **Ethics note:** This is a **project studio**, not an exploit lab. Demo your attack → root cause → fix **only** against your own term-project application (see `project/README.md` in the repo root) or the provided practice-CTF targets. The final team practical is in **Week 19**. Submit the project report/code and recorded video (at most 5 minutes) before Week 19; project clarification takes place in Weeks 16 and 20. This worksheet is formative and is not a thirteenth graded Lab.
 
 ---
 
@@ -24,20 +26,15 @@ Answer as a team (2–4 sentences each).
 
 1. State your project's **top-3 risks** from your threat model and the STRIDE/attack category each falls under.
 2. For your headline vulnerability, give its **CWE id** and **OWASP 2025** category, and one sentence on root cause.
-3. What does your **SBOM** cover, how was it generated, and what would you do if a dependency in it got a new CVE next week?
+3. What does your **SBOM** cover (declared, transitive and/or image components), how was it generated, what is absent, and what would you do if a listed dependency got a new CVE next week?
 4. How is your build artifact **signed**, and how would a consumer verify the signature (and why does signing matter for supply-chain trust)?
-5. Which **CI gate(s)** from Week 15 (Semgrep / Trivy / Gitleaks, fail-closed on HIGH/CRITICAL) does your pipeline enforce, and what does a failing build look like?
+5. Which **CI checks** from Week 15 (Semgrep / Trivy / Gitleaks) does your pipeline enforce, which configured findings or scanner errors make it fail, and what does a failing build look like?
 
 ---
 
 ## Part 3 — Project Checklist & Demo Rubric
 
-> Replaces the hands-on exploit lab. Bring the deliverables below to the studio; run the 10-min demo + 5-min Q&A; complete a peer review of another team.
->
-> **Note:** the 10-min-demo + 5-min-Q&A clock below is today's own live rehearsal format — it is not
-> what the final demo does: each team submits a recorded video walkthrough (linked in the report,
-> due with it), graded asynchronously on the project rubric; there is no per-team live slot — the
-> instructor may call a team for a short Q&A (`AGENDA.md` §*Week 19*).
+> Bring the existing project deliverables. Use the 100-minute build/peer-review block to improve and test the project; peer teams can watch a preview of at most 5 minutes. Instructor clarification has a separate 30-minute window, without requiring a serial live presentation from every team.
 
 ### A) Deliverables checklist (bring all six)
 
@@ -46,20 +43,21 @@ Answer as a team (2–4 sentences each).
 | 1 | **Threat model** | ☐ | Data-flow diagram + trust boundaries; top risks ranked (STRIDE) |
 | 2 | **Vulnerability report** | ☐ | Each finding mapped to **CWE + OWASP 2025**, with severity and PoC |
 | 3 | **Fixed code** | ☐ | Before/after diff for each finding; root cause noted |
-| 4 | **SBOM** | ☐ | Machine-readable (CycloneDX / SPDX) covering all dependencies |
+| 4 | **SBOM** | ☐ | Machine-readable CycloneDX, as required by the project, with explicit component scope and known omissions |
 | 5 | **Signed artifact** | ☐ | Signature + the exact verification command a consumer runs |
-| 6 | **CI pipeline** | ☐ | Security gate (Week 15 style) that **fails closed** on HIGH/CRITICAL; link to a run |
+| 6 | **CI pipeline** | ☐ | Security gate that fails on configured findings, detected secrets or check errors; link to a run |
 
-### B) 10-min demo + 5-min Q&A structure
+### B) Optional 5-minute peer preview (inside the build/review block)
 
-| Time | Segment | Content |
-|------|---------|---------|
-| 0:00–1:30 | Context | App purpose, threat model, trust boundaries |
-| 1:30–4:30 | **Attack** | Live exploit of your headline vuln (or recorded fallback) |
-| 4:30–6:30 | **Root cause** | Why it was possible; CWE/OWASP mapping |
-| 6:30–9:00 | **Fix + verify** | Show the patch, re-run the attack to prove it's blocked |
-| 9:00–10:00 | Supply chain | SBOM, signed artifact, and CI gate catching a regression |
-| 10:00–15:00 | **Q&A** | Cross-team questions + instructor |
+| Time | Segment | Evidence |
+|---|---|---|
+| 0:00–0:45 | Context | App purpose, threat model and selected boundary |
+| 0:45–1:45 | Finding | Authorized reproduction and root cause |
+| 1:45–3:30 | Fix and verify | Student patch; negative and legitimate positive control |
+| 3:30–4:30 | Delivery | SBOM scope, trusted-signature verification, CI red/green result |
+| 4:30–5:00 | Limits | Outstanding risk and next action |
+
+This is feedback. The final recorded project video is also at most 5 minutes, submitted with the report before Week 19. Project marks follow only the existing project rubric.
 
 ### C) Peer-review rubric (score the team you review, 1–5 each)
 
@@ -85,52 +83,25 @@ Answer as a team (2–4 sentences each).
 
 ---
 
-## Grading rubric (100)
+## Formative feedback checklist (not course marks)
 
-| Component | Points | What earns full marks |
+| Project rubric criterion | Existing project points (for reference) | What to demonstrate |
 |-----------|:------:|-----------------------|
-| Threat model | 15 | Complete DFD, trust boundaries, ranked risks (STRIDE) |
-| Exploitation | 20 | Working PoC of a real vuln, clearly demoed |
-| Remediation | 20 | Root-cause fix with before/after + re-test proving it's closed |
-| SBOM & signing | 15 | Complete SBOM + verifiable signed artifact |
-| CI pipeline | 15 | Security gate fails closed on HIGH/CRITICAL; run linked |
-| Demo & Q&A | 15 | Clear 10-min demo, handles 5-min Q&A; CWE/OWASP mapping throughout |
+| Threat model quality & completeness | 20 | Complete DFD, trust boundaries, ranked risks (STRIDE) |
+| Vulnerability findings | 25 | Reproducible findings with correct severity, CWE/OWASP mapping and impact |
+| Remediation quality | 25 | Root-cause fixes with before/after and re-tests |
+| Supply-chain hardening | 15 | SBOM scope, trusted-signature verification and provenance claims distinguished |
+| CI pipeline | 10 | Security gate fails closed on the stated threshold; red/green run linked |
+| Presentation & report clarity | 5 | Report and recorded video of at most 5 minutes explain the evidence and limits |
 
-**Due:** 23:59 (Thai time) the night before next week's class (exact time on learn.zcr.ai/submit). **Late:** −10% per started day; 0 after 10 days.
-
----
-
-## Evidence & Integrity (required)
-
-- **Identity proof:** every screenshot/diagram must show a terminal running `printf '%s | %s | ' "$(whoami)" '<YOUR-STUDENT-ID>'; date '+%F %T %Z'` **in the
-  same image as the evidence**. When the evidence is a browser page, a DevTools panel or a
-  rendered response, put that terminal **beside the browser and capture the whole screen** — a
-  cropped window carries nothing that identifies you, and the lab's own output is
-  byte-identical for the whole cohort *by design*, so the stamp is the only thing that makes
-  the shot yours. Generic or borrowed evidence is not accepted.
-- **Personalized flag (if this lab issues one):** ____________________
-  *Flags are unique per student — submitting another student's flag is a violation. How to submit: **learn.zcr.ai/submit** (full guide: [SUBMISSION.md](../../SUBMISSION.md)).*
-- **Explain in your own words** *(graded on your reasoning, not copied text):*
-  1. What did you do, and **why did the vulnerability work**?
-  2. **Why does your fix actually stop it** — and what could still break it?
+**Feedback only:** retain the checklist and peer comments in the project working folder. There are no separate Week 16 worksheet marks or late penalties. The project deadline and rubric remain in the project guide and published assignment.
 
 ---
 
-## 🤖 Audit the AI (required)
+## Evidence and integrity for the project checkpoint
 
-AI is a power tool you must **distrust** — you are graded on your *critique*, not the AI's answer.
+Keep the actual patch, test output, commands and contribution notes. Use your own authorized project or the provided practice targets; do not disclose production credentials. No personalized flag, identity-stamped screenshot or external AI account is required for every checkpoint. The instructor can request clarification to establish authorship within the existing project criteria; there is no automatic zero from a single viva response.
 
-1. Ask an AI assistant to exploit **or** fix this week's vulnerability. Paste its full answer.
-2. **Find what's wrong or risky** in it — insecure code, a subtly incomplete fix, a hallucinated API/function/CVE, a missed edge case, or wrong reasoning. Quote the exact line(s).
-3. Produce the **correct, verified** version yourself and explain in 2–3 sentences why the AI's output was insufficient.
+## Conventional / AIR-Sec practice (formative)
 
-> Disclose your AI use in the Part 1 table. This task counts toward your **Defense + Reflection** score.
-
----
-
-## 🧠 Comprehension & Prompt (required)
-
-**A. Explain in Plain English (EiPE).** In 2–3 sentences, in your own words, describe what this week's vulnerable code/endpoint actually *does* and *why it is exploitable* — explain the mechanism, don't dump jargon.
-
-**B. Prompt Problem.** Write a **single prompt** that makes an AI produce a *correct, secure* fix for one finding. Run it: does the exploit now fail? If not, refine the prompt and try again. Submit the **final prompt + the verified result**.
-*Graded on the prompt's precision and your verification — this trains problem decomposition and AI literacy (Denny et al. 2024).*
+Choose the form used in your class. Conventional: answer the original Part 2 questions and Part 4 reflections above. AIR-Sec: audit a supplied or disclosed AI explanation against project evidence; correct it only where evidence warrants, explain the mechanism plainly, and propose a precise verification prompt. A correct AI answer can be accepted with verified evidence. These exercises are feedback, without separate 60/40 worksheet marks in Week 16. The complete prior exercise wording is retained in the historical reference worksheet in the course source.

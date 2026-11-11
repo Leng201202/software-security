@@ -5,11 +5,14 @@ paginate: true
 header: "Software Security · Week 15"
 ---
 
+<!-- Current KOSEN class: 150 minutes = quiz/review10 + brief15 + shared practical100 + debrief20 + capture5. Full deck is pre-class/reference; select only the short live explanation. Both versions: common60 plus Conventional40 OR AIR20/10/10. Viva verifies existing work, no extra score or automatic-zero gate. -->
+
+
 # Week 15
 ## DevSecOps: Putting It Together
 Software Security · Nutthakorn Chalaemwongwan
 
-<!-- Final teaching week. Hook: everything we've learned — SAST, SCA, secrets, image scans — only works if it runs automatically on every commit. Today we wire it into one pipeline that turns every bad PR red — and, once those checks are required, blocks the merge. ~2 min. -->
+<!-- Final technical teaching week. Hook: configured CI checks can catch selected defects on each run. Today the required core adds a bounded checker and records red-to-green evidence; the full scanner workflow and required merge protection are separate extension/configuration work. ~2 min. -->
 
 ---
 
@@ -21,7 +24,7 @@ Software Security · Nutthakorn Chalaemwongwan
 - Vulnerability mgmt & disclosure
 - 🎮 Game: **Break the Build** (Red vs Blue)
 
-<!-- Roadmap, 1 min. This week ties the whole course together. Lab is the capstone of the technical units: build the gate (Blue) vs sneak past it (Red). -->
+<!-- Roadmap, 1 min. The required local core compares fail-open and fail-closed behavior, implements a student authorization/logging control, and records the same checker red then green. The full Red/Blue scanner game is extension practice. -->
 
 ---
 
@@ -63,7 +66,7 @@ Software Security · Nutthakorn Chalaemwongwan
 gate-check
 ```
 
-<!-- The worked example — this is the lab's actual pipeline. Be precise: Trivy's active jobs are fs (SCA) and config (IaC) — the image-scan step exists in the YAML but is commented out/optional, don't claim it's active. The "runs twice" pattern (report step + separate gate step) is what Part 2 Q1 is built around — say it explicitly. The sim's 2 decoys are the actual worksheet nuance: chmod 777 has no Trivy rule at any severity, while FROM:latest IS detected (DS-0001) but rated MEDIUM and filtered by severity:HIGH,CRITICAL — same green build, different reason. The KEY line is "fail build on HIGH/CRITICAL": a gate that only warns gets ignored. ~6 min. -->
+<!-- The worked example — this is the lab's actual pipeline. Be precise: Trivy's active jobs are fs (SCA) and config (IaC) — the image-scan step exists in the YAML but is commented out/optional, don't claim it's active. The "runs twice" pattern (report step + separate gate step) is what Part 2 Q1 is built around — say it explicitly. The sim's 2 decoys are the actual worksheet nuance: chmod 777 has no Trivy rule at any severity, while FROM:latest IS detected (DS-0001) but rated MEDIUM and filtered by severity:HIGH,CRITICAL — same green build, different reason. The gate conditions differ by tool: Semgrep selected-rule findings, Trivy HIGH/CRITICAL, Gitleaks detections. A gate that only warns gets ignored. ~6 min. -->
 
 ---
 
@@ -167,14 +170,14 @@ fail-open
 
 ---
 
-## 🔴🔵 Game — Break the Build
+## 🔴🔵 Extension game — Break the Build
 
-- **Blue:** set up the gate (Semgrep + Trivy + Gitleaks), fail on HIGH/CRITICAL, log security events and deny on error
+- **Blue:** set up the gate (Semgrep selected-rule findings, Trivy HIGH/CRITICAL, Gitleaks detected secrets), log security events and deny on lookup error
 - **Red:** one planted defect per PR — an old dependency (Trivy SCA), a Dockerfile running as root (Trivy config), or a hard-coded token (Gitleaks)
 - **Score:** Blue +1 per catch · Red +1 per defect that slips through (e.g. `chmod 777`, `FROM :latest` stay green) — then propose a rule that would catch it
-- **Flag:** leak it from the fail-open `/admin` in `insecure_service.py` (local run = demo flag; graded flag = your hosted instance)
+- **Flag:** leak it from the fail-open `/admin` in `insecure_service.py` (local run = public demo flag; personal flag only if an instance is actually issued)
 
-<!-- The capstone game. Both roles teach: Blue learns to configure gates, Red learns where gates have blind spots. Task 4 (the graded screenshot) needs a defect that maps to a gate; anything that slips through instead is a Task 5 Red point, exactly as the worksheet scores it. Run it as live PRs against the pipeline. The weekly quiz no longer asks for the gate/what-it-blocks/flag (dropped — quiz runs before the lab) — that's required in the worksheet instead, don't drop the flag half there, it's still graded. ~3 min. -->
+<!-- The full scanner game remains extended project practice. In class, capture one prepared bounded checker red result and a corrected green result; keep the legitimate-admin positive control and safe-log evidence. Game points do not add to the worksheet rubric. -->
 
 ---
 
@@ -200,22 +203,23 @@ red-team-pr
 
 ## Task 1b at a glance
 
-![Task 1b at a glance. From the lab folder, docker compose up starts two containers from the same python:3.12-slim image, both mounting the lab folder: insecure_service.py on localhost:8090 and secure_service.py on localhost:8091. Send both the same GET /admin with no token. :8090 answers 200 with the panel and the FLAG, because the USERS dictionary lookup raises KeyError and the except branch grants access; its log shows only a 200 access line. :8091 answers 403 forbidden and logs a WARNING on the security logger (event=authz_failure outcome=deny reason=unauthenticated). Then prove the fix keeps admins in: alice-token still unlocks :8091, and the auto-grader checks both. Submit the flag, both responses and the failing-open except line; a local run returns the public demo flag, the graded one comes from your hosted instance.](img/lab-at-a-glance.svg)
+![Task 1b at a glance. Build the lab image before class; Flask is already inside it. From the lab folder, docker compose up --no-build --pull never starts two containers from that image, both mounting the lab folder: insecure_service.py on localhost:8090 and secure_service.py on localhost:8091. Send both the same GET /admin with no token. :8090 answers 200 with the panel and the FLAG, because the USERS dictionary lookup raises KeyError and the except branch grants access; its log shows only a 200 access line. :8091 answers 403 forbidden and logs a WARNING on the security logger (event=authz_failure outcome=deny reason=unauthenticated). Then prove the fix keeps admins in: alice-token still unlocks :8091, and the local positive/negative controls check both. Submit the flag, both responses and the failing-open except line; a local run returns the public demo flag, a personal one applies only if an instance was actually issued.](img/lab-at-a-glance-kosen.svg)
 
-<!-- The lab briefing for path (a), in the order students do it: ① compose up, ② same request to both ports, ③ docker compose logs, ④ alice-token still works. ~2 min. -->
+<!-- The lab briefing for the required local core: prebuild before class; start with docker compose up --no-build --pull never; compare both ports; inspect logs; verify alice-token still works. ~2 min. -->
 
 ---
 
 ## Deliverable
 
-> 📋 **Worksheet 15** — `labs/week15-devsecops-pipeline/worksheet.md` (Part 3) · **start:** push `security-ci.yml` to your own public repo → GitHub Actions; for the flag, `docker compose up` → :8090 (insecure) / :8091 (secure)
+> 📋 **Worksheet 15** — `labs/week15-devsecops-pipeline/worksheet.md` · follow the 100-minute core run sheet.
 
-- A passing PR that adds the pipeline
-- A screenshot of the **failing** gate step for your planted defect, and which job caught it
-- The `FLAG{...}` from the fail-open `/admin`, written in the worksheet (graded flag: your hosted instance)
-- **+ Audit the AI / EiPE / Prompt Problem** (see worksheet)
+- Your bounded `student_task.py` fail-closed and safe-log change
+- `python3 check_student.py` results: deny missing/invalid/error cases while preserving legitimate admin access
+- One prepared `student-check-ci.yml` red run and corrected green run under the same checks; record the local equivalent if CI is unavailable
+- Full scanner workflow and all three planted-defect families: extended project practice
+- **Assigned written version only:** Conventional Part 2/4 (20/20) or AIR Audit/EiPE/Prompt (20/10/10), after the shared practical 60.
 
-<!-- Two separate targets this week, both graded: security-ci.yml is the CI gate; insecure_service.py/secure_service.py (compose, :8090/:8091) is where the local (public demo) flag lives; graded per-student flags come from the hosted instance. The "build failing" screenshot is the proof the gate actually says no — a green pipeline that never fails is useless. The worksheet grades one planted defect (Task 4); encourage all three if time allows. AI-resilient tasks count. This is also the last weekly quiz. -->
+<!-- A hosted verifier/personal instance exists only when explicitly issued. Public demo flags are observations, not personal proof. The prepared bounded checker and full Semgrep/Trivy/Gitleaks workflow have different scopes. -->
 
 ---
 
@@ -233,3 +237,19 @@ red-team-pr
 Next week: Capstone studio & CTF warm-up
 
 <!-- Wrap: "Teaching is done — next is your capstone: ship something secure, then defend it in the final CTF. Bring your project to the studio." -->
+
+
+---
+
+## Current class hand-in
+
+**Class:** quiz/review 10 + explanation/demo 15 + supervised practice 100 + debrief 20 + evidence capture 5 minutes. Prepare tools, images and access before class. The full reference tasks remain below; their standalone estimates are not an instruction to finish the entire bank during the class.
+
+**Assessment:** all students complete the shared practical **60/100** plus **one assigned version's 40/100**. Conventional uses the ordinary Part 2 questions (20) and Part 4 reflection (20). AIR-Sec uses Audit-the-AI (20), Explain-in-Plain-English (10) and Prompt Problem (10). The unassigned written version is reference practice, not an extra requirement. Each teaching worksheet contributes **2.5 course points**, making 12 individual worksheets worth 30 in total.
+
+Both versions submit their own commands/results and explanation, and complete the student patch and control tests where assigned. Personal flags are used only for an actually issued instance; a local demo flag alone does not demonstrate understanding. Viva/reproduction checks verify the existing work within its rubric: no additional points or automatic-zero gate.
+
+
+**100-minute core run sheet (time, not points):** Compare fail-open/closed 20; student authorization/logging fix 20; one prepared CI red run 30; corrected green/control run 20; evidence 10. The practical rubric is 20 + 20 + 20 = 60 points.
+
+Complete the bounded fail-closed/logging functions in `student_task.py` and run `python3 check_student.py`. Add that same command as a job step in the prepared lab repository: first retain its failing run, then the corrected passing run. A local run is the required fallback when an external CI queue is unavailable, under the same criteria. The existing full scanner workflow and all three defect families remain extended project practice. No new public repository, PR or external service is created by running the local checker. Test a legitimate admin as well as missing, unknown, non-admin and lookup-error cases.

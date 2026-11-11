@@ -1,19 +1,7 @@
-# Week 18 — Final: Written Exam
+# Week 18 — Final written examination
 
-**Cumulative**, with emphasis on **Weeks 10–16** (API, memory safety, supply chain, cloud/container, AI/LLM, DevSecOps).
+**Software Security 2 (02005094) · one 150-minute slot.** Administration10 + written working/checking130 + collection10. The current [specimen paper](exam.md) has ten bounded questions, raw 100 split Basic 50 / Technical 50; it contributes **10%** of the course (5 Basic + 5 Technical).
 
-> *Scope assumption:* cumulative-with-second-half-emphasis. Switch to second-half-only if preferred.
+Scope: whole term, emphasis Weeks 10–15: API, memory safety, supply-chain trust, cloud/container review, AI output/tool boundaries and DevSecOps. Correction, appropriate controls and limits are assessed. The complete earlier question paper archived in the course source is retained for optional reference; it is not an additional required section.
 
-## ✅ This week — what to do
-1. **Before** — study (cumulative, emphasis **Weeks 10–16**).
-2. **In class** — **written final** (`exam.md`).
-
-*Time breakdown: [AGENDA.md](../../AGENDA.md).*
-
-## Format
-- Modern-stack reasoning: supply-chain integrity (SLSA/SBOM/Cosign), cloud/IAM least privilege, LLM/agentic threat modeling, DevSecOps gate design.
-- "Spot the vuln / design the fix" across the whole term.
-- Short-answer on secure-by-design and memory-safe-language tradeoffs.
-
-## Pairs with
-[Week 19 — Final CTF + Capstone](../week19-final-ctf-capstone/).
+The instructor publishes permitted aids and uses the private prepared sitting variant. These KOSEN documents are separate from the unchanged MFU November 14 session and shared Form B/C/D materials.

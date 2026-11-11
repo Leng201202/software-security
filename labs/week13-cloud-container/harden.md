@@ -15,12 +15,12 @@ unchanged folder and gives the identical table; it is not a before/after step.
 
 | # | Misconfiguration (insecure) | CWE | Fix (hardened) |
 |---|------------------------------|-----|----------------|
-| 1 | `FROM python:latest` (unpinned, mutable) | CWE-1104 / CWE-16 | Pin to a **digest** (`@sha256:...`); use a slim/distroless base |
+| 1 | `FROM python:latest` (unpinned, mutable) | CWE-16 (configuration); CWE-1104 only if the selected base is actually unmaintained | Pin to a **digest** (`@sha256:...`); review provenance and vulnerabilities, then update the pin deliberately |
 | 2 | Secret in `ENV API_TOKEN=...` | CWE-526 / CWE-798 / CWE-200 | **No secrets in image.** Inject at runtime via secrets manager / mounted secret |
 | 3 | `COPY . .` (whole context) | CWE-538 | Copy only needed files; add a `.dockerignore` (exclude `.git`, `.env`, keys) |
 | 4 | `chmod -R 777 /app` | CWE-732 | Default perms; app owned by non-root, not world-writable |
 | 5 | Runs as root (no `USER`) | CWE-250 | `USER 65532:65532` (non-root); distroless `nonroot` |
-| 6 | Unpinned `pip install` | CWE-1104 | Hash-pinned `requirements-hardened.txt` + `pip install --require-hashes`, in the build stage |
+| 6 | Unpinned `pip install` | CWE-16 (dependency configuration); unmaintained packages need separate evidence for CWE-1104 | Hash-pinned `requirements-hardened.txt` + `pip install --require-hashes`, in the build stage |
 
 ### Extra runtime hardening (not in the Dockerfile, enforce at deploy)
 - `docker run --read-only --cap-drop ALL --security-opt no-new-privileges`

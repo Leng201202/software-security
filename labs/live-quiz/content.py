@@ -360,6 +360,7 @@ PUBLIC_FILES = {
     "exam": "exam.md",                  # W8, W18 written
     "ctf": "ctf.md",                    # W9, W19 practical
     "scrimmage": "scrimmage.md",        # W16 capstone
+    "feedback": "feedback.md",          # W20 reflection record; formative only
     # per-week supplements a worksheet references
     "attack": "attack.md",              # W6, W10, W14
     "harden": "harden.md",              # W13
@@ -387,6 +388,7 @@ KIND_LABELS = {
     "exam": "Exam paper",
     "ctf": "CTF brief",
     "scrimmage": "Scrimmage",
+    "feedback": "Feedback record",
     "attack": "Attack notes",
     "harden": "Hardening notes",
     "dependency-confusion": "Supply-chain notes",
@@ -693,7 +695,7 @@ GRADED_BADGES = {"LAB", "EXAM", "CTF"}
 # content in sight. The worksheet is one click away either way (learn_doc.html's
 # crumb links every OTHER available kind) — see BADGE_ORDER below for why this
 # alone does not touch grading.
-PRIMARY_ORDER = ("mock-ctf", "exam", "ctf", "scrimmage", "slides", "worksheet", "readme")
+PRIMARY_ORDER = ("mock-ctf", "exam", "ctf", "scrimmage", "slides", "worksheet", "feedback", "readme")
 
 # What a week's badge/graded status is ABOUT — deliberately not PRIMARY_ORDER.
 # list_weeks() used to key PRIMARY_BADGE off `primary` directly, on the

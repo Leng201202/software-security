@@ -1,25 +1,15 @@
-# Week 7 — Reflection & Review (pre-Midterm)
+# Week 7 — Reflection and review
 
-No new content. Consolidate **Weeks 1–6** and prepare for the midterm (Weeks 8–9).
+**Software Security 2 (02005094) · Weeks 1–6 · 150 minutes.** No new examinable content.
 
-## ✅ This week — what to do
-1. **Before class** — review **Weeks 1–6** (slides, your worksheets, the CWE/OWASP list).
-2. **In class (150 min)** — cumulative review quiz (`../../quizzes/quiz1.md`) → **Security Jeopardy** → **mock CTF** in the exam format (`mock-ctf.md`) → debrief.
-3. **Prepare** — note weak areas; the **midterm is Weeks 8–9**.
+| Minutes | Activity |
+|---|---|
+| 0–30 | Cumulative review quiz: [Quiz 1](../../quizzes/quiz1.md) |
+| 30–50 | Selected Security Jeopardy clues; explain the reasoning |
+| 50–120 | Two bounded mock checkpoints, 35 minutes each |
+| 120–145 | Compare controls, correct misunderstandings, plan revision |
+| 145–150 | Save evidence and a personal revision list |
 
-*Time breakdown: [AGENDA.md](../../AGENDA.md).*
+The review quiz uses the approved Quiz/participation category; do not create an additional worksheet or exam mark. The lowest one regular weekly quiz is dropped. Mock work and game scores are formative; leaderboard / first-blood / House points are engagement only.
 
-## 🎯 Signature activity — "Security Jeopardy"
-Team quiz-show across all six topics with point values and a final wager:
-
-| Threat Modeling | Tooling | Crypto | Injection | XSS | Auth & Access |
-|---|---|---|---|---|---|
-
-## 🧪 Mock CTF
-A short mixed mini-CTF in the **exact format of Week 9** so there are no surprises — injection, XSS, auth/IDOR, crypto. → **[mock-ctf.md](mock-ctf.md)** (with hints).
-
-## Deliverable
-Each student submits a one-page **cheat sheet** (eligible as an open-note aid in the exam, if the instructor allows).
-
-## Covers
-Weeks 1–6: [threat modeling](../week01-threat-modeling/), [SDLC & tooling](../week02-sdlc-tooling/), [cryptography](../week03-cryptography/), [injection](../week04-injection/), [XSS](../week05-xss-client-side/), [authn/authz](../week06-authn-authz/).
+[Current 70-minute mock](mock-ctf.md). The historical optional bank is archived in the course source and is not part of the current session. The practical uses fixed criteria for analysis, correction and evidence; a flag alone does not earn full academic marks.

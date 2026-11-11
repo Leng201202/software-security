@@ -1,86 +1,53 @@
-# Midterm — Written Exam (Week 8)
+# Midterm written — current KOSEN specimen A
 
-**Course:** Software Security (KOSEN69) · **Covers:** Weeks 1–6
-**Time:** 120 min · **Total:** 100 pts · Closed book unless stated otherwise.
+**Course: Software Security 2 (02005094) · Week 8 · 150-minute class slot: 10 minutes administration + 130 minutes working/checking + 10 minutes collection.**
 
-**Name:** ____________________  **Student ID:** ____________  **Date:** ________
+**Raw 100: Basic 50 + Technical 50. Course weight: 8% (4 Basic + 4 Technical).** Covers Weeks 1–6.
 
-> Answer in your own words. For code answers, write the exact payload/fix. Sandbox/ethics rules apply to all scenarios.
+Name: __________________ Student ID: ______________ Date: ___________
 
----
+This public specimen fixes scope and workload. The instructor uses a separate prepared sitting variant. Answer only the ten questions below. Each is 10 raw points, with a suggested 12 minutes (120 minutes total), then use 10 minutes to review within the 130-minute working window. Administrative time is not additional task time. Use your own explanation and the provided sandbox/code only; permitted aids follow the published sitting notice. Precise mechanisms and tested-design reasoning matter more than memorized catalogue IDs.
 
-![A horizontal bar divided into four point-weighted blocks shows where the 100 exam marks fall: Section A, Concepts, 30 points across six independent 5-point items (CIA triad, STRIDE, SAST vs DAST vs SCA vs fuzzing, hashing vs encryption vs encoding, trust boundaries, least privilege and fail closed). Section B, Spot the Vulnerability, 20 points across four 5-point code-snippet items — name the flaw, cite the CWE, give the fix. Section C, Applied SQL Injection, 30 points as one continuous scenario, items C1 through C5, against a single vulnerable login query. Section D, Defense and Design, 20 points across two 10-point items on SQL injection defenses and secure password-reset design. Sections A and C are the two highest-value blocks at 30 points each, shown in the accent color; B and D are 20 points each, shown in the standard color. The exam covers Weeks 1 through 6, runs 120 minutes, and is closed book unless stated otherwise. It pairs with the Week 9 hands-on CTF practical.](img/exam-blueprint.svg)
+![Current examination blueprint: 150-minute slot, 130 working minutes, Basic 50 Technical 50.](img/exam-blueprint.svg)
 
-## Section A — Concepts (30 pts, 5 each)
+## 1. B1 · Basic — 10 points, about 12 minutes
 
-A1. Define the **CIA triad** and give one realistic threat against each property.
+Identify two trust boundaries in browser → application → database. State one confidentiality and one integrity threat; name the appropriate STRIDE classes.
 
-A2. Map each **STRIDE** letter to the security property it violates.
+## 2. B2 · Basic — 10 points, about 12 minutes
 
-A3. Compare **SAST vs DAST vs SCA vs fuzzing** — what each sees and when it runs.
+Given an SQL concatenation finding, a leaked hard-coded token and an outdated dependency, choose SAST / secret scanning / SCA for each. Explain one blind spot of each scanner; distinguish a tool error from a clean result.
 
-A4. Explain **hashing vs encryption vs encoding**, with one correct use of each.
+## 3. B3 · Basic — 10 points, about 12 minutes
 
-A5. What is a **trust boundary**? Identify two in a typical web app + database.
+Explain hashing versus encryption versus encoding. For password storage, state why an unsalted fast hash is insufficient and how a successful legacy login can trigger migration.
 
-A6. Define **least privilege** and **fail closed**, with one example each.
+## 4. B4 · Basic — 10 points, about 12 minutes
 
----
+Classify these defects and name a matching CWE: SQL string concatenation, raw untrusted HTML text, disabled JWT verification, and missing order ownership checks. State the affected boundary for two.
 
-## Section B — Spot the Vulnerability (20 pts, 5 each)
-*Name the vulnerability (+ CWE) and give the fix.*
+## 5. B5 · Basic — 10 points, about 12 minutes
 
-B1.
-```python
-q = "SELECT * FROM users WHERE name='" + request.args["name"] + "'"
-db.execute(q)
-```
+Explain authentication versus authorization, least privilege and fail closed. Give one legitimate positive control and one negative control for an owner-only order endpoint.
 
-B2.
-```python
-return f"<h1>Hello {request.args['name']}</h1>"   # rendered in the browser
-```
+## 6. T1 · Technical — 10 points, about 12 minutes
 
-B3.
-```python
-data = jwt.decode(tok, options={"verify_signature": False})
-if data["role"] == "admin": grant()
-```
+A login uses SELECT id FROM users WHERE name='<input>' AND password='<hash>'. In this isolated teaching scenario, explain one boolean-bypass input and why it changes the query. Replace the query with placeholders and bound values; give one negative and one legitimate positive test.
 
-B4.
-```python
-import hashlib
-def store(pw): return hashlib.md5(pw.encode()).hexdigest()
-```
+## 7. T2 · Technical — 10 points, about 12 minutes
 
----
+A diagnostic route runs a shell command assembled from a user-supplied host. Write a design using an argv list, no shell, an IPv4 parser/allowlist and a timeout. Explain why filtering only semicolons is insufficient; give allowed and rejected inputs.
 
-## Section C — Applied SQL Injection (30 pts)
+## 8. T3 · Technical — 10 points, about 12 minutes
 
-A login runs this query (both fields are required, cannot be blank):
-```sql
-SELECT uid, name, salary, password FROM usertable
-WHERE profileID = 10 AND password = '<hash>'
-```
+A page returns <h1>Hello {name}</h1>. Show a correction for this HTML text context. Explain what an HttpOnly cookie changes and what it does not prevent. Give one normal-name test and one XSS-string test.
 
-C1. (6) `profileID` is an **integer** parameter. What do you put in **profileID** and **password** to log in without the password? Explain why it works.
+## 9. T4 · Technical — 10 points, about 12 minutes
 
-C2. (6) Now `profileID` is a **string** (`WHERE profileID='10' AND password='...'`). Give the injection and explain the difference from C1.
+A JWT is decoded with verify_signature=False, then its sub selects an order. Specify pinned algorithm/key, required claims, audience/expiry verification, and owner authorization. Give tests for an owner token, another user, and an invalid token.
 
-C3. (6) The form is submitted via **GET**: `/login?profileID=a&password=a`. Write the edited GET request to bypass auth, and explain the comment handling.
+## 10. T5 · Technical — 10 points, about 12 minutes
 
-C4. (6) You can inject into an `UPDATE` on an edit-profile page. Write **three different** injections to fingerprint whether the DB is **MySQL/MSSQL, Oracle, or SQLite** (version).
+A legacy MD5 record is successfully checked at login. Show the Argon2id record update at that point and explain why a failed login must not change it. Describe a safe staged migration and a test showing that the next correct login still works.
 
-C5. (6) Write a subquery to dump **all table names** from a SQLite DB into one field. (Hint: `group_concat` + `sqlite_master`.)
-
----
-
-## Section D — Defense & Design (20 pts, 10 each)
-
-D1. List **three** distinct defenses against SQL injection and explain why client-side validation is **not** one of them.
-
-D2. You must add a "reset password" feature. Describe a secure design: token generation, storage, expiry, and how you avoid IDOR and account enumeration.
-
----
-
-*End of exam. Pair with the Week 9 hands-on CTF practical.*
+The earlier paper is archived in the course source for optional reference. Its former timings, sections and mark allocation do not apply to this specimen.

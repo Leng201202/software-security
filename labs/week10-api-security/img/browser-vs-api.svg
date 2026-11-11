@@ -1,5 +1,5 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 720 430" role="img" aria-label="Why an API is a harder attack surface than a browser-fronted web app, shown side by side. On the left, the classic web app: a user talks to a browser, and the browser sits between the user and the server as a layer of safety the server gets for free — same-origin policy, SameSite cookies, CSP, and CSRF tokens all live in that browser layer and constrain what a page can send. The server is partly shielded because a real browser enforces rules before the request leaves. On the right, the API: the client is any program the attacker controls — curl, Postman, a script, a modified mobile app — and it talks straight to a raw JSON endpoint. There is no browser layer, so none of those protections exist; every byte of the request, every header, every field, is chosen by the attacker. Two consequences are called out. First, object IDs are exposed by REST design, so incrementing an id is natural and becomes IDOR and BOLA. Second, the client can send any field, so a server that binds the whole body gets mass assignment. The lesson at the foot: the browser was doing security work you never noticed; remove it and the endpoint itself is the entire attack surface, so every input must be treated as attacker-chosen.">
-  <title>Why APIs are different — no browser layer to hide behind</title>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 720 430" role="img" aria-label="Browser controls apply to browser interactions. Direct API clients can choose paths and fields. The server must verify identity, authorize each object and allow only intended bindable fields.">
+  <title>Server-side API authorization</title>
   <style>
     .bg     { fill:#ffffff; }
     .title  { fill:#111827; font:700 19px system-ui,sans-serif; }
@@ -37,42 +37,6 @@
     .bant   { fill:#0f2233; font:700 13px system-ui,sans-serif; }
     .banl   { fill:#374151; font:400 11.5px system-ui,sans-serif; }
 
-    @media (prefers-color-scheme: dark) {
-      .bg     { fill:#0b1016; }
-      .title  { fill:#f3f4f6; }
-      .sub    { fill:#9aa3ad; }
-      .colh   { fill:#c4ccd4; }
-
-      .node   { fill:#141a20; stroke:#5b6670; }
-      .nodeh  { fill:#e5eef5; }
-      .nodes  { fill:#9aa3ad; }
-
-      .shield { fill:#101d27; stroke:#4aa3dd; }
-      .shieldh{ fill:#4aa3dd; }
-      .shieldl{ fill:#c4ccd4; }
-
-      .raw    { fill:#241812; stroke:#ff7a3d; }
-      .rawh   { fill:#ff7a3d; }
-      .rawl   { fill:#c4ccd4; }
-
-      .srv    { fill:#1a2027; stroke:#5b6670; }
-      .srvh   { fill:#e5eef5; }
-
-      .arrowG { stroke:#4aa3dd; }
-      .ahG    { fill:#4aa3dd; }
-      .arrowA { stroke:#ff7a3d; }
-      .ahA    { fill:#ff7a3d; }
-      .divide { stroke:#33404c; }
-
-      .conseq { fill:#241812; stroke:#ff7a3d; }
-      .conseqacc { fill:#ff7a3d; }
-      .conseqt{ fill:#ff7a3d; }
-      .conseql{ fill:#c4ccd4; }
-
-      .banner { fill:#0f1c26; stroke:#4aa3dd; }
-      .bant   { fill:#e5eef5; }
-      .banl   { fill:#c4ccd4; }
-    }
   </style>
 
   <rect class="bg" x="0" y="0" width="720" height="430"/>
@@ -83,8 +47,8 @@
   </defs>
 
   <!-- ============ HEADER ============ -->
-  <text class="title" x="30" y="32">Why APIs are different — no browser layer to hide behind</text>
-  <text class="sub" x="30" y="54">Week 10 · the protections you took for granted lived in the browser</text>
+  <text class="title" x="30" y="32">API clients can bypass browser controls</text>
+  <text class="sub" x="30" y="54">Week 10 · server-side authorization is required on every request</text>
 
   <line class="divide" x1="360" y1="74" x2="360" y2="352"/>
   <text class="colh" x="190" y="86">CLASSIC WEB APP</text>
@@ -98,14 +62,14 @@
   <path class="arrowG" d="M98,152 L98,172" marker-end="url(#wahG)"/>
 
   <rect class="shield" x="40" y="176" width="280" height="72" rx="8"/>
-  <text class="shieldh" x="180" y="198">Browser — a safety layer, for free</text>
+  <text class="shieldh" x="180" y="198">Browser applies client-side controls</text>
   <text class="shieldl" x="180" y="218">Same-origin · SameSite cookies</text>
   <text class="shieldl" x="180" y="234">CSP · CSRF tokens</text>
 
   <path class="arrowG" d="M180,248 L180,268" marker-end="url(#wahG)"/>
 
   <rect class="srv" x="100" y="272" width="160" height="44" rx="8"/>
-  <text class="srvh" x="180" y="299">Server (partly shielded)</text>
+  <text class="srvh" x="180" y="299">Authorize objects</text>
 
   <!-- ============ RIGHT: raw API ============ -->
   <rect class="raw" x="400" y="104" width="280" height="48" rx="8"/>
@@ -115,20 +79,20 @@
   <path class="arrowA" d="M540,152 L540,172" marker-end="url(#wahA)"/>
 
   <rect class="raw" x="440" y="176" width="200" height="56" rx="8"/>
-  <text class="rawh" x="540" y="198">No browser. No safety net.</text>
-  <text class="rawl" x="540" y="218" style="font-style:italic">every byte &amp; field is attacker-chosen</text>
+  <text class="rawh" x="540" y="198">No browser controls here</text>
+  <text class="rawl" x="540" y="218" style="font-style:italic">fields are attacker-chosen</text>
 
   <path class="arrowA" d="M540,232 L540,268" marker-end="url(#wahA)"/>
 
   <rect class="srv" x="460" y="272" width="160" height="44" rx="8"/>
   <text class="srvh" x="540" y="293">Raw JSON endpoint</text>
-  <text class="rawl" x="540" y="309">= the whole attack surface</text>
+  <text class="rawl" x="540" y="309">= API attack surface</text>
 
   <!-- ============ TWO CONSEQUENCES ============ -->
   <rect class="conseq" x="30" y="336" width="328" height="34" rx="7"/>
   <rect class="conseqacc" x="30" y="336" width="5" height="34" rx="2.5"/>
-  <text class="conseqt" x="48" y="351">IDs exposed by REST design</text>
-  <text class="conseql" x="48" y="365">increment an id → IDOR / BOLA</text>
+  <text class="conseqt" x="48" y="351">Object IDs in request paths</text>
+  <text class="conseql" x="48" y="365">change an ID → possible BOLA</text>
 
   <rect class="conseq" x="362" y="336" width="328" height="34" rx="7"/>
   <rect class="conseqacc" x="362" y="336" width="5" height="34" rx="2.5"/>
@@ -137,6 +101,6 @@
 
   <!-- ============ BANNER ============ -->
   <rect class="banner" x="30" y="382" width="660" height="38" rx="8"/>
-  <text class="bant" x="48" y="399">The browser was doing security work you never noticed.</text>
-  <text class="banl" x="48" y="415">Remove it and the endpoint is the whole attack surface — treat every input as attacker-chosen.</text>
+  <text class="bant" x="48" y="399">Browser controls are not API authorization.</text>
+  <text class="banl" x="48" y="415">Verify identity, object access and bindable fields on the server.</text>
 </svg>

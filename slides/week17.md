@@ -2,69 +2,67 @@
 marp: true
 theme: default
 paginate: true
-header: "Software Security · Week 17 · Review"
+header: "Software Security 2 · KOSEN 02005094 · Week 17"
 ---
 
-# Week 17
-## Reflection & Review
-Pre-Final · Weeks 10–16 (+ callbacks)
+# Week 17 · Pre-final review
+## Weeks 10–15, with first-half callbacks
 
-<!-- Same energy as W7 — game, not lecture. Frame: consolidate the modern stack + a few first-half callbacks; zero surprises for the final. ~2 min. -->
+Current KOSEN class: **150 minutes**. No new examinable content.
+
+<!-- Current 02005094 policy only. Do not use old 300-minute review or MFU session clocks. -->
 
 ---
 
-## Goal today
+## Today: 150 minutes
 
-- Consolidate Weeks 10–16
-- 🎯 **Security Jeopardy: Champions Edition**
-- 🧪 Mock final CTF (same team mechanic as Week 19 — not the same coverage, see below)
+- 0–30: cumulative review quiz
+- 30–50: selected Jeopardy clues and reasoning
+- 50–120: two bounded mocks, 35 minutes each
+- 120–145: correction, explanation and revision
+- 145–150: save personal next steps
 
-<!-- Roadmap. Open with the cumulative review quiz (quiz2.md, 25 pts) per AGENDA, then the games. -->
+<!-- Preserve the whole session budget. Selected mocks, not the complete historical challenge bank. -->
 
 ---
 
 ## Map of the modern stack
 
-![A revision map for weeks 10 to 16, built on three spine properties every control needs: at a boundary, checked server-side per request (week 10's /api/users/3/orders); on by default, the safe path the only path (week 11's safe.rs bounds checks); fail closed, deny and log the reason, never the secret (week 15's port 8090 vs 8091). Then one row per week, each tied back to a first-half week it builds on: 10 API security builds on 6 authorization; 11 memory safety builds on 4 injection, the sink is now the stack; 12 supply chain builds on 2 SDLC, the scanner is now SCA/SBOM/cosign; 13 cloud/container builds on 3 crypto, a baked-in key is not a secret; 14 AI/LLM builds on 5 XSS, model output is untrusted input; 15 DevSecOps builds on 2 tooling, the same scanners now stop the build; 16 capstone builds on 1 threat modeling, the week 1 DFD is deliverable one.](img/revision-map-final.svg)
-
-<!-- Cold-call one student per row for the one-liner (retrieval) — the diagram's own first-half callback per row IS the "add 2-3 callbacks" instruction, made concrete instead of left to memory. Week 16 is on the map but flag it as differently-assessed — quiz2.md doesn't examine it, the W19 demo does. ~10 min. -->
+![Course revision map; current timing and assessment rules follow this deck and the linked guide.](img/revision-map-final.svg)
 
 ---
 
-## 🎯 Jeopardy: Champions Edition
+## 70-minute mock: evidence and control
 
-Whole-course categories — modern stack + first-half callbacks:
+Checkpoint 1 (35 min): Week 10 object authorization and field allowlist, with owner/admin and denial controls.
 
-| API | Memory | Supply Chain | Cloud | AI/LLM | DevSecOps |
-|---|---|---|---|---|---|
+Checkpoint 2 (35 min): Week 14 secret redaction and HTML text encoding, with ordinary text and attack controls.
 
-<!-- Same run as W7 but whole-course. Seed questions from exams/item-bank.md (final pool). Weight the board toward DevSecOps and first-half callbacks, not more API questions — the mock CTF right after this covers API well; it has ZERO DevSecOps or Capstone coverage, yet DevSecOps is 15 of the Wk18 written exam's 100 marks and W19 challenge #14 (Break the Build, 15 pts). Say this gap out loud to the room. Teams = Houses; Final-Jeopardy wager; points to the CTFd board. ~75 min. -->
+For each: root cause → student correction → legitimate and negative controls → reproducible evidence → limits.
 
----
+Debrief: Week 11 UTF-8 boundary, Week 12 signer pin, and Week 15 lookup-error denial.
 
-## 🧪 Mock final CTF
-
-**Not the same format as Week 19** — say so explicitly:
-
-- 8 challenges here vs. **14** in W19; Web is 1 optional callback here vs. **5 separate W19 challenges (60/165 pts)**
-- No DevSecOps challenge in the mock; W19 has one — **#14 Break the Build** (15 pts, Week 15) — and DevSecOps is also on the Week 18 written paper (15/100 pts)
-- Mock has hints, ungraded; W19 has none, and is graded as half of the "Final" bucket — **W18 written + W19 CTF together are 25% of the course grade**, not W19 alone
-- Team-based, leaderboard — the team mechanic and general flow ARE the same, just not the coverage
-
-<!-- Correct the "same format" framing head-on — this course's own lesson-plan notes exist specifically because instructors kept saying "same as the final" and it isn't. Also correct a second, easy-to-repeat mistake: don't say "W19 is 25% of the final grade" — the 25% is the combined W18+W19 average; W19 alone is roughly half that. And don't imply DevSecOps is W18-only: ctf.md's #14 Break the Build (15 pts, Week 15's fail-open /admin) is a W19 challenge, though the mock never tests it. The capstone itself is not a CTF topic — it's the graded project demo. Run mock-ctf.md / CTF pool, incl. a binary (toolbox container) + LLM challenge. Budget: 150 min per AGENDA (quiz 30 + Jeopardy 75 + break 15 + mock 150 + debrief 30 = 300 total) — not 90, that's a 60-min undercount that will visibly break the room's pacing. ~150 min. -->
+Mock work is formative. Game/first-blood/House scores are engagement only.
 
 ---
 
-## Exam scope reminder
+## Current examinations
 
-- **Wk 18 written:** cumulative, emphasis on Weeks 10–15 (Week 16 capstone isn't separately examined)
-- **Wk 19:** capstone CTF tournament + final project demos (**video walkthrough linked in the report, due with it**; live Q&A only if the instructor calls your team)
+W18 written 10% + W19 team practical 15%; final total 25%.
 
-<!-- State scope + logistics clearly — 10-15, not 10-16 (this was deliberately corrected in exam.md, don't reintroduce the old range here). W19's demo format changed too: pre-recorded + async grading, because the old live-demo format can't fit N≈80-120 students into a 90-min block. Remind teams the W19 demo is graded — bring a runnable project + the video. ~3 min. -->
+Each sitting: 150-minute slot, 130 working minutes plus 20 administration.
+
+W19: four bounded stations × 25 raw points = 100; project video/report/code before W19; Q&A in W16/20.
+
+<!-- W19 is 15%, not 25%. CTFd dynamic/flag scores do not replace the fixed academic rubric. -->
 
 ---
 
-# Final next week
-Bring your project: threat model, SBOM, signed artifact, CI pipeline
+## Before the examination
 
-<!-- Close: checklist of what to bring to W19; confirm project repos run. -->
+- Review your own results and write a short revision sheet.
+- Confirm permitted aids and the announced sitting pack.
+- Verify tools before class; use only authorized targets.
+- Quiz category unchanged; drop the lowest one regular weekly quiz.
+
+[Current mock commands](../labs/week17-review-final-prep/mock-ctf.md) · [Review guide](../labs/week17-review-final-prep/README.md)

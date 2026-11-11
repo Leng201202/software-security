@@ -503,7 +503,7 @@ def test_week15_slides_embed_every_diagram_and_sim():
     imgs = re.findall(r'<img\b[^>]*src="([^"]+)"', out)
     assert [os.path.basename(i) for i in imgs] == [
         "story-spine.svg", "pipeline-at-a-glance.svg", "fail-closed.svg",
-        "break-the-build-board.svg", "lab-at-a-glance.svg"], imgs
+        "break-the-build-board.svg", "lab-at-a-glance-kosen.svg"], imgs
     assert re.findall(r'<iframe src="/sim/([^"]+)"', out) == [
         "gate-check", "fail-open", "red-team-pr"]
     assert "](img/" not in out, "an image line fell through as raw markdown"
@@ -639,7 +639,8 @@ def test_every_week_exposes_its_primary_document():
 def test_the_non_lab_weeks_serve_their_own_artifact():
     got = {w["number"]: set(w["available"]) for w in C.list_weeks()}
     for n, kind in ((7, "mock-ctf"), (8, "exam"), (9, "ctf"),
-                    (16, "scrimmage"), (17, "mock-ctf"), (18, "exam"), (19, "ctf")):
+                    (16, "scrimmage"), (17, "mock-ctf"), (18, "exam"),
+                    (19, "ctf"), (20, "feedback")):
         assert kind in got.get(n, set()), f"week {n} does not serve {kind}"
 
 

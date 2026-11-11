@@ -5,6 +5,9 @@ paginate: true
 header: "Software Security · Week 13"
 ---
 
+<!-- Current KOSEN class: 150 minutes = quiz/review10 + brief15 + shared practical100 + debrief20 + capture5. Full deck is pre-class/reference; select only the short live explanation. Both versions: common60 plus Conventional40 OR AIR20/10/10. Viva verifies existing work, no extra score or automatic-zero gate. -->
+
+
 # Week 13
 ## Cloud & Container Security
 Software Security · Nutthakorn Chalaemwongwan
@@ -84,6 +87,7 @@ iam-scope
 ## Secrets management
 
 - Secrets in env vars / Dockerfile / git = leaked
+- The lab's `ENV API_TOKEN` maps to **CWE-526** (environment exposure), **CWE-798** (hard-coded credential) and possible **CWE-200** disclosure.
 - Use a secrets manager / vault; rotate
 - Scan history (Gitleaks) — recall Week 2
 
@@ -117,25 +121,25 @@ image-layers
 - Encrypt at rest + in transit
 - Private by default; explicit allow
 
-<!-- The classic trio behind most breaches. `0.0.0.0/0` on a DB port = the internet can reach your database. Default creds = free entry. Principle: deny by default, open deliberately (echoes W6 access control). ~4 min. -->
+<!-- `0.0.0.0/0` permits any IPv4 source in that security-group rule; routing, other firewalls and service binding still affect actual reachability. Default creds add another risk. Principle: deny by default, open deliberately (echoes W6 access control). ~4 min. -->
 
 ---
 
 ## Container image hardening
 
 ```bash
-# 1. Dockerfile misconfigs   2. known CVEs in the built image
-docker run --rm -v "${PWD}:/src" aquasec/trivy:latest \
-  config --severity MEDIUM,HIGH,CRITICAL /src
-docker run --rm -v /var/run/docker.sock:/var/run/docker.sock \
-  aquasec/trivy:latest image --severity HIGH,CRITICAL week13-hardened:lab
+# Required offline core: pre-pull aquasec/trivy:latest before class
+docker run --rm --network none --pull never -v "$PWD:/src:ro" aquasec/trivy:latest \
+  config --skip-check-update --severity MEDIUM,HIGH,CRITICAL /src
+# Image CVE scanning is an online/database-prepared extension
 ```
 
 - **Two stages:** build in `python:3.11-slim`, run in **distroless** (no shell, no package manager) as user `65532`, not root
 - **Pin by digest** (`@sha256:...`): a tag can be moved later, a digest cannot
+- A digest pins bytes, **not** safety or provenance. `:latest` is mutable; it is **not automatically CWE-1104** unless the selected component is unmaintained.
 - **Trivy finds only 3 of the 6 defects.** `COPY . .`, `chmod -R 777` and unpinned `pip install`: **read the file**
 
-<!-- Hands-on — this is the lab's insecure→hardened Dockerfile, always run dockerized (never a bare local trivy binary), against week13-hardened:lab (not a generic myapp:lab). The Trivy-blind-spot point is the actual lesson of this lab, not an aside — half the graded findings need a human, not a tool. Re-scan to prove improvement. ~5 min. -->
+<!-- Hands-on — run the offline config scan against the lab folder after the image was pulled before class. Check that the report actually lists the Dockerfiles and findings; a missing report is not zero findings. Image CVE scanning needs a prepared database and is extension work. IAM JSON remains manual review. ~5 min. -->
 
 ---
 
@@ -164,7 +168,7 @@ trivy-blindspot
 
 ![The same app as two container images side by side, insecure vs hardened, six layers compared: mutable :latest tag vs a pinned digest, a baked-in secret vs runtime injection, root user vs distroless non-root, COPY-everything vs a minimal context, world-writable permissions vs read-only, and an unpinned pip install vs a discarded build stage. Below both, the same argument one layer up: the wildcard IAM policy vs the scoped one. The conclusion: Trivy flags only three of the seven defects shown here — the tag, the root user, and the secret. COPY .., chmod 777, the unpinned install, and the IAM JSON all need manual review; there is no rule for any of them.](img/container-hardening.svg)
 
-<!-- The whole lab's argument as one picture — walk it row by row once, landing on the Trivy split at the bottom: 3 rows have a rule ID to cite, 4 don't. That 3-of-7 (or "3 of 6" container-only, per the earlier slide) split is Task 1's actual grading rubric, not trivia. ~5 min. -->
+<!-- Walk the container and IAM rows. Cite actual scanner output for detected rules; review COPY, chmod, unpinned install and IAM manually. Scanner coverage is an observation for this prepared lab image and checks, not a universal rule count. ~5 min. -->
 
 ---
 
@@ -181,14 +185,12 @@ trivy-blindspot
 
 ## Deliverable
 
-> 📋 **Worksheet 13** — `labs/week13-cloud-container/worksheet.md` (Parts 1–4) · **start:** `bash scan.sh` (it scans the Dockerfiles only — read the IAM JSON yourself)
+> 📋 **Worksheet 13** — `labs/week13-cloud-container/worksheet.md` · follow the 100-minute core run sheet.
 
-- Before/after IAM policy + Dockerfile, all 9 flags explained
-- Trivy results before/after (container part only)
-- A short note: how to remove and rotate the leaked secret
-- **+ Audit the AI / EiPE / Prompt Problem** (see worksheet)
-
-<!-- Before/after artifacts + the trivy delta prove the container-side fix; IAM has no scanner delta to show, it's reasoned/written. Don't let "trivy over Dockerfiles + IAM JSON" stand — that's the exact misconception this lab's own history already fixed once. AI-resilient tasks count. -->
+- Selected Dockerfile scanner findings plus manual configuration/IAM review
+- Your `student_task.py` least-privilege policy diff and `python3 check_student.py` allow/deny controls
+- Explain the bounded local evaluator's limits; do not claim deployed AWS permissions were tested
+- **Assigned written version only:** Conventional Part 2/4 (20/20) or AIR Audit/EiPE/Prompt (20/10/10), after the shared practical 60.
 
 ---
 
@@ -206,3 +208,19 @@ trivy-blindspot
 Next week: AI / LLM application security
 
 <!-- Cliffhanger: "Next week — the newest attack surface: make an AI assistant ignore its rules and leak secrets, with nothing but text." -->
+
+
+---
+
+## Current class hand-in
+
+**Class:** quiz/review 10 + explanation/demo 15 + supervised practice 100 + debrief 20 + evidence capture 5 minutes. Prepare tools, images and access before class. The full reference tasks remain below; their standalone estimates are not an instruction to finish the entire bank during the class.
+
+**Assessment:** all students complete the shared practical **60/100** plus **one assigned version's 40/100**. Conventional uses the ordinary Part 2 questions (20) and Part 4 reflection (20). AIR-Sec uses Audit-the-AI (20), Explain-in-Plain-English (10) and Prompt Problem (10). The unassigned written version is reference practice, not an extra requirement. Each teaching worksheet contributes **2.5 course points**, making 12 individual worksheets worth 30 in total.
+
+Both versions submit their own commands/results and explanation, and complete the student patch and control tests where assigned. Personal flags are used only for an actually issued instance; a local demo flag alone does not demonstrate understanding. Viva/reproduction checks verify the existing work within its rubric: no additional points or automatic-zero gate.
+
+
+**100-minute core run sheet (time, not points):** Scan the selected Dockerfile 20; manual container/IAM review 20; student least-privilege policy 35; allow/deny controls and explanation 25. The practical rubric is 20 + 20 + 20 = 60 points.
+
+Implement `build_policy()` in `student_task.py` and run `python3 check_student.py`. Submit your policy, a diff and permitted/denied example results. The checker is a deliberately bounded evaluator for this exercise, **not AWS IAM policy simulation or proof of deployed permissions**. Real AWS authorization, permissions boundaries, SCPs and runtime controls are outside this local static case. Keep the Dockerfile scan versus manual IAM-review distinction from the original tasks.

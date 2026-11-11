@@ -1,0 +1,2 @@
+Software Security 2 — bounded offline artifact verification
+Release marker: public teaching fixture; no secrets.

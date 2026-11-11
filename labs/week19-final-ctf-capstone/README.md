@@ -1,26 +1,7 @@
-# Week 19 — Final: Capstone CTF Tournament + Project Demos
+# Week 19 — Final team practical
 
-The grand finale.
+**Software Security 2 (02005094) · 150-minute slot = briefing10 + practical130 + submission10.** Existing teams of 2–3; **four bounded stations, fixed raw 100**. [Current task sheet and fixed rubric](ctf.md).
 
-## ✅ This week — what to do
-1. **Before class** — project report + demo video link submitted (see below); team ready for the CTF.
-2. **In class (150 min)** — **Capstone CTF tournament** (`ctf.md`, whole term); the instructor may call a team aside for a short project Q&A.
-3. **Submit** — final project + report (see [project/README.md](../../project/README.md)).
+All100raw is Technical and converts to15% of the course. The separately graded project video/report/code is submitted before Week 19; clarification is in Weeks 16/20. A correct flag is useful proof where a task issues one; full academic marks also require the student-authored correction, legitimate/negative controls and reproducible reasoning. Leaderboard and first-blood remain engagement only.
 
-*Time breakdown: [AGENDA.md](../../AGENDA.md).*
-
-## 🏆 Capstone CTF Tournament
-A full capture-the-flag covering the whole term — 14 challenges, 165 pts across web, API, memory safety, supply chain, cloud, LLM/agentic and DevSecOps. Team-based, leaderboard, prizes.
-
-## Final Project Demos
-Each team's video walks through their secured build end-to-end:
-- Threat model → vulnerabilities found → remediation
-- SBOM + signed artifact
-- Security CI/CD pipeline
-- Submit the recorded video walkthrough as an unlisted link in your report, **due with the report** (graded asynchronously on the rubric). No per-team live slot — the instructor may call any team for a short live Q&A on its own work
-
-## Bring
-Everything from the [term project](../../project/README.md): threat model, vuln report (CWE/OWASP mapped), fixed code, SBOM, signed artifact, CI pipeline.
-
-## References
-- All prior weeks + https://owasp.org/Top10/2025/
+Use the instructor's prepared sitting pack and announced submission assignment. This document does not claim new hosted instances or per-student flags have been deployed. The earlier optional challenge bank is archived in the course source and is not part of this sitting.

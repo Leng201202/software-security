@@ -5,9 +5,11 @@
 #   .github/workflows/security-ci.yml
 # in a repo (see README-pipeline.md).
 #
-# It runs four security tools and FAILS the build on HIGH/CRITICAL:
+# It runs three security tools. Semgrep fails on any rule finding, Trivy
+# fails on HIGH/CRITICAL findings, and Gitleaks fails on any detected secret.
+# A nonzero scanner error at a gate step is also not a clean pass.
 #   - Semgrep  (SAST)            CWE-coverage via OWASP rulesets
-#   - Trivy    (SCA + image + IaC)
+#   - Trivy    (SCA + IaC; image scan is an optional commented example)
 #   - Gitleaks (secret scanning)
 # SARIF results upload to the GitHub "Security" tab even when a scan fails
 # (the upload steps use `if: always()`), so reviewers still see findings.

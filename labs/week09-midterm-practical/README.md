@@ -1,22 +1,7 @@
-# Week 9 — Midterm: Hands-on CTF Practical
+# Week 9 — Midterm individual practical
 
-Covers **Weeks 1–6**. Individual, in the sandbox. Flags = points.
+**Software Security 2 (02005094) · 150-minute slot = briefing10 + practical130 + submission10.** Individual; **four bounded stations, fixed raw 100**. [Current task sheet and fixed rubric](ctf.md).
 
-## ✅ This week — what to do
-1. **Before** — VM + tools ready; warm up on the Week 7 mock CTF.
-2. **In class** — **hands-on CTF** (`ctf.md`); submit flags for points (your flags are per-student — spawn your own instances in CTFd; a local `docker compose up` only serves practice demo flags).
-3. **Rules** — sandbox targets only; individual.
+Basic 50 + Technical 50 converts to6+6=12% of the course. A correct flag is useful proof where a task issues one; full academic marks also require the student-authored correction, legitimate/negative controls and reproducible reasoning. Leaderboard and first-blood remain engagement only.
 
-*Time breakdown: [AGENDA.md](../../AGENDA.md).*
-
-## Format
-A timed capture-the-flag with graded challenges across:
-- **Injection** (SQLi / command injection) — this course's own apps, not DVWA.
-- **XSS** (stored only) — this course's own week05 app, not Juice Shop.
-- **Auth / access control** (IDOR, weak JWT forgery).
-- **Cryptography** (crack a weak hash — the technique from the Cryptography course's hash lab; practise on `labs/week03-cryptography/hashes.txt` — and recover structure from an ECB oracle, as in Week 3).
-
-Each solved challenge yields a flag; partial credit for documented progress.
-
-## Pairs with
-[Week 8 — Midterm Written](../week08-midterm-written/).
+Use the instructor's prepared sitting pack and announced submission assignment. This document does not claim new hosted instances or per-student flags have been deployed. The earlier optional challenge bank is archived in the course source and is not part of the current sitting.

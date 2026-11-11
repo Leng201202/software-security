@@ -2,61 +2,55 @@
 marp: true
 theme: default
 paginate: true
-header: "Software Security · Week 19 · Final"
+header: "Software Security 2 · KOSEN02005094 · Week 19 · Final team practical"
 ---
 
-# Week 19
-## Final — Capstone CTF + Project Demos
-The grand finale
+# Week 19 — Final team practical
+## Current KOSEN02005094 sitting
+Existing teams of2–3 · scope: whole term, emphasis Weeks10–15
 
-<!-- The finale — make it celebratory + high-energy. Before class: graded flags for challenges 1–8, 12 and 14 come from each student's own hosted instance (confirm everyone can log in and reach one, and flip Smash (#8) from hidden to visible); bring up the local targets for 9, 10, 11 and 13, open CTFd, set the demo schedule. Confirm projects run. ~2 min. -->
-
----
-
-## Two parts
-
-1. 🏆 **Capstone CTF tournament** — whole-term, team-based
-2. 🎤 **Final project demo videos** — graded (submitted with the report)
-
-<!-- The CTF tournament is the live part. Demo videos were graded beforehand; after the CTF, call aside only the teams you flagged for a short viva-style Q&A. -->
+<!-- Use the current bounded sitting pack and matching key, with preflighted dependencies/fixtures. No new hosted instance or personal flag is claimed to be deployed. -->
 
 ---
 
-## 🏆 CTF tournament
+## Format and time
 
-- Web · API · memory safety · supply chain · cloud · LLM/agentic · DevSecOps — 14 challenges, 165 pts
-- Team leaderboard, prizes — the **live CTFd board** (bigger, includes bonus/boss challenges)
-- **Graded score** comes from the paper trail: flag/proof + payload + one-line mitigation per challenge
-
-<!-- Run from ctf.md (graded, 14 challenges/165 pts) + exams/item-bank.md (CTF pool, incl. the boss chain). CTFd's live board runs more challenges at different point values for engagement/leaderboard — that scoreboard is NOT the grade; ctf.md's submission is. Dynamic scoring + first-blood bonus on CTFd; announce first-bloods aloud for hype. Prizes for top Houses. -->
-
----
-
-## 🎤 Final project demo (graded)
-
-Present your secured build end-to-end:
-
-- Threat model → vulnerabilities → remediation
-- SBOM + signed artifact
-- Security CI/CD pipeline
-- **Recorded video walkthrough**, linked in the report and due with it — graded asynchronously on the rubric
-- No per-team live slot — the instructor may call a team for a short live Q&A
-
-<!-- Format change (2026-07-26): with N≈80–120 students in teams of 2–3, a 10-min-demo+5-min-Q&A live format needs far more than the 90 minutes this block has — it cannot physically run. Video is graded beforehand on the project rubric (project/README.md) + peer-contribution multiplier; live Q&A only as a viva spot-check for teams the instructor flags (decided 2026-10-24: the final day already holds the written exam and the CTF) — not a re-demo. -->
+- **150-minute slot:** briefing10 + bounded tasks130 + submission10
+- **Four bounded stations ×25 raw =100**
+- Ability classification: **Technical100**; course contribution **15%**
+- Fixed academic rubric; dynamic CTFd scores, first-blood, prizes and HouseXP add no course points
 
 ---
 
-## Bring
+## Four station plan —130 task minutes
 
-- **Video walkthrough link in your report** (due with the report)
-- Threat model + vuln report (CWE/OWASP mapped)
-- Fixed code, SBOM, signed artifact, CI pipeline
+- **A: 30 minutes,25 raw** — API ownership and account-field controls
+- **B: 35 minutes,25 raw** — Prepared memory-safety diagnostics and Rust counter controls
+- **C: 30 minutes,25 raw** — Trusted RSA artifact key and focused S3 policy correction
+- **D: 35 minutes,25 raw** — AI-output encoding/redaction and fail-closed authorization/logging
 
-<!-- Checklist — anything missing costs rubric points. Confirm the CI pipeline actually fails on a finding (don't take their word; have them show it in the video). -->
+Follow the issued starter/evidence scope. Do not add the older full challenge bank to this sitting.
 
 ---
 
-# Thank you
-You can now threat-model, break, fix, and ship secure software.
+## Evidence and marking
 
-<!-- Close the term: name the arc (threat-model → break → fix → ship). Point to next steps (OWASP, CTFs, the readings). For the research: post-test + post-survey happen now (per the study timeline). Celebrate. -->
+- Submit changed source/diff, exact command and observed result
+- Include a legitimate positive control and a negative control
+- Explain the mechanism, correction and remaining limits
+- A flag alone does not earn full academic marks; public demo values are not personal proof
+
+Each station: boundary/root cause5 + correction10 + controls7 + reproducible evidence/limits3 =25 Technical. Raw100 converts to course15.
+
+---
+
+## Submission and project arrangements
+
+- Use only the supplied authorized sandbox pack and announced submission assignment
+- Use an assigned hosted instance only when the instructor actually issues one
+- Stop task work after130minutes; use the final10minutes to verify submission
+- Submit one evidence bundle per existing team of2–3; record each member's contribution
+- Project report/code and a **video of at most5minutes** are due **before Week19**, graded separately at15%
+- No project Q&A inside the130-minute practical; clarification belongs in Weeks16/20
+
+[Current four-station brief](../labs/week19-final-ctf-capstone/ctf.md)

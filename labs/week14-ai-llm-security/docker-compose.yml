@@ -1,6 +1,12 @@
+x-runtime: &runtime
+  image: kosen-swsec-week14:local
+  build:
+    context: .
+    dockerfile: Dockerfile
+
 services:
   vulnerable-chatbot:
-    image: python:3.12-slim
+    <<: *runtime
     working_dir: /lab
     volumes:
       - ./:/lab
@@ -11,13 +17,10 @@ services:
     # Graded flags come only from your hosted CTFd instance, never from this local run.
     environment:
       - FLAG_PROMPTINJ
-    command: >
-      bash -c "pip install --no-cache-dir flask &&
-               echo '--- INSECURE chatbot on :8082 — open http://localhost:8082 — see attack.md ---' &&
-               python vulnerable_chatbot.py"
+    command: python vulnerable_chatbot.py
 
   guarded-chatbot:
-    image: python:3.12-slim
+    <<: *runtime
     working_dir: /lab
     volumes:
       - ./:/lab
@@ -28,7 +31,4 @@ services:
     # Graded flags come only from your hosted CTFd instance, never from this local run.
     environment:
       - FLAG_PROMPTINJ
-    command: >
-      bash -c "pip install --no-cache-dir flask &&
-               echo '--- GUARDED chatbot on :8083 — open http://localhost:8083 ---' &&
-               python guarded_chatbot.py"
+    command: python guarded_chatbot.py

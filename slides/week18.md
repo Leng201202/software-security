@@ -2,46 +2,52 @@
 marp: true
 theme: default
 paginate: true
-header: "Software Security · Week 18 · Final"
+header: "Software Security 2 · KOSEN02005094 · Week 18 · Final"
 ---
 
-# Week 18
-## Final — Written Exam
-Cumulative · emphasis on Weeks 10–15
+# Week 18 — Final written examination
+## Current KOSEN02005094 sitting
+Whole term, emphasis Weeks10–15; Week16 adds no new examinable content
 
-<!-- Proctor deck. Week 16 is the capstone studio — no new examinable content, don't imply it's in scope. Before start: confirm exam version (rotate from exams/item-bank.md final pool), time, open/closed-note, integrity (no AI/phones). Keep talk minimal once the clock runs. -->
-
----
-
-## Format
-
-- Duration: **150 minutes** · 100 pts
-- Cumulative, emphasis Weeks 10–15 (Week 16 capstone is not separately examined)
-- 4 sections: A Modern-stack concepts (30) · B Spot the Vuln (20) · **C Applied (30)** · D Design & DevSecOps (20)
-
-<!-- State the section split exactly as printed. All 15 graded items map into the Weeks 10–15 block — this is closer to cumulative-in-name-only than a 60/40 split, say so if asked. -->
+<!-- Confirm the current sitting paper, matching key and permitted aids before starting. This deck is KOSEN-specific; do not substitute it for MFU session papers. -->
 
 ---
 
-## What's assessed
+## Format and time
 
-![A thin foundation band (Weeks 1-6, lighter weight) plus a wide emphasis band (Weeks 10-15, most of the exam weight: BOLA/mass-assignment/rate-limits, memory safety, SLSA/SBOM/Cosign, cloud IAM, prompt injection, DevSecOps gates) — Week 16 capstone isn't examinable. Section A (30, modern-stack concepts) and B (20, spot-the-vuln) test recall; C (30, applied design, no payload required) and D (20, pipeline/incident design) test design reasoning — 50/50. Unlike Week 8's midterm, which devoted 30 points to writing an actual SQL injection payload, Week 18 requires zero points of payload-writing: the shift is from writing exploits to designing fixes.](img/exam-blueprint-final.svg)
+- **150-minute slot:** administration10 + working/checking130 + collection10
+- **Ten questions ×10 raw =100:** five Basic and five Technical
+- Suggested pace: 12 minutes per question120 + checking10 =130 working minutes
+- Course contribution: **10%**, split Basic5 + Technical5
 
-<!-- BOLA/API is the one people under-revise — it's 20 of 100 points across three sections, not a single "spot the vuln" line. The recall-vs-design 50/50 split and the explicit contrast with Week 8 (no payloads here) are the two framing points worth saying out loud. Show briefly; exam day — don't teach. -->
-
----
-
-## Tips
-
-- Reason about design, not just single bugs
-- Always name the mitigation + where it belongs in the pipeline
-- Map every finding to **OWASP 2025 / API Security Top 10 / LLM Top 10 / CWE**
-
-<!-- Key score-saver for the final: it rewards DESIGN reasoning (where the fix belongs), not just bug-spotting — and don't drop "API" from the mapping list, BOLA is graded. Say once, then start. -->
+<!-- Administration is not additional task time. Use the current sitting variant and its matching key; the public specimen is practice material. -->
 
 ---
 
-# Good luck
-Week 19: capstone CTF tournament + project demos
+## What is assessed
 
-<!-- Close: remind W19 = team CTF + graded demos; bring runnable project + SBOM/signed artifact/pipeline. Grade with exams/week18-…-answers.md. -->
+- Basic: API boundaries, memory-safety assumptions, artifact trust, cloud configuration and AI/tool risks
+- Technical: ownership/field controls, Unicode/error handling, trusted-key verification, least-privilege policy and output/fail-closed/log controls
+
+Read the provided scenario/code and explain mechanisms, corrections, legitimate controls and rejected cases. Do not claim more than the evidence establishes.
+
+---
+
+## Answer and checking guidance
+
+- Answer the ten questions on the issued current paper
+- Use the permitted aids announced for the sitting
+- State assumptions and scope; accept equivalent technically sound designs
+- Reserve the final10 working minutes to check all answers
+
+<!-- No new closed/open-book or AI rule is invented here; publish the sitting's permitted aids before release. -->
+
+---
+
+## Collection and next session
+
+Stop task work when the130-minute working window ends; follow the proctor's collection instructions.
+
+Week19 is the team four-station practical. Project report/code and a video of at most5minutes are due **before Week19**; project clarification uses Weeks16/20.
+
+[Current specimen and scope](../labs/week18-final-written/exam.md)

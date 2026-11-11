@@ -1,0 +1,7 @@
+# Prepared checker image only; not a vulnerable application target.
+FROM python:3.12-slim
+RUN apt-get update && apt-get install -y --no-install-recommends openssl \
+    && rm -rf /var/lib/apt/lists/*
+ENV PYTHONDONTWRITEBYTECODE=1
+WORKDIR /work
+CMD ["python3", "check_student.py"]

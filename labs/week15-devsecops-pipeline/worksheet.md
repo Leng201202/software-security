@@ -1,5 +1,14 @@
 # Worksheet 15 — DevSecOps: Putting It Together
 
+## 150-minute class and assigned worksheet version
+
+**Class:** quiz/review 10 + explanation/demo 15 + supervised practice 100 + debrief 20 + evidence capture 5 minutes. Prepare tools, images and access before class. The full reference tasks remain below; their standalone estimates are not an instruction to finish the entire bank during the class.
+
+**Assessment:** all students complete the shared practical **60/100** plus **one assigned version's 40/100**. Conventional uses the ordinary Part 2 questions (20) and Part 4 reflection (20). AIR-Sec uses Audit-the-AI (20), Explain-in-Plain-English (10) and Prompt Problem (10). The unassigned written version is reference practice, not an extra requirement. Each teaching worksheet contributes **2.5 course points**, making 12 individual worksheets worth 30 in total.
+
+Both versions submit their own commands/results and explanation, and complete the student patch and control tests where assigned. Personal flags are used only for an actually issued instance; a local demo flag alone does not demonstrate understanding. Viva/reproduction checks verify the existing work within its rubric: no additional points or automatic-zero gate.
+
+
 > **Course:** Software Security (KOSEN69) · Week 15
 > **Aligned to:** OWASP 2025 **A09 Security Logging & Alerting Failures** · **A10 Mishandling of Exceptional Conditions** (scanners also cover A02/A03/A07) · **CWE-636** (fail open), CWE-532 (logging sensitive data), CWE-209, CWE-489, CWE-798
 > **Signature game:** 🔴🔵 *Break the Build* (Red vs Blue) — Blue scores per catch, Red scores per bypass.
@@ -28,23 +37,23 @@ Answer in your own words (2–4 sentences each).
 
 ---
 
-## Part 3 — Hands-on Lab (110 min in class + 95 min homework)
+## Part 3 — Shared supervised practice (100 minutes)
+
+**Core run sheet (100 minutes):** Compare fail-open/closed 20; student authorization/logging fix 20; one prepared CI red run 30; corrected green/control run 20; evidence 10. Build the local target with `docker compose build` before class; Flask is installed in the image rather than during startup.
+
+**Student task for both versions:** Complete the bounded fail-closed/logging functions in `student_task.py` and run `python3 check_student.py`. Add that same command as a job step in the prepared lab repository: first retain its failing run, then the corrected passing run. A local run is the required fallback when an external CI queue is unavailable, under the same criteria. The existing full scanner workflow and all three defect families remain extended project practice. No new public repository, PR or external service is created by running the local checker. Test a legitimate admin as well as missing, unknown, non-admin and lookup-error cases.
+
+**Full task bank:** the original tasks below are retained for preparation, the bounded core checkpoints and extension work. Follow the core run sheet above; detailed reference estimates below are not cumulative class requirements. Complete only your assigned written 40 after the practical.
+
 
 > The task budgets below add up to 205 min. That is deliberate over-provisioning, not a schedule:
 > Tasks 2–4 are dominated by Actions queue and scan wall-clock. Push the gate in class (Task 2);
 > Tasks 3–5 wait on Actions runs and the Red/Blue results, so they are homework.
 >
-> **In class or homework.** Tasks marked *in class* are done during the lab, where the instructor
-> checks your evidence and reasoning. Tasks marked *homework* are finished after class and submitted
-> with the rest of this worksheet, before the next class. Every task keeps its time and its marks.
-> Answer Part 2 before class, from this week's slides; Part 4, *Audit the AI* and *Comprehension &
-> Prompt* are homework.
->
-> **In class (110 min):** Tasks 0, 1, 1b and 2 · **Homework (95 min):** Tasks 3, 4 and 5
 
 ![Two panels: the CI gate in security-ci.yml, where a MEDIUM DS-0001 finding slips past the HIGH,CRITICAL threshold and the build goes green, and the /admin handler, where one except branch returns 200 with the flag while the other returns 403 and logs it.](img/fail-closed.svg)
 
-**Learning goals:** wire a security CI gate that fails closed on HIGH/CRITICAL, observe structured security logging + fail-closed handling locally, then play Break-the-Build.
+**Learning goals:** wire tool-specific security CI gates (Semgrep selected rules, Trivy HIGH/CRITICAL, Gitleaks detected secrets), observe structured security logging + fail-closed handling locally, then play Break-the-Build.
 
 **Prerequisites:** a **public** GitHub repo you own with Actions enabled — a throwaway repo holding only this lab folder works best (on a private repo the SARIF upload needs GitHub Code Security and fails, turning every job red; a fork of the course repo also scans every other week's deliberately vulnerable lab, so it cannot go green). Open your Task 4 PR inside **your own** repo, never against the course repo; `git`; Docker; Python + Flask for the local service.
 
@@ -80,21 +89,21 @@ curl -s localhost:5001/admin -H 'Authorization: alice-token'  # 200 (admin)
 
 ### Tasks
 
-- **Task 0 — Onboarding (15 min, in class).** Run the sample service; trigger the three curls above. **Deliverable:** screenshot of the structured `event=...` security log lines for authn_failure, authz_failure, and authz_success.
+- **Task 0 — Onboarding (full reference exercise: 15 min).** Run the sample service; trigger the three curls above. **Deliverable:** screenshot of the structured `event=...` security log lines for authn_failure, authz_failure, and authz_success.
 
-- **Task 1 — Logging & fail-closed (35 min, in class, A09/A10).** *Goal:* prove fail-closed behavior. *Steps:* read `/admin` in `sample-service.py`; explain why the broad `except Exception` returns **403, not the secret**, and why `type(exc).__name__` (not the message) is logged (CWE-209). Identify the line that would make it fail *open* (the commented INSECURE variant). *Deliverable:* the log lines + a 2–3 sentence explanation of fail-closed vs fail-open.
+- **Task 1 — Logging & fail-closed (full reference exercise: 35 min, A09/A10).** *Goal:* prove fail-closed behavior. *Steps:* read `/admin` in `sample-service.py`; explain why the broad `except Exception` returns **403, not the secret**, and why `type(exc).__name__` (not the message) is logged (CWE-209). Identify the line that would make it fail *open* (the commented INSECURE variant). *Deliverable:* the log lines + a 2–3 sentence explanation of fail-closed vs fail-open.
 
-- **Task 1b — Break the Build, live (25 min, in class, A10 / CWE-636).** *Goal:* exploit a real fail-open, then prove the fix. *Steps:* from the current lab directory (Setup B already put you there — `cd labs/week15-devsecops-pipeline` again from inside it fails, "no such file or directory"), run `docker compose up -d` (spawns the **insecure** service on `:8090` and the **secure** one on `:8091`). As **Red**, hit the insecure admin route with **no** Authorization header — the fail-open path leaks the admin panel *and* the flag (a local run returns the public demo flag; your graded per-student flag comes from your hosted instance):
+- **Task 1b — Break the Build, live (full reference exercise: 25 min, A10 / CWE-636).** *Goal:* exploit a real fail-open, then prove the fix. *Steps:* from the current lab directory (Setup B already put you there — `cd labs/week15-devsecops-pipeline` again from inside it fails, "no such file or directory"), run `docker compose up -d --no-build --pull never` after the pre-class build (spawns the **insecure** service on `:8090` and the **secure** one on `:8091`). As **Red**, hit the insecure admin route with **no** Authorization header — the fail-open path leaks the admin panel *and* the flag (a local run returns the public demo flag; a personal flag applies only if the instructor has actually issued an instance):
   ```
   curl -s localhost:8090/admin                                  # {"panel":"UNLOCKED","secret":"FLAG{devsecops_...}"}  <- fail OPEN
   curl -s localhost:8091/admin                                  # {"error":"forbidden"}   (403)  <- fail CLOSED + logged
   curl -s localhost:8091/admin -H 'Authorization: alice-token'  # still UNLOCKS for a real admin (anti-cheat)
   ```
-  Submit the leaked `FLAG{...}`. *Deliverable:* the flag, the two contrasting `/admin` responses (`:8090` leak vs `:8091` deny), and the exact line in `insecure_service.py` that fails open. *(The instructor auto-grader re-runs these exploits against your hardened box — you pass only if every bypass is blocked **and** a valid admin token still works.)*
+  Submit the leaked `FLAG{...}`. *Deliverable:* the flag, the two contrasting `/admin` responses (`:8090` leak vs `:8091` deny), and the exact line in `insecure_service.py` that fails open. *The local checker tests rejection and legitimate admin behavior. Use a hosted verifier only when the instructor has actually issued that environment; this worksheet does not assert that one is configured.*
 
-- **Task 2 — Stand up the gate (35 min, in class).** *Goal:* get the workflow running. *Steps:* push `security-ci.yml`, open the Actions run, confirm the three jobs (`semgrep`, `trivy`, `gitleaks`) execute and SARIF appears in the Security tab. *Deliverable:* screenshot of the Actions run + the Code scanning alerts page.
+- **Task 2 — Stand up the gate (full reference exercise: 35 min).** *Goal:* get the workflow running. *Steps:* push `security-ci.yml`, open the Actions run, confirm the three jobs (`semgrep`, `trivy`, `gitleaks`) execute and SARIF appears in the Security tab. *Deliverable:* screenshot of the Actions run + the Code scanning alerts page.
 
-- **Task 3 — Blue team: pass the gate (30 min, homework).** *Goal:* a green build. *Steps:* ensure the protected repo has no HIGH/CRITICAL findings and no secrets; fix or justify-and-document any (no blanket-ignore, per README §4). Expect a red baseline before you change anything:
+- **Task 3 — Blue team: pass the gate (full reference exercise: 30 min).** *Goal:* a green build. *Steps:* ensure the protected repo has no HIGH/CRITICAL findings and no secrets; fix or justify-and-document any (no blanket-ignore, per README §4). Expect a red baseline before you change anything:
   - **Semgrep flags every `uses: …@vN` tag (pin it to a commit SHA).** `security-ci.yml`'s own `aquasecurity/trivy-action@ed142fd0...` lines are the worked example of the *result* — here's how to get there for `actions/checkout@v4` and `github/codeql-action/upload-sarif@v3`:
     ```bash
     git ls-remote https://github.com/actions/checkout v4
@@ -116,10 +125,10 @@ curl -s localhost:5001/admin -H 'Authorization: alice-token'  # 200 (admin)
     Re-run Gitleaks after adding it to confirm `no leaks found` and exit code `0`.
   *Deliverable:* link to the passing run, the two action SHAs you pinned, and your `.gitleaksignore` diff.
 
-- **Task 4 — Red team: Break the Build (40 min, homework).** *Goal:* make the gate say **no**. *Steps:* on a branch/PR, inject *one* planted defect (per README §5), each aimed at a different gate step (a root Dockerfile also trips Semgrep, and a token also trips Trivy's secret scan): an outdated vulnerable dependency (e.g. an old `urllib3`) → Trivy SCA; a Dockerfile that runs as **root** — drop the `USER` line, or write `USER root` → Trivy config (`DS-0002`, HIGH); or a hard-coded token → Gitleaks. Open the PR and watch the matching gate step fail. *Deliverable:* screenshot of the **failing** gate step + which job caught it (Trivy SCA / Trivy config / Gitleaks) and which `exit-code: "1"` / `--error` step enforced it.
+- **Task 4 — Red team: Break the Build (full reference exercise: 40 min).** *Goal:* make the gate say **no**. *Steps:* on a branch/PR, inject *one* planted defect (per README §5), each aimed at a different gate step (a root Dockerfile also trips Semgrep, and a token also trips Trivy's secret scan): an outdated vulnerable dependency (e.g. an old `urllib3`) → Trivy SCA; a Dockerfile that runs as **root** — drop the `USER` line, or write `USER root` → Trivy config (`DS-0002`, HIGH); or a hard-coded token → Gitleaks. Open the PR and watch the matching gate step fail. *Deliverable:* screenshot of the **failing** gate step + which job caught it (Trivy SCA / Trivy config / Gitleaks) and which `exit-code: "1"` / `--error` step enforced it.
   > **Why root and not `chmod 777`.** Both gate steps filter to `--severity HIGH,CRITICAL`, and Trivy's Dockerfile scanner has no rule for `chmod` at all — it checks instruction-level `RUN`/`COPY` semantics, exactly as Week 13 Task 1 says. `chmod 777` therefore returns **nothing**, at any severity, and the build goes green: a defect that slips the gate is a Task 5 *Red point*, not a Task 4 screenshot. `:latest` is no good either — that is `DS-0001` and Trivy rates it MEDIUM, which this gate filters out. Running as root is `DS-0002` HIGH, so it fails the build for real.
 
-- **Task 5 — Score Break-the-Build (25 min, homework).** *Goal:* tally Red vs Blue. *Steps:* one Blue point per finding the gate caught, one Red point per finding that slipped through; for any bypass, propose the rule that would have caught it. *Deliverable:* scoreboard + one proposed gate improvement.
+- **Task 5 — Score Break-the-Build (full reference exercise: 25 min).** *Goal:* tally Red vs Blue. *Steps:* one Blue point per finding the gate caught, one Red point per finding that slipped through; for any bypass, propose the rule that would have caught it. *Deliverable:* scoreboard + one proposed gate improvement.
 
 ---
 
@@ -131,14 +140,21 @@ curl -s localhost:5001/admin -H 'Authorization: alice-token'  # 200 (admin)
 
 ---
 
-## Grading rubric (100)
+## Grading rubric (100 per assigned version)
 
-| Component | Points | What earns full marks |
-|-----------|:------:|-----------------------|
-| Part 2 — Lecture questions | 20 | All 5 answered with correct A09/A10/CWE reasoning |
-| Part 3 — Tasks + evidence | 40 | Tasks 0–5 complete; PR/run links, log lines, screenshots present |
-| Defense (gate + fail-closed) | 25 | Gate shown to fail closed on a planted defect; fail-closed path explained |
-| Part 4 — Reflection | 15 | Accurate mapping, relevant incident, well-argued best mitigation |
+| Criterion | Conventional | AIR-Sec |
+|---|---:|---:|
+| Shared main task and observed behavior | 20 | 20 |
+| Shared student control/fix and positive/negative tests | 20 | 20 |
+| Shared reproducible evidence, reasoning and limitations | 20 | 20 |
+| Ordinary Part 2 written questions | 20 | — |
+| Ordinary Part 4 reflection | 20 | — |
+| Audit-the-AI | — | 20 |
+| Explain-in-Plain-English | — | 10 |
+| Prompt Problem | — | 10 |
+| **Total** | **100** | **100** |
+
+Do not add the unassigned version's 40 points. Required core controls and explanations carry the shared 60; optional games/bonus tasks do not add to the 100 or prevent full marks. Viva is a check of the submitted work within these points, not an additional mark or automatic-zero rule.
 
 **Due:** 23:59 (Thai time) the night before next week's class (exact time on learn.zcr.ai/submit). **Late:** −10% per started day; 0 after 10 days.
 
@@ -160,7 +176,15 @@ curl -s localhost:5001/admin -H 'Authorization: alice-token'  # 200 (admin)
 
 ---
 
-## 🤖 Audit the AI (required)
+## 🤖 Assigned AIR-Sec — Audit-the-AI (20 points)
+
+**Scored exhibit supplied for this assignment (deliberately incorrect):**
+
+> "A green Actions run proves every vulnerability is absent and guarantees that GitHub prevents merging a vulnerable pull request."
+
+Identify the substantive mistakes (8), verify your criticism with relevant observations/tests or primary sources (8), and provide a justified correction (4). Distinguish the configured checks and thresholds from complete coverage, and workflow status from enforced repository rules.
+
+The original open-ended AI exercise below is retained as optional extension practice. Do not assume a fresh AI answer must contain an error; a correctly supported answer may be accepted with tests. You can earn the full assigned 20 by auditing the supplied exhibit, without an external AI account.
 
 AI is a power tool you must **distrust** — you are graded on your *critique*, not the AI's answer.
 
@@ -168,13 +192,13 @@ AI is a power tool you must **distrust** — you are graded on your *critique*, 
 2. **Find what's wrong or risky** in it — insecure code, a subtly incomplete fix, a hallucinated API/function/CVE, a missed edge case, or wrong reasoning. Quote the exact line(s).
 3. Produce the **correct, verified** version yourself and explain in 2–3 sentences why the AI's output was insufficient.
 
-> Disclose your AI use in the Part 1 table. This task counts toward your **Defense + Reflection** score.
+> Disclose any AI use beside your Part 1 details. The supplied exhibit is the scored AIR-Sec Audit-the-AI task (20); the open-ended ask-an-AI exercise above is optional extension practice. Conventional does not complete the AIR-Sec written section for marks.
 
 ---
 
-## 🧠 Comprehension & Prompt (required)
+## 🧠 Assigned AIR-Sec — EiPE (10) and Prompt Problem (10)
 
-**A. Explain in Plain English (EiPE).** In 2–3 sentences, in your own words, describe what this week's vulnerable code/endpoint actually *does* and *why it is exploitable* — explain the mechanism, don't dump jargon.
+**A. Explain in Plain English (EiPE, 10 points).** In 2–3 sentences, in your own words, describe what this week's vulnerable code/endpoint actually *does* and *why it is exploitable* — explain the mechanism, don't dump jargon.
 
-**B. Prompt Problem.** Write a **single prompt** that makes an AI produce a *correct, secure* fix for one finding. Run it: does the exploit now fail? If not, refine the prompt and try again. Submit the **final prompt + the verified result**.
+**B. Prompt Problem (10 points).** Write a **single prompt** that makes an AI produce a *correct, secure* fix for one finding. Use a local tool or an external AI if available, then verify the proposed change against the supplied tests. If no external model is available, submit the final prompt, the expected change/acceptance tests, and your own verified implementation. Submit the **final prompt + the verified result**.
 *Graded on the prompt's precision and your verification — this trains problem decomposition and AI literacy (Denny et al. 2024).*

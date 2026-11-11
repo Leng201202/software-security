@@ -1,67 +1,53 @@
-# Final — Written Exam (Week 18)
+# Final written — current KOSEN specimen A
 
-**Course:** Software Security (KOSEN69) · **Cumulative**, emphasis on **Weeks 10–15** (Week 16 is the capstone studio — no new examinable content)
-**Time:** 150 min · **Total:** 100 pts
+**Course: Software Security 2 (02005094) · Week 18 · 150-minute class slot: 10 minutes administration + 130 minutes working/checking + 10 minutes collection.**
 
-**Name:** ____________________  **Student ID:** ____________  **Date:** ________
+**Raw 100: Basic 50 + Technical 50. Course weight: 10% (5 Basic + 5 Technical).** Covers the whole term, emphasis Weeks 10–15; Week 16 adds no new examinable content.
 
-> Reason about design and the pipeline, not just single bugs. Map findings to OWASP 2025 / API / LLM Top 10 / CWE.
+Name: __________________ Student ID: ______________ Date: ___________
 
----
+This public specimen fixes scope and workload. The instructor uses a separate prepared sitting variant. Answer only the ten questions below. Each is 10 raw points, with a suggested 12 minutes (120 minutes total), then use 10 minutes to review within the 130-minute working window. Administrative time is not additional task time. Use your own explanation and the provided sandbox/code only; permitted aids follow the published sitting notice. Precise mechanisms and tested-design reasoning matter more than memorized catalogue IDs.
 
-![A blueprint diagram showing the Week 18 final exam covers Weeks 1-6 lightly, folds Weeks 7-9 midterm content into scope, weights Weeks 10-15 most heavily across six labeled topic blocks, excludes Week 16's capstone, breaks the 100 points into four sections split evenly between recall/identification and design reasoning, and contrasts this with Week 8's midterm which devoted 30 of 100 points to writing an actual exploit payload versus Week 18's zero.](img/exam-blueprint-final.svg)
+![Current examination blueprint: 150-minute slot, 130 working minutes, Basic 50 Technical 50.](img/exam-blueprint-final.svg)
 
-## Section A — Modern-stack concepts (30 pts, 5 each)
+## 1. B1 · Basic — 10 points, about 12 minutes
 
-A1. What is **BOLA** and why is it the #1 API risk? How does it differ from mass assignment?
-A2. Explain **memory-safety mitigations** (canary, ASLR, NX, PIE) and why memory-safe languages are the real fix.
-A3. Define **SBOM**, **SLSA**, and **artifact signing** — how they work together for supply-chain integrity.
-A4. What is **security misconfiguration** (A02)? Give three concrete cloud/container examples.
-A5. Explain **direct vs indirect prompt injection** with an example of each.
-A6. What does a **CI security gate** check, and what condition should fail the build?
+Define BOLA and mass assignment, and distinguish caller authentication from an object authorization decision. Give an example of an allowlisted creation field and a forbidden privilege field.
 
----
+## 2. B2 · Basic — 10 points, about 12 minutes
 
-## Section B — Spot the Vulnerability (20 pts, 5 each)
-*Name it (+ OWASP/CWE) and give the fix.*
+Explain what canaries, ASLR, NX and PIE each impede. State one benefit and one boundary of a memory-safe language; explain why one fixed ret2win offset is not portable across builds.
 
-B1.
-```python
-@app.get("/api/users/<id>/orders")
-def orders(id): return db.orders_for(id)   # any caller, any id
-```
-B2.
-```dockerfile
-FROM ubuntu:latest
-ENV AWS_SECRET=AKIA...
-USER root
-```
-B3.
-```python
-reply = llm(system_prompt + user_input)
-return f"<div>{reply}</div>"   # rendered as HTML
-```
-B4.
-```c
-char buf[64];
-strcpy(buf, argv[1]);   // no bounds check
-```
+## 3. B3 · Basic — 10 points, about 12 minutes
 
----
+Distinguish an SBOM, a vulnerability scan, a signature and a trusted signing identity. Explain why possession of a signature does not alone establish SLSA compliance or trust in the signer.
 
-## Section C — Applied (30 pts, 10 each)
+## 4. B4 · Basic — 10 points, about 12 minutes
 
-C1. Design the fix for the BOLA endpoint in B1: show the authorization check and explain deny-by-default.
-C2. You ship a container image. Write the **steps + tools** to: scan it, generate an SBOM, sign it, and verify the signature before deploy.
-C3. An LLM feature lets users ask questions over uploaded documents (RAG) and can call a "send email" tool. List three risks (with LLM IDs) and a mitigation for each.
+Identify three risks in a root container with an embedded credential and a wildcard IAM policy. Explain what a local static policy checker can show and what still requires cloud/runtime verification.
 
----
+## 5. B5 · Basic — 10 points, about 12 minutes
 
-## Section D — Design & DevSecOps (20 pts, 10 each)
+Distinguish direct and indirect prompt injection, unsafe HTML output, and excessive tool privilege. State why a model instruction by itself is not an authorization boundary.
 
-D1. Design a **GitHub Actions security pipeline**: which scanners, what each catches, where SARIF goes, and the gate condition. Why "fail closed"?
-D2. Pick one **notable supply-chain incident** (e.g. XZ Utils, SolarWinds, Log4Shell) and explain the attack path and two controls that would have reduced impact.
+## 6. T1 · Technical — 10 points, about 12 minutes
 
----
+An API permits caller alice to read bob/orders and accepts is_admin in account creation. Write owner/admin authorization and an allowlist excluding privileged fields. Give one legitimate request and one forbidden request for each control.
 
-*End of exam. Pair with the Week 19 capstone CTF + project demos.*
+## 7. T2 · Technical — 10 points, about 12 minutes
+
+A service handles untrusted UTF-8 input. Contrast byte count with Unicode scalar-value count, show safe invalid-input handling, and design a valid-input and malformed-byte test. Explain one remaining resource/security limit.
+
+## 8. T3 · Technical — 10 points, about 12 minutes
+
+A validly signed artifact is presented with the wrong public key. Design verification that pins the trusted key before accepting the cryptographic result. Include valid/trusted, tampered and valid/wrong-key tests; state what an SBOM adds.
+
+## 9. T4 · Technical — 10 points, about 12 minutes
+
+Design least-privilege S3 access that reads only releases/* in bucket course-artifacts and lists only that prefix. Separate object GetObject and bucket ListBucket resources/conditions. Give one allowed and two denied cases and distinguish policy review from a live AWS test.
+
+## 10. T5 · Technical — 10 points, about 12 minutes
+
+A document-fed assistant renders its reply as HTML and calls a privileged tool. A CI service catches authentication exceptions and grants admin. Specify independent output encoding, server tool authorization, fail-closed exception handling and safe audit logging; give positive and negative controls.
+
+The earlier paper is archived in the course source for optional reference. Its former timings/sections/mark allocation do not apply to this specimen.

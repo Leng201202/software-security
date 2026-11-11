@@ -11,7 +11,8 @@
 #
 # Keyless signing ties the signature to an OIDC identity (e.g. your GitHub
 # or Google login) via Sigstore's Fulcio CA + Rekor transparency log, so
-# there is no long-lived private key to leak (CWE-321 hard-coded key avoided).
+# there is no long-lived signing key stored by this demo. CWE-321 specifically
+# refers to a hard-coded cryptographic key, not every managed long-lived key.
 #
 # All steps run in throwaway containers (--rm). Idempotent.
 # NOTE: the push (step 1) and the SBOM/verify steps (2, 4) need no login and

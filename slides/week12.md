@@ -5,6 +5,9 @@ paginate: true
 header: "Software Security · Week 12"
 ---
 
+<!-- Current KOSEN class: 150 minutes = quiz/review10 + brief15 + shared practical100 + debrief20 + capture5. Full deck is pre-class/reference; select only the short live explanation. Both versions: common60 plus Conventional40 OR AIR20/10/10. Viva verifies existing work, no extra score or automatic-zero gate. -->
+
+
 # Week 12
 ## Software Supply-Chain Security
 Software Security · Nutthakorn Chalaemwongwan
@@ -66,7 +69,7 @@ Software Security · Nutthakorn Chalaemwongwan
 - **Malicious updates** — compromised maintainer
 - **Transitive risk** — deps of deps you never chose
 
-<!-- Define dependency confusion clearly (it's the game): if your internal pkg "acme-utils" isn't scoped, a public "acme-utils" with a higher version number can get pulled instead. Transitive = you vet your 10 deps, but they pull 800 you never saw. Stress the install-time-execution point — it's why "I never imported it" isn't a defense, and it's exactly what the lab's PWNED.txt marker proves. ~5 min. -->
+<!-- Define dependency confusion clearly (it's the game): if your internal pkg "acme-utils" isn't scoped, a public "acme-utils" with a higher version number can get pulled instead. Transitive = you vet your 10 deps, but they pull 800 you never saw. Stress the install-time-execution point — it's why "I never imported it" isn't a defense, and explain that this lab models index selection rather than installing a malicious package. ~5 min. -->
 
 ---
 
@@ -74,13 +77,13 @@ Software Security · Nutthakorn Chalaemwongwan
 
 ![The four supply-chain attack vectors as a taxonomy: typosquatting (a malicious package named like one you use — reqeusts for requests — whose setup.py runs at install time, before any import, so a single typo is enough to be owned); dependency confusion (CWE-1357, a public package with a higher version shadows your internal name and is pulled instead); malicious updates (a hijacked or compromised maintainer ships a bad version of a package you already trust); and transitive risk (the dependencies of your dependencies, code you never chose or reviewed but still ship). The trust boundary is bigger than your requirements.txt.](img/supply-chain-attack-vectors.svg)
 
-<!-- The four vectors as cards — the one to hammer is install-time execution (typosquat setup.py), because it kills the "I never imported it" defense and is exactly what the lab's PWNED.txt proves. Dependency confusion is the game. ~2 min. -->
+<!-- The four vectors as cards — the one to hammer is install-time execution (typosquat setup.py), because it kills the "I never imported it" defense but this lab does not install a malicious package or create a PWNED marker. Dependency confusion is the game. ~2 min. -->
 
 ---
 
 ## Try it — which package actually installs?
 
-Set both versions and the index mode. The resolver's real rule decides.
+Set both versions and the index mode. This bounded single-package comparison demonstrates index selection; it is not pip's complete resolver.
 
 ```sim
 resolver-confusion
@@ -145,7 +148,8 @@ docker run --rm -e COSIGN_EXPERIMENTAL=1 --network host \
 - **`cosign sign`/`verify` need a registry reference** — mounting the docker socket only lets *trivy* read the local image; cosign has nowhere to attach a signature until the image is pushed somewhere, so `sign.sh` starts a throwaway local registry first
 - **Every step needs the docker-socket mount** (trivy has to reach the local image, not just a local dir) — the SBOM step is a common copy-paste failure if it's dropped
 - **`cosign verify` needs the two `--certificate-*-regexp` flags** in keyless mode — without them it errors, it doesn't just "fail closed"
-- Keyless signing is backed by **Fulcio** (short-lived cert authority) + **Rekor** (public transparency log) — no long-lived private key sitting on disk to leak (**CWE-321**)
+- The demo's `".*"` identity/issuer patterns accept any signer. Pin the expected identity and issuer in a real admission policy; a mathematically valid signature alone is insufficient.
+- Keyless signing uses **Fulcio** (short-lived certificate) + **Rekor** (transparency log) and avoids storing a long-lived signing key locally. **CWE-321 specifically means a hard-coded cryptographic key**, not every managed long-lived key.
 
 <!-- Demo the sign→verify loop. sign.sh runs both tools dockerized — match that here, not a bare local binary. Keyless (Sigstore) = identity-based signing via OIDC through Fulcio, logged in Rekor, no key to leak — name both by name, worksheet Q4 grades on the vocabulary. The deploy gate: refuse any image that doesn't verify → a tampered artifact can't ship. This is the lab's defend step. ~4 min. -->
 
@@ -153,9 +157,12 @@ docker run --rm -e COSIGN_EXPERIMENTAL=1 --network host \
 
 ## Keyless signing — the flow
 
-![How Sigstore keyless signing works with no long-lived private key: cosign sign authenticates via an OIDC identity (GitHub/Google), Fulcio issues a short-lived (~10 min) certificate bound to that identity, cosign signs with an ephemeral key then discards it, and the signature + certificate are recorded in Rekor's public transparency log — so nothing long-lived is ever written to disk and there is no private key to leak (avoiding CWE-321). At deploy, cosign verify checks the signature against the expected identity and the Rekor log: a valid, matching signature is allowed to deploy; an unsigned or tampered image returns "no signatures found" and the gate blocks it.](img/sigstore-keyless.svg)
+1. Authenticate the signer with OIDC; Fulcio binds an ephemeral public key to that identity in a short-lived certificate.
+2. Cosign signs the artifact; Rekor records the signing event for transparency.
+3. At deploy, verify the artifact signature **and the expected identity/issuer**. Reject unsigned, changed or wrong-signer artifacts.
+4. The local Week 12 RSA fixture teaches this signer-trust decision without requiring a registry or OIDC login. Keyless signing reduces long-lived signing-key handling; it does not prove the build was trustworthy.
 
-<!-- The mental model behind the bash on the previous slide — walk it once, left to right across the sign lane, then down to the verify gate. The one idea that lands: there is no key to protect because there is no long-lived key at all; trust is anchored to an OIDC identity and a public log, not a secret file. Fulcio = the short-lived-cert CA, Rekor = the transparency log — worksheet Q4 grades on naming both. Don't re-read every box; students have the diagram, spend the time on the "identity, not a key" punchline. ~3 min. -->
+<!-- CWE-321 names a hard-coded cryptographic key, not every protected long-lived key. Use this text flow rather than the superseded sigstore-keyless.svg, which conflates those cases. Sigstore identity and Rekor evidence must be checked against an expected policy. -->
 
 ---
 
@@ -206,22 +213,24 @@ cosign-verify
 ## 📦 Game — Dependency Confusion Heist
 
 1. **Attack:** no live registry in this lab — use the resolver simulation to watch a higher-version public pkg beat the private one
-2. **Defend:** pin + scope; generate SBOM; sign & verify with Cosign; add a provenance gate
+2. **Required core:** declared-component SBOM, bounded resolver/hash controls and a real signature against the trusted key
+3. **Prepared extension:** full image inventory, keyless Cosign and a provenance gate
 
-<!-- Explain before lab — the resolver simulation stands in for a live registry (ethics: never publish a real typosquat). Defend side is graded. The SLSA self-assessment makes them reason about their own pipeline. ~3 min. -->
+<!-- Explain before lab — the resolver simulation stands in for a live registry (ethics: never publish a real typosquat). The bounded offline controls carry the shared practical points. Deeper SLSA analysis is reference/extension practice, or part of the assigned Conventional reflection. ~3 min. -->
 
 ---
 
 ## Deliverable
 
-> 📋 **Worksheet 12** — `labs/week12-supply-chain/worksheet.md` (Parts 1–4) · **kickoff:** `bash sca_scan.sh` (trivy fs + pip-audit)
+> 📋 **Worksheet 12** — `labs/week12-supply-chain/worksheet.md` · follow the 100-minute core run sheet.
 
-- SCA report + remediation plan (Part 3)
-- SBOM file + sign/verify transcript (Part 3)
-- One-paragraph SLSA self-assessment + XZ Utils case analysis (Part 4)
-- **+ Audit the AI / EiPE / Prompt Problem** (required, after Part 4 — see worksheet)
+- Supplied SCA snapshot analysis, or a clearly identified personal scan, plus remediation reasoning
+- `python3 sbom_core.py` declared-component inventory and the two `resolver_core.py` index-mode results
+- Your trusted-key pin diff and real signature positive/tamper/wrong-signer transcript
+- Hash/index control and the distinction between component inventory, signature trust and build provenance
+- **Assigned written version only:** Conventional Part 2/4 (20/20) or AIR Audit/EiPE/Prompt (20/10/10), after the shared practical 60.
 
-<!-- The SLSA self-assessment is the thinking part — they place their own build on the ladder and justify it. AI-resilient tasks count. -->
+<!-- The required core works without registry/OIDC. Full image SBOM, Cosign keyless signing and deeper SLSA self-assessment are prepared extension practice; signatures plus inventory do not automatically establish a SLSA level. -->
 
 ---
 
@@ -239,3 +248,19 @@ cosign-verify
 Next week: Cloud & container security
 
 <!-- Cliffhanger: "Next week — where your code runs. We'll hunt cloud/container misconfigs, the #1 real-world breach cause." -->
+
+
+---
+
+## Current class hand-in
+
+**Class:** quiz/review 10 + explanation/demo 15 + supervised practice 100 + debrief 20 + evidence capture 5 minutes. Prepare tools, images and access before class. The full reference tasks remain below; their standalone estimates are not an instruction to finish the entire bank during the class.
+
+**Assessment:** all students complete the shared practical **60/100** plus **one assigned version's 40/100**. Conventional uses the ordinary Part 2 questions (20) and Part 4 reflection (20). AIR-Sec uses Audit-the-AI (20), Explain-in-Plain-English (10) and Prompt Problem (10). The unassigned written version is reference practice, not an extra requirement. Each teaching worksheet contributes **2.5 course points**, making 12 individual worksheets worth 30 in total.
+
+Both versions submit their own commands/results and explanation, and complete the student patch and control tests where assigned. Personal flags are used only for an actually issued instance; a local demo flag alone does not demonstrate understanding. Viva/reproduction checks verify the existing work within its rubric: no additional points or automatic-zero gate.
+
+
+**100-minute core run sheet (time, not points):** Review SCA finding 20; resolver case 15; read/generate SBOM 20; student key-pin plus signature controls 30; hash/index control 15. The practical rubric is 20 + 20 + 20 = 60 points.
+
+Complete `trusted_key()` in `student_task.py`, then run `python3 check_student.py`. The supplied `signature-core/` packet contains a real RSA signature, a trusted public-key fingerprint, and an independently signed wrong-key control. Verification uses OpenSSL and no login. This is explicitly **key-based artifact verification**, not an OIDC/keyless-signing simulation. It demonstrates the key-trust prerequisite. Retain the real Cosign keyless/registry flow below as an instructor-prepared demo or extension; no external login or transparency-log publication is required for full worksheet marks. Prepare the SCA database, image and SBOM before class where downloads would consume the slot.

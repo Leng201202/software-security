@@ -1,6 +1,12 @@
+x-runtime: &runtime
+  image: kosen-swsec-week15:local
+  build:
+    context: .
+    dockerfile: Dockerfile
+
 services:
   insecure-service:
-    image: python:3.12-slim
+    <<: *runtime
     working_dir: /lab
     volumes:
       - ./:/lab
@@ -11,13 +17,10 @@ services:
     # Graded flags come only from your hosted CTFd instance, never from this local run.
     environment:
       - FLAG_DEVSECOPS
-    command: >
-      bash -c "pip install --no-cache-dir flask &&
-               echo '--- INSECURE service on :8090 — GET /admin fails OPEN — see worksheet.md ---' &&
-               python insecure_service.py"
+    command: python insecure_service.py
 
   secure-service:
-    image: python:3.12-slim
+    <<: *runtime
     working_dir: /lab
     volumes:
       - ./:/lab
@@ -28,7 +31,4 @@ services:
     # Graded flags come only from your hosted CTFd instance, never from this local run.
     environment:
       - FLAG_DEVSECOPS
-    command: >
-      bash -c "pip install --no-cache-dir flask &&
-               echo '--- SECURE service on :8091 — GET /admin fails CLOSED + logs ---' &&
-               python secure_service.py"
+    command: python secure_service.py

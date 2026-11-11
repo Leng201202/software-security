@@ -1,50 +1,53 @@
-# Final — Capstone CTF Tournament (Week 19)
+# Final team practical — current KOSEN assessment
 
-**Course:** Software Security (KOSEN69) · **Covers:** the whole term
-**Time:** 150 min · **Total:** 165 pts · **Team-based** · leaderboard · Sandbox only (ethics policy applies).
+**02005094 · Week 19 · 150-minute slot: briefing10 + bounded tasks130 + submission10.**
 
-> Submit per challenge: the **flag** (or noted proof), the **payload/command**, and a **one-line mitigation**. Difficulty rises with points. (The graded project demo is scored separately — see the [project rubric](../../project/README.md).)
+**Raw 100 · Technical 100 · course contribution 15%. Existing teams of 2–3.** Only the four stations below are required. Course marks use the fixed rubric, independent of CTFd dynamic scores, first-blood, prizes or House XP. A flag alone does not demonstrate correction and cannot earn full academic marks.
 
-**Targets — graded flags come from *your own* instance in the hosted CTFd** (account + WireGuard VPN setup: [arena-vpn-guide](../../docs/arena-vpn-guide.md)) for challenges 1–8, 12 and 14 (#8 Smash is hidden on CTFd until the sitting opens). Challenges 9, 10, 11 and 13 have no hosted instance: your team solves them **on your own laptop, from the per-team pack you receive at the start of the sitting** (not the public lab folders), and uploads **one team PDF to assignment #16** with the four proofs. The public lab folders stay available for practice only and serve demo flags (e.g. `FLAG{..._demo}`), which are not a valid submission.
+![Four fixed stations, 130 task minutes, raw 100; flags and engagement scores do not replace evidence.](img/capstone-map.svg)
 
-![A two-column exam blueprint showing the 165-point capstone CTF split across seven categories on the left, feeding via a funnel into the seven-step term project demo pipeline on the right, with the flag-payload-mitigation submission format tying the two halves together.](img/capstone-map.svg)
+The instructor supplies a preflighted local examination pack with the selected starters, data and dependency/runtime instructions. Public weekly labs are practice, not personalized examination evidence; fresh exam flags/instances are not claimed to be deployed. If a supplied hosted instance is used, its proof must come from the assigned instance, but the correction and control evidence below still applies. Never attack an external system.
 
-| # | Title | Topic / target | Pts |
-|---|-------|----------------|-----|
-| 1 | **Boolean Bypass** | SQLi login (week04) | 10 |
-| 2 | **Shell Out** | command injection (week04) | 15 |
-| 3 | **Persistent Pop** | stored XSS (week05) | 10 |
-| 4 | **Not Your Object** | IDOR (week06) | 10 |
-| 5 | **Token Smith** | forge JWT to admin (week06) | 15 |
-| 6 | **BOLA (API)** | broken object-level authorization (week10) | 8 |
-| 7 | **Mass Assignment** | bind a privileged field the server should not accept (week10) | 7 |
-| 8 | **Smash** | stack overflow → `win()` ret2win (week11) | 20 |
-| 9 | **Fuzz First** | crash the binary with a fuzzer (week11) | 10 |
-| 10 | **Bad Dependency** | find the vulnerable dep / unsigned image (week12) | 10 |
-| 11 | **Misconfig Hunt** | exposed secret / `*:*` IAM / root Dockerfile (week13) | 15 |
-| 12 | **Jailbreak the Bot** | prompt injection → leak the secret (week14) | 10 |
-| 13 | **Indirect Hit** | indirect injection / output XSS (week14) | 10 |
-| 14 | **Break the Build** | `/admin` fails open on a malformed token (week15) | 15 |
+## Station A — API boundary and field control: 25 raw points, 30 minutes
 
-> **Note (8 Oct 2026):** #6/#7 were one combined "Raid the API" challenge on an earlier draft of this
-> sheet; the hosted CTFd host already runs BOLA and Mass Assignment as two separate challenge
-> instances, so this sheet now matches that rather than requiring a rebuild. Point split (8/7) is a
-> provisional even-ish division of the old combined 15 and can be rebalanced freely — nothing depends
-> on these exact numbers. (The CTFd scoreboard's own dynamic point values for these two are a
-> *different*, much larger scale used only for engagement/leaderboard purposes — not the number to
-> copy onto this capstone sheet.)
->
-> **Note (9 Oct 2026):** #14 "Break the Build" was already live on the hosted CTFd (image
-> `airsec/w15-devsecops:dev`, a bake of week15's `insecure_service.py`) but missing from this sheet —
-> Week 15 otherwise had no capstone challenge at all. Added at 15 pts (no new build needed); total
-> moved from 150 to 165.
+**Scope:** W10 with W4–6 callback.
 
-**Submission table**
+Implement owner/admin order authorization and an allowlist of account-creation fields. Demonstrate owner/admin success, cross-user denial and exclusion of a privilege field. Explain why the teaching identity-header assumption is not a production authentication design.
 
-| # | Flag / proof | Payload or command | Mitigation |
-|---|---|---|---|
-| 1–14 | | | |
+**Submit:** Student code, positive/negative checks and the trust-boundary explanation.
 
-> **How to submit (8 Nov 2026):** the **10 hosted challenges (#1–8, #12, #14) are graded by the flag alone** — paste each challenge's flag into CTFd; nothing is uploaded for them. For the **4 local challenges (#9, #10, #11, #13)**, put the flag/proof, the command or payload, and a one-line mitigation for each into the **one team PDF** your team uploads to assignment #16. The three columns above are what to include for those four.
+## Station B — Memory safety and input boundary: 25 raw points, 35 minutes
 
-*Rules:* attack only provided targets; one submission per team per challenge; document method. First-blood bonus at instructor's discretion.
+**Scope:** W11.
+
+Use the supplied architecture-compatible starter. Explain the unsafe C copy and build-specific ret2win offset from provided diagnostic evidence; complete the Rust Unicode scalar-value counter and validate the supplied invalid-UTF-8 path. Run valid and invalid-input controls. No exploit construction/fuzzing from scratch is required.
+
+**Submit:** Diagnostic explanation plus student Rust code and both observed controls. The provided C crash trace is an input, not proof that the student ran an exploit.
+
+## Station C — Artifact trust and least privilege: 25 raw points, 30 minutes
+
+**Scope:** W12/W13.
+
+Complete the trusted-public-key fingerprint decision in the prepared local RSA signature fixture. Run trusted-valid, tampered and valid-wrong-key controls; identify the separate authorization decisions in a supplied minimal S3 policy and correct the indicated wildcard. Explain the local fixture/runtime limits.
+
+**Submit:** Student key-pin patch, three verification outcomes, one focused policy diff and scope statement. No registry/OIDC/AWS account is required.
+
+## Station D — AI output boundary and fail-closed CI: 25 raw points, 35 minutes
+
+**Scope:** W14/W15.
+
+Complete secret redaction plus HTML text encoding and fail-closed authorization on a lookup exception. Keep a legitimate request working; reject the secret/XSS or exception case. Record safe audit fields without leaking token/exception text.
+
+**Submit:** Student patches, positive/negative checks and safe log output. No external AI account or hosted jailbreak leaderboard is required.
+
+## Fixed marking and conversion
+
+Each station: root cause and boundary5 + student correction10 + legitimate/negative controls7 + reproducible evidence/limits3 =25. Four stations give raw 100, all Technical. Course contribution = raw/100×15. Record each member's contribution; team2–3 matches existing project grouping. Evidence and reasoning, not flag count, establish partial credit. Leaderboard/first-blood is engagement only.
+
+The project report/code and video of at most 5 minutes are due **before this session** and carry their separate15% rubric. There is no project Q&A inside the130-minute practical. Clarification belongs in Weeks16 and20; the project peer-adjusted raw is capped at 100 before ×0.15.
+
+## Submission
+
+Submit one evidence bundle per student (midterm) or existing team (final): station ID, changed source/diff, exact command, observed result, legitimate positive control, negative control, mechanism and remaining limits. Use the actual sitting assignment announced by the instructor; this update does not silently repurpose historical MFU assignment #16 or change old grades. Verify upload within the final10minutes; no extra task work is scheduled then.
+
+The complete earlier challenge sheet archived in the course source remains an optional practice bank. Its old challenge count, hash-cracking/ECB tasks, raw totals and flag-only submission rule are superseded for this KOSEN sitting.

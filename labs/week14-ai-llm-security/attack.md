@@ -1,12 +1,12 @@
 # Week 14 — AI / LLM Security: Attack Walkthrough
 
 This lab needs no API key and no internet model — the "LLM" is a local rule-based mock.
-(The first `docker compose up` still pulls the image and pip-installs Flask, so start it once before class.) The bot hides a secret flag in its system prompt.
+Build the image once while online before class with `docker compose build`; starting the prepared containers needs no package install. The bot hides a secret flag in its system prompt.
 
 Start the labs:
 
 ```bash
-docker compose up        # INSECURE on :8082, GUARDED on :8083
+docker compose up --no-build --pull never  # INSECURE on :8082, GUARDED on :8083
 ```
 
 Then open the INSECURE bot in a browser: <http://localhost:8082>

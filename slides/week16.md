@@ -2,88 +2,58 @@
 marp: true
 theme: default
 paginate: true
-header: "Software Security · Week 16"
+header: "Software Security 2 · KOSEN 02005094 · Week 16"
 ---
 
-# Week 16
-## Capstone Studio & CTF Warm-up
-Software Security · Nutthakorn Chalaemwongwan
+# Week 16 · Formative capstone studio
+## 150 minutes · teams 2–3
 
-<!-- Studio day, not a lecture. Frame: this is the dress rehearsal for the graded Week 19. Goal = every team leaves knowing exactly what to fix. ~2 min. -->
-
----
-
-## Today
-
-- Work-in-progress capstone demos
-- Cross-team peer review
-- 🏆 Practice CTF tournament (previews Week 19)
-
-<!-- Roadmap. Time-box: WIP demos + peer review first half, practice CTF second half (300-min block). Keep demos strictly timed so everyone presents. -->
+No separate worksheet marks. This supports the existing 15% project; it is not a thirteenth Lab.
 
 ---
 
-## Capstone — what good looks like
+## Today: 10 +100 +30 +10 =150
 
-- Clear threat model → real vulnerabilities → working fixes
-- SBOM + signed artifact
-- Security CI pipeline that gates the build
-- Story: attack → root cause → fix
+- 0–10: brief and select remaining risks
+- 10–110: build, test and peer review
+- 110–140: instructor project clarification
+- 140–150: save evidence and next actions
 
-<!-- Show the bar before demos so teams self-assess. This = the Week 19 graded rubric (project/README.md). Emphasize the narrative: attack → root cause → fix is what scores. ~4 min. -->
-
----
-
-## The whole term, one lookup table
-
-![The OWASP Top 10 (2025), each row paired with the week that taught it, the lab file that demonstrated it, and a representative CWE — A01 Broken Access Control (weeks 6, 10, deep coverage), A02 Security Misconfiguration (weeks 13, 2), A03 Software Supply Chain Failures (weeks 12, 15, deep coverage), A04 Cryptographic Failures (week 3), A05 Injection (weeks 4, 5, 2, deep coverage), A06 Insecure Design (week 1), A07 Authentication Failures (week 6), A08 Integrity Failures (week 12), A09 Logging Failures (week 15), A10 Mishandling Exceptional Conditions (week 15) — plus three categories beyond the web Top 10 still graded in the capstone CTF: API1 BOLA (week 10), memory-safety exploitation (week 11), and prompt injection (week 14).](img/owasp-map.svg)
-
-<!-- The self-assessment tool for this session: which categories does YOUR capstone actually demonstrate, and which week's lab is the closest precedent to borrow from? The three "deep coverage" rows (A01/A03/A05) had the most lab hours — that's where a team's evidence will be strongest, and a useful nudge for teams still choosing what to build around. ~4 min. -->
+Optional peer preview≤5 minutes inside the100-minute block; no serial15-minute slot required for every team.
 
 ---
 
-## Demo format (today, ungraded)
+## A convincing project chain
 
-- 10-min demo + 5-min Q&A
-- Show one full attack→fix walkthrough — **live** unless your environment breaks, then a recorded fallback is fine (this is a rehearsal, not the Week 19 format)
-- Get peer feedback before the graded Week 19
+Threat model → authorized finding → root cause → student fix → negative and legitimate positive controls.
 
-<!-- Run on a timer (15 min/team). "Ungraded" lowers stakes so they expose weak spots now. Prefer live — it's the better rehearsal — but don't hard-block a team whose sandbox breaks; the worksheet itself allows a recorded fallback for the attack segment, so don't contradict it on stage. -->
+SBOM scope; trusted signing identity and cryptographic verification; CI red/green evidence. A signature plus SBOM does not automatically establish a SLSA level.
 
 ---
 
-## Peer review rubric
+## Map the whole course
 
-- Is the threat model complete?
-- Are findings CWE/OWASP-mapped & reproduced?
-- Do the fixes actually close the bug?
-- Is the pipeline real (fails on findings)?
-
-<!-- Hand each team this as a checklist to score the team presenting (use scrimmage.md). Peer feedback in writing → the presenting team gets a punch-list. This is the main value of the session. -->
+![OWASP/category map linking course topics to their labs; assessment rules follow the current project guide.](img/owasp-map.svg)
 
 ---
 
-## 🏆 Practice CTF
+## Peer feedback
 
-- Mixed web / API / binary / supply-chain / cloud / LLM — 9 challenges, 6 categories
-- **Boss challenge:** chains two bugs on **NoteVault** itself — your term project's own starter app
-- Cross-team scrimmage, dry run for the Week 19 tournament
+- Does the model cover actual boundaries and risks?
+- Are findings precise, ethical and reproducible?
+- Does the patch close the cause while preserving intended behavior?
+- Does the CI gate fail safely, with useful secret-free logs?
 
-<!-- Run the scrimmage (scrimmage.md / item-bank CTF pool) in the exact W19 team format so the final has no surprises — don't drop "cloud" from the category list, it's a real category on the board (misconfig hunt, wk13). The Boss challenge is the one place this CTF ties back to the capstone theme — call it out, it's easy to miss. Leaderboard on CTFd. ~2.5 h. -->
+Feedback stays formative. Optional scrimmage work uses remaining time only.
 
 ---
 
 ## Before Week 19
 
-- Fix gaps peers flagged
-- Finalize SBOM + signing + pipeline
-- Rehearse the demo
+Submit project report +code +recorded video **at most 5 minutes**.
 
-<!-- Send them off with a concrete punch-list (the peer feedback). Remind: W19 demo is graded + the final CTF tournament. -->
+Project clarification:Weeks 16/20. Week 19 is the separate 150-minute team practical, four bounded stations/raw 100; no project Q&A takes exam time.
 
----
+The project's peer-adjusted raw mark is capped at 100 before ×0.15.
 
-# Next: pre-final review (Week 17)
-Then the final — Wk 18 written · Wk 19 capstone CTF
-
-<!-- Bridge to W17 review. Confirm project repos are runnable before the final. -->
+[Current checklist](../labs/week16-capstone/worksheet.md)

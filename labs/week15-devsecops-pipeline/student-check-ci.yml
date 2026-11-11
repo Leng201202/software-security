@@ -1,0 +1,17 @@
+# Prepared bounded class exercise. Copy into .github/workflows/ in the
+# instructor-prepared lab-only repository; the course repo does not run it here.
+name: student-control-check
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  student-controls:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+      - name: Check fail-closed behavior and safe log fields
+        run: python3 check_student.py
