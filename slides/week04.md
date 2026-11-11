@@ -7,7 +7,7 @@ header: "Software Security · Week 4"
 
 # Week 4
 ## Injection & Input Handling
-Software Security · Nutthakorn Chalaemwongwan
+Software Security 2 · Nutthakorn Chalaemwongwan · Shinya Oyama
 
 <!-- Hook: type one quote mark into a login box and become admin — promise that demo. Injection is the oldest trick that still works. Today they exploit it, then fix it for real. ~2 min. -->
 
@@ -15,7 +15,12 @@ Software Security · Nutthakorn Chalaemwongwan
 
 ## Today
 
-- Why injection is still #1-class of bug
+**KOSEN class: 150 minutes.** Quiz/review 10 + brief/demo 15 + practical 100 + debrief 20 + capture 5. Full slide explanations are preparation/reference.
+
+**Worksheet:** common practical 60 + assigned Conventional written 40 **or** AIR-Sec Audit 20 / EiPE 10 / Prompt 10. Each totals 100; viva verifies understanding within the rubric. Extensions add no graded points.
+
+
+- Why injection still matters
 - The general injection pattern
 - SQL injection — hands-on
 - Command injection
@@ -196,7 +201,7 @@ The classic *chain*, attacker uploads `shell.php`:
 
 - **If** the upload dir is web-served and PHP-executable: `.../uploads/shell.php?cmd=ls%20-l` → RCE
 - **This week's lab stops one step earlier:** CWE-434 unrestricted upload — the app accepts any file type/extension, but the upload directory is **not** served or executed. Your task: explain *which missing control* would complete the chain (type check, extension allow-list, storage outside web root, no-exec) — not demonstrate a live shell
-- **Fix:** validate file type via `mime_content_type()`, allow-list extensions, store uploads outside web root, no execute
+- **Fix:** check type using controls appropriate to the app, allow-list extensions, store uploads outside web root, disable execution
 
 <!-- Connects to W1's /upload threat model. Be precise: this app does NOT give you a working webshell today — Task 4 is a documentation exercise ("what's missing, and why does that stop RCE?"), not a live exploit. Don't imply students will pop a shell; they'll reason about the one control standing between this bug and that outcome. ~5 min. -->
 
@@ -208,7 +213,7 @@ The classic *chain*, attacker uploads `shell.php`:
 - **CWE-78** — OS command injection (CWE-77 is its general parent — cite CWE-78, the specific one)
 - **CWE-434** — unrestricted upload of a dangerous file type
 
-<!-- They map every lab finding to a CWE id — these three are what this week's worksheet actually grades. CWE-434 is a quarter of the exploitation score; don't drop it from this list. ~1 min. -->
+<!-- They map every lab finding to a CWE id — these three are what this week's worksheet actually grades. CWE-434 remains an optional upload extension; keep its mechanism in the reference list without assigning it extra required core points. ~1 min. -->
 
 ---
 
@@ -224,14 +229,14 @@ The classic *chain*, attacker uploads `shell.php`:
 
 ---
 
-## One value, three interpreters
+## One request, three security sinks
 
-![One untrusted request value reaches three different interpreters — SQL (CWE-89, fixed by a parameterized query), the OS shell (CWE-78, fixed by an argument vector with shell=False), and a filesystem write (CWE-434, fixed by an extension allow-list). One input filter cannot guard three grammars — the fix belongs at the sink that parses the value, not at the source.](img/injection-sinks.svg)
+![Untrusted request data reaches three security sinks: SQL (CWE-89, controlled with bound parameters), the OS shell (CWE-78, avoided with an argument list and shell=False), and file storage (CWE-434, constrained with a safe filename, allowed type and non-executable storage). Each sink needs its own control.](img/injection-sinks.svg)
 
 - **SQL** (`WHERE username = <in>`) → parameterized query — bind the value
 - **Shell** (`ping … <in>`) → argument vector + `shell=False` — no shell to parse it
 - **Filesystem** (`save(<in>)`) → extension allow-list + store outside web root
-- One filter can't guard three grammars — **fix at each sink, not at the source**
+- Each sink needs its own control.
 
 <!-- Synthesis slide — the SAME untrusted value from request.args/request.files is what feeds all three attacks just covered. Land on the closing line: escaping quotes does nothing to a semicolon in a shell, and a safe filename does nothing to SQL. Sets up "Defenses" as three separate fixes, not one. ~4 min. -->
 
@@ -239,21 +244,21 @@ The classic *chain*, attacker uploads `shell.php`:
 
 ## ⚔️ Game — SQLi Warm-up
 
-Four hits against this week's own app — no filters to bypass, the app has none:
+Three core hits and one optional upload extension against this week's own app — no filters to bypass, the app has none:
 
 1. Auth bypass (`alice'--`)
 2. UNION dump (steal all credentials)
 3. Command injection
-4. Unrestricted upload
-5. **Warm-up cleared:** run `solution_app.py`, prove all four attacks now fail, cite the exact fix line for each
+4. Unrestricted upload *(optional extension)*
+5. **Warm-up cleared:** write `student_patch.py`, pass normal/attack controls, then compare `solution_app.py`
 
-<!-- Explain before lab: this is NOT a tiered WAF-bypass ladder — it's 4 fixed attacks against app.py, then proving solution_app.py blocks all 4 ("warm-up cleared" = Task 5). No filter exists in the vulnerable app to bypass; don't set that expectation. DVWA/Juice Shop remain available as optional secondary targets, not the graded game. This is deliberately separate from the arena's own "SQLi Boss Fight" container challenge later in the session — same technique, different target, don't conflate the two names. ~3 min. -->
+<!-- Explain before lab: three attacks against the supplied app, then the student-authored patch and its controls. Upload is an optional extension. No filter exists in the vulnerable app to bypass. DVWA/Juice Shop are optional secondary targets. ~3 min. -->
 
 ---
 
 ## Lab steps
 
-> 📋 **Worksheet 4** — `labs/week04-injection/worksheet.md` (Part 3) · **kickoff:** `docker compose up` → http://localhost:8080
+> 📋 **Worksheet 4** — `labs/week04-injection/worksheet.md` (Part 3) · **prebuild while online:** `docker compose build` · **kickoff:** `docker compose up --no-build --pull never` → http://localhost:8080
 
 ```bash
 docker run --rm -p 80:80 vulnerables/web-dvwa   # optional extra target (or Juice Shop)
@@ -262,10 +267,10 @@ docker run --rm -p 80:80 vulnerables/web-dvwa   # optional extra target (or Juic
 1. Find an injectable parameter, bypass auth
 2. Extract data (UNION dump)
 3. Achieve command injection
-4. Probe the upload endpoint — document the missing control
-5. Rewrite the endpoints safely & re-test
+4. Write the bounded login/ping patch and run its controls
+5. Compare the full reference; probe upload only as an optional extension
 
-<!-- Logistics. Circulate with TAs. Remind: step 4 (rewrite + prove the payload now fails) is graded, not just the exploit. Also kick off the NoteVault project injection task (worksheet). -->
+<!-- Logistics. Circulate with TAs. The student-authored patch and its normal/attack controls are graded, along with the core observations and reasoning. Also kick off the NoteVault project injection task. -->
 
 ---
 
@@ -274,9 +279,9 @@ docker run --rm -p 80:80 vulnerables/web-dvwa   # optional extra target (or Juic
 - Findings: each injection point + payload + impact (CWE-mapped)
 - The **fixed** code (prepared statements / validation)
 - Proof the payload no longer works
-- **+ Audit the AI / EiPE / Prompt Problem** (see worksheet)
+- **Assigned AIR-Sec 40: Audit / EiPE / Prompt; Conventional uses written 40** (see worksheet)
 
-<!-- Set expectations: before AND after code + proof. The AI-resilient tasks are part of the grade. The weekly quiz no longer asks for their payload/flag (that question was dropped — quiz runs before the lab, so it couldn't be answered) — the payload + flag are required in the worksheet's Task 1 and Evidence & Integrity section instead. -->
+<!-- Set expectations: before AND after code + proof. Only the assigned AIR-Sec 40 uses Audit/EiPE/Prompt; Conventional students submit their written 40. The weekly quiz no longer asks for their payload/flag (that question was dropped — quiz runs before the lab, so it couldn't be answered) — the payload + flag are required in the worksheet's Task 1 and Evidence & Integrity section instead. -->
 
 ---
 
@@ -294,3 +299,5 @@ docker run --rm -p 80:80 vulnerables/web-dvwa   # optional extra target (or Juic
 Next week: XSS & client-side risks
 
 <!-- Cliffhanger: "Next week the same trick runs in the victim's browser — and skims credit cards." Remind DVWA/Juice Shop ready in their VM. -->
+
+<!-- Current authored work: student_patch.py plus student_checks.py, positive and negative controls, and an explanation. Reference-only output does not demonstrate the student patch. -->

@@ -13,6 +13,5 @@ services:
       - FLAG_SQLI
       - FLAG_CMDI
     command: >
-      bash -c "pip install --no-cache-dir flask &&
-               echo '--- vulnerable app on :8080 (use solution_app.py for the fixed version) ---' &&
+      bash -c "echo '--- vulnerable app on :8080 (use solution_app.py for the fixed version) ---' &&
                python vulnerable_app.py"
