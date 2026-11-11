@@ -168,7 +168,7 @@ function organize(body) {
       continue;
     }
     const paras = [];
-    while (i < body.length && body[i].t === "raw" && !body[i].v.includes("|") && !/^[-*]\s+/.test(body[i].v) && !/^\d+\.\s+/.test(body[i].v) && !body[i].v.startsWith(">")) {
+    while (i < body.length && body[i].t === "raw" && !/^\s*\|/.test(body[i].v) && !/^[-*]\s+/.test(body[i].v) && !/^\d+\.\s+/.test(body[i].v) && !body[i].v.startsWith(">")) {
       paras.push(strip(body[i].v)); i++;
     }
     if (paras.length) out.push({ kind: "para", text: paras.join("\n") });
@@ -219,7 +219,11 @@ async function loadImage(ww, src) {
   return out;
 }
 
-(async () => {
+// Shared parser and diagram loader for the PBL-template KOSEN export.
+// Importing this module must not rebuild the legacy decks.
+module.exports = { parseDeck, organize, loadImage, strip };
+
+if (require.main === module) (async () => {
   const ICON = await iconPng(FA.FaChevronRight, "#0E1726"); // dark, sits on orange circle
 
   for (let n = 1; n <= 19; n++) {

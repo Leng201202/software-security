@@ -8,14 +8,16 @@ generated from the Marp markdown in `../weekNN.md` (the source of truth).
 - **KOSEN:** blue `#017BC4` (from the KOSEN-KMITL logo)
 - **Neutrals (KMITL secondary):** white `#FFFFFF`, grey `#666666`, black `#000000`
 - Logo: `assets/logo-small.png` (KOSEN-KMITL official, downscaled for small file size)
-- Dark premium theme; logo on every slide; section icons + cards; native PPTX tables/charts.
+- Logo on every slide; native PPTX text, cards, and tables. The Week 10–15 decks use the light visual template from `KOSEN69 - PBL/slides/pbl4/week03-sprint1/PBL4_W03_Sprint1.pptx`.
 
 ## Regenerate (after editing the `../weekNN.md` source)
 ```bash
 cd slides/pptx
 npm install pptxgenjs react-icons react react-dom sharp   # once
-node build_all.js                                         # rebuilds all 19 .pptx
+node build_all.js                                         # legacy layout, all 19 .pptx
+node build_kosen_pbl.js                                   # PBL layout, Week 10–15 only
 ```
+Run `build_kosen_pbl.js` last when regenerating Week 10–15; `build_all.js` would replace those six files with the older layout. The PBL export uses the current `../weekNN.md`, embeds each lab diagram, retains the source speaker notes, and splits long hand-in text across continuation slides.
 The decks open and are fully editable in PowerPoint. Edit content in the Marp
 `.md` files and re-run, or tweak the generated `.pptx` directly for one-off slides.
 
