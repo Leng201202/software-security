@@ -32,6 +32,12 @@ docker compose up --no-build --pull never
 
 Open `http://localhost:8080/` first to set the sandbox session cookie. The app is bound to loopback only. Capture your own browser, terminal, and student ID together for evidence. In a second terminal, run `python3 -m http.server 8081 --bind 127.0.0.1` from this lab directory for Task 3. Both ports must be free.
 
+![Stored XSS runs in the target origin and can read a cookie without HttpOnly. For CSRF, a different-origin page on localhost port 8081 sends a same-site authenticated POST to port 8080; the reference rejects it with a server-checked token.](img/xss-and-csrf.svg)
+
+```sim
+xss-context
+```
+
 | Task | Minutes | Work and evidence |
 |---|---:|---|
 | 0. Baseline | 5 | Visit `/`, then `/hello?name=Alice` and `/comments`. Record the session cookie and a normal comment. |
