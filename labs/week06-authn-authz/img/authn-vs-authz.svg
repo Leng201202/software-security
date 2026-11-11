@@ -1,4 +1,4 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 740 600" role="img" aria-label="Week 6 authentication versus authorization. One HTTP request must pass two different gates. Gate 1, authentication, answers 'who are you' by verifying a token's signature and algorithm. It is broken in vulnerable_app.py: line 55 allows the algorithm 'none', so an unsigned forged token passes, and line 9 hardcodes the weak secret 'secret', so a token an attacker signs with 'secret' is cryptographically identical to a real one. All three tokens shown, an alg:none forgery, a weak-secret forgery, and alice's genuine login token, pass Gate 1. These are CWE-347 and CWE-321. Gate 2, authorization, answers 'may you touch THIS' by comparing the order owner to the caller. It is broken because get_order ignores the current_user result at line 63, so no ownership check runs. The key point: even alice's perfectly valid token, once past Gate 1, reads GET /api/orders/2, which belongs to bob and leaks FLAG_IDOR. That is CWE-639, IDOR. A valid token clears Gate 1 but must not be enough to clear Gate 2. solution_app.py fixes both: Gate 1 pins algorithms to HS256, requires exp and aud (line 50) and uses a strong random secret (line 10) so forged tokens get 401; Gate 2 compares owner to user (line 64) so alice on order 2 gets 403.">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 740 600" role="img" aria-label="Week 6 authentication versus authorization. One HTTP request must pass two different gates. Gate 1, authentication, answers 'who are you' by verifying a token's signature and algorithm. It is broken in vulnerable_app.py: the vulnerable branch allows the algorithm 'none', so an unsigned forged token passes, and the application hardcodes the weak secret 'secret', so a token an attacker signs with 'secret' is cryptographically identical to a real one. All three tokens shown, an alg:none forgery, a weak-secret forgery, and alice's genuine login token, pass Gate 1. These are CWE-347 and CWE-321. Gate 2, authorization, answers 'may you touch THIS' by comparing the order owner to the caller. It is broken because get_order ignores the current_user result in the order handler, so no ownership check runs. The key point: even alice's perfectly valid token, once past Gate 1, reads GET /api/orders/2, which belongs to bob and leaks FLAG_IDOR. That is CWE-639, IDOR. A valid token clears Gate 1 but must not be enough to clear Gate 2. solution_app.py fixes both: Gate 1 pins algorithms to HS256, requires exp and aud and uses a strong random secret so forged tokens get 401; Gate 2 compares owner to user so alice on order 2 gets 403.">
 <title>Authentication vs Authorization: one request, two gates (Week 6)</title>
 <style>
   text { font-family: system-ui, sans-serif; }
@@ -89,8 +89,8 @@
 <line x1="196" y1="150" x2="346" y2="150" class="st-grey" stroke-width="1"/>
 <text x="196" y="167" class="tx-ink" font-size="11">verify signature + alg</text>
 <text x="196" y="187" class="tx-orange" font-size="11" font-weight="700">BROKEN</text>
-<text x="196" y="204" class="tx-orange mono" font-size="11">alg:none ok (L55)</text>
-<text x="196" y="221" class="tx-orange mono" font-size="11">SECRET="secret" L9</text>
+<text x="196" y="204" class="tx-orange mono" font-size="11">alg:none accepted</text>
+<text x="196" y="221" class="tx-orange mono" font-size="11">SECRET="secret"</text>
 <text x="196" y="241" class="tx-ink" font-size="11">&#8594; all 3 pass; can't</text>
 <text x="196" y="256" class="tx-ink" font-size="11">tell forged from real</text>
 <text x="196" y="276" class="tx-grey" font-size="11" font-weight="600">CWE-347 &#183; CWE-321</text>
@@ -109,7 +109,7 @@
 <text x="412" y="167" class="tx-ink" font-size="11">compare owner==caller</text>
 <text x="412" y="187" class="tx-orange" font-size="11" font-weight="700">BROKEN</text>
 <text x="412" y="204" class="tx-orange mono" font-size="11">current_user()</text>
-<text x="412" y="221" class="tx-orange mono" font-size="11">result ignored L63</text>
+<text x="412" y="221" class="tx-orange mono" font-size="11">result ignored</text>
 <text x="412" y="241" class="tx-ink" font-size="11">&#8594; owner never</text>
 <text x="412" y="256" class="tx-ink" font-size="11">checked; any id reads</text>
 <text x="412" y="276" class="tx-orange" font-size="11" font-weight="700">CWE-639 &#183; IDOR</text>
@@ -141,14 +141,14 @@
 <!-- fix col 1 -->
 <text x="30" y="436" class="tx-blue" font-size="12" font-weight="700">GATE 1 fix &#8212; authentication</text>
 <text x="30" y="456" class="tx-ink mono" font-size="11">algorithms=["HS256"]</text>
-<text x="30" y="474" class="tx-ink mono" font-size="11">require exp + aud (L50)</text>
-<text x="30" y="492" class="tx-ink mono" font-size="11">strong random secret (L10)</text>
+<text x="30" y="474" class="tx-ink mono" font-size="11">require exp + aud</text>
+<text x="30" y="492" class="tx-ink mono" font-size="11">strong random secret</text>
 <text x="30" y="514" class="tx-orange" font-size="11" font-weight="600">&#8594; forged tokens &#8594; 401</text>
 
 <!-- fix col 2 -->
 <text x="388" y="436" class="tx-blue" font-size="12" font-weight="700">GATE 2 fix &#8212; authorization</text>
 <text x="388" y="456" class="tx-ink mono" font-size="11">if owner != user: 403</text>
-<text x="388" y="474" class="tx-ink mono" font-size="11">checked per object (L64)</text>
+<text x="388" y="474" class="tx-ink mono" font-size="11">checked per object</text>
 <text x="388" y="492" class="tx-orange" font-size="11" font-weight="600">&#8594; alice on /orders/2 &#8594; 403</text>
 <text x="388" y="514" class="tx-grey" font-size="11">a valid token &#8800; permission</text>
 </svg>

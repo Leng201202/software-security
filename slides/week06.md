@@ -7,7 +7,7 @@ header: "Software Security · Week 6"
 
 # Week 6
 ## Authentication, Sessions & Access Control
-Software Security · Nutthakorn Chalaemwongwan
+Software Security 2 · Nutthakorn Chalaemwongwan · Shinya Oyama
 
 <!-- Hook: change /orders/1 to /2 and read a stranger's data — promise that demo. The #1 web risk in 2025 is Broken Access Control, and it's mostly missing one check. ~2 min. -->
 
@@ -15,13 +15,18 @@ Software Security · Nutthakorn Chalaemwongwan
 
 ## Today
 
+**KOSEN class: 150 minutes.** Quiz/review 10 + brief/demo 15 + practical 100 + debrief 20 + capture 5. Full slide explanations are preparation/reference.
+
+**Worksheet:** common practical 60 + assigned Conventional written 40 **or** AIR-Sec Audit 20 / EiPE 10 / Prompt 10. Each totals 100; viva verifies understanding within the rubric. Extensions add no graded points.
+
+
 - Authn vs authz
 - Session management & JWT pitfalls
 - OAuth2 / OIDC at a glance
 - IDOR & broken access control
 - 🎮 Game: **IDOR Treasure Hunt + JWT Forgery**
 
-<!-- Roadmap, 1 min. This is the last teaching week before review/midterm — flag that. Lab = exploit IDOR + forge a JWT, then implement RBAC + proper verification. -->
+<!-- Roadmap, 1 min. This is the last teaching week before review/midterm. Lab = exploit IDOR + forge a JWT, then implement object ownership and proper token verification. -->
 
 ---
 
@@ -52,7 +57,7 @@ Software Security · Nutthakorn Chalaemwongwan
 - Risks: fixation, predictable IDs, **no expiry**, no logout invalidation
 - **Today's lab is 100% JWT bearer-token — no cookies at all.** Of these four risks, only "no expiry" is what you'll actually exercise (the fix adds a 15-min `exp` claim); fixation/predictable-ID/logout-invalidation are cookie-session concepts, general knowledge, not tested here
 
-<!-- Connect cookie flags to W5: HttpOnly stops XSS theft, SameSite stops CSRF, Secure forces HTTPS. Be upfront that this lab doesn't touch cookies — don't let students expect a cookie-based task today. Explain session fixation briefly (attacker sets the id before login) as general knowledge. ~5 min. -->
+<!-- Connect cookie flags to W5: HttpOnly stops XSS theft, SameSite restricts cross-site cookie attachment; a server-side authorization/CSRF check is still needed, Secure forces HTTPS. Be upfront that this lab doesn't touch cookies — don't let students expect a cookie-based task today. Explain session fixation briefly (attacker sets the id before login) as general knowledge. ~5 min. -->
 
 ---
 
@@ -78,9 +83,9 @@ jwt-forge
 if alg == "none": jwt.decode(token, options={"verify_signature": False})
 SECRET = "secret"
 
-# fixed: pin the algorithm, strong secret, require exp + aud
+# fixed: pin the algorithm, strong secret, require sub + exp + aud
 jwt.decode(token, SECRET, algorithms=["HS256"],
-           audience=AUD, options={"require": ["exp", "aud"]})
+           audience=AUD, options={"require": ["sub", "exp", "aud"]})
 ```
 
 - base64url is **encoding, not a seal** — only the signature check stops forgery
@@ -139,7 +144,7 @@ def get_order(oid):
 - alice's real, valid token must **still** be refused bob's order
 - Check ownership at **every** object access — deny by default
 
-<!-- The IDOR fix mechanism. The vulnerable get_order literally CALLS current_user() and throws the answer away (vulnerable_app.py L63) — Gate 1 runs, Gate 2 doesn't exist. Drive it home: this is not an authentication bug, alice really is alice; it's that being authenticated was treated as permission to read ANY object. The one-line fix compares the object's owner to the caller and denies by default. Emphasize 'every object access' and 'centralize' so one forgotten endpoint doesn't reopen it — which is exactly what the next slide (two gates) generalizes. ~5 min. -->
+<!-- The IDOR fix mechanism. The vulnerable get_order literally CALLS current_user() and throws the answer away — Gate 1 runs, Gate 2 doesn't exist. Drive it home: this is an authorization bug, alice really is alice; being authenticated was treated as permission to read any object. The one-line fix compares the object's owner to the caller and denies by default. Emphasize every object access and centralize the check so one forgotten endpoint does not reopen it. ~5 min. -->
 
 ---
 
@@ -238,35 +243,35 @@ GET /uploads/backdoor.php?cmd=ls%20-l                200   ← RCE
 
 ## 🗺️ Game — IDOR Treasure Hunt + JWT Forgery
 
-1. Tamper object IDs to reach **another user's** data (horizontal — become "bob," not admin) → each secret = a flag
-2. Forge a weak JWT two ways: `alg:none`, then crack the hardcoded HMAC secret
-3. **Defend:** switch to `solution_app.py` (already fixed), prove it blocks all three attacks (403 + two 401s), cite the exact fix line for each
+1. Tamper object IDs to reach **another user's** data (horizontal — read bob's order) → the local flag is demo evidence; use only an individually issued hosted flag when assigned
+2. Forge a JWT two ways: `alg:none`, then sign with the exposed weak HMAC secret
+3. **Defend:** complete `student_patch.py`, then use `student_checks.py` to prove legitimate access works and cross-user or forged-token access fails. Compare `solution_app.py` only after your own tests.
 
-<!-- Explain before lab. Treasure hunt = enumerate ids for per-student flags — it's horizontal privilege escalation (become another regular user), not vertical (become admin). /api/admin IS graded, just not part of this in-class game: Worksheet Task 4 (homework) forges sub=admin to read its flag, and Task 5 re-tests it for the 401. Don't tell students it's out of scope. Defend is read-and-cite against a pre-written fix, not student-authored RBAC — nothing here is role-based. ~3 min. -->
+<!-- Explain before lab. Treasure hunt = change the order id with alice's real token: horizontal access to bob's order. The local demo flag is shared practice, not proof from an individually assigned hosted instance. Worksheet Task 4 is optional, ungraded admin-forgery practice; Task 5's common-core controls still verify that a real non-admin user gets 403 and forged tokens get 401 on /api/admin. The common core includes student-written JWT verification and object ownership in student_patch.py; the pre-written solution stays a comparison. Do not mislabel object ownership as a complete RBAC system. ~3 min. -->
 
 ---
 
 ## Lab steps
 
-> 📋 **Worksheet 6** — `labs/week06-authn-authz/worksheet.md` (Part 3) · **kickoff:** `docker compose up` → http://localhost:8080
+> 📋 **Worksheet 6** — `labs/week06-authn-authz/worksheet.md` (Part 3) · **before class:** `docker compose build` · **kickoff:** `docker compose up --no-build --pull never` → http://localhost:8080
 
 1. Find IDOR endpoints; enumerate other users' objects
-2. Crack/forge a weak JWT (`alg:none` AND the weak HMAC secret — two separate graded attacks)
-3. Switch to `solution_app.py`; re-test: access denied
-4. Cite the exact line that fixes each of the three attacks
+2. Forge a JWT (`alg:none` AND signing with the exposed weak HMAC secret — two separate graded observations)
+3. Complete the JWT verification and ownership TODOs in `student_patch.py`
+4. Run `student_checks.py` in the prepared image before and after the patch; explain the positive and negative results
 
-<!-- Logistics. Steps 3-4 (verify the defense + cite the fix) graded — no student-authored fix code in this lab, the fix is handed to them already written. The weekly quiz no longer asks for the object id/fix/flag (dropped — quiz runs before the lab) — that's required in the worksheet instead. Also the NoteVault project access-control task. -->
+<!-- Logistics. The graded defense is the student's verification and ownership patch with positive and negative checks. solution_app.py remains the complete reference. The weekly quiz no longer asks for the object id/fix/flag (dropped — quiz runs before the lab) — that's required in the worksheet instead. Also the NoteVault project access-control task. -->
 
 ---
 
 ## Deliverable
 
 - IDOR + JWT findings with impact
-- Citation of the fix lines in `solution_app.py` for all three attacks
-- Proof the forged token / cross-user access now fails
-- **+ Audit the AI / EiPE / Prompt Problem** (see worksheet)
+- Your `student_patch.py` commit and `student_checks.py` results
+- Proof legitimate access works and forged-token / cross-user access fails
+- **Assigned AIR-Sec 40: Audit / EiPE / Prompt; Conventional uses written 40** (see worksheet)
 
-<!-- Before/after + proof — "citation," not "you wrote a fix": the correct app is provided pre-written. AI-resilient tasks count. -->
+<!-- Before/after + proof must come from the student's patch. The supplied solution is comparison material. -->
 
 ---
 
@@ -284,3 +289,5 @@ GET /uploads/backdoor.php?cmd=ls%20-l                200   ← RCE
 Next week: Reflection & review (midterm prep)
 
 <!-- Wrap the teaching block: "Next week we consolidate W1-6 — Jeopardy + a mock CTF in the exact midterm format. Bring your cheat-sheet of CWEs." Remind cumulative review quiz in W7. -->
+
+<!-- Current authored work: student_patch.py plus student_checks.py, positive and negative controls, and an explanation. Reference-only output does not demonstrate the student patch. -->

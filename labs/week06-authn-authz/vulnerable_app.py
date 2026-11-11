@@ -33,9 +33,10 @@ def index():
 
 @app.route("/login", methods=["POST"])
 def login():
-    user = request.json.get("user")
-    pw = request.json.get("pw")
-    if USERS.get(user) != pw:
+    body = request.get_json(silent=True) or {}
+    user = body.get("user")
+    pw = body.get("pw")
+    if not isinstance(user, str) or user not in USERS or USERS[user] != pw:
         return jsonify(error="bad credentials"), 401
     # Token signed with the weak secret; no expiry/audience.
     token = jwt.encode({"sub": user}, SECRET, algorithm="HS256")
@@ -46,7 +47,8 @@ def current_user():
     auth = request.headers.get("Authorization", "")
     token = auth.replace("Bearer ", "")
     # CWE-347: improper signature verification.
-    #   - 'none' is in the allowed algorithms -> an attacker can submit an UNSIGNED token.
+    #   - signature verification is explicitly disabled for 'none', so an
+    #     attacker can submit an UNSIGNED token.
     #   - the secret is the weak string "secret".
     # PyJWT requires key=None when the token's own header says alg=none, so the
     # two accepted algorithms can't share one decode() call.
@@ -60,7 +62,10 @@ def current_user():
 
 @app.route("/api/orders/<int:oid>")
 def get_order(oid):
-    current_user()  # authenticated, but result is ignored...
+    try:
+        current_user()  # authenticated, but result is ignored...
+    except jwt.InvalidTokenError:
+        return jsonify(error="invalid token"), 401
     order = ORDERS.get(oid)
     if not order:
         return jsonify(error="not found"), 404
@@ -72,11 +77,14 @@ def get_order(oid):
 def admin():
     # CWE-347/-639: only "admin" should pass — but forging a JWT (alg:none or the
     # weak secret) lets any attacker set sub=admin and read the flag.
-    user = current_user()
+    try:
+        user = current_user()
+    except jwt.InvalidTokenError:
+        return jsonify(error="invalid token"), 401
     if user != "admin":
         return jsonify(error="forbidden"), 403
     return jsonify(flag=FLAG_JWT)
 
 
 if __name__ == "__main__":
-    app.run(host="0.0.0.0", port=5000, debug=True)
+    app.run(host="0.0.0.0", port=5000, debug=False)

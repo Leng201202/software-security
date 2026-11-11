@@ -100,5 +100,5 @@
 <text class="ttl" x="20" y="486" style="font-size:13px">Why it works</text>
 <text class="note" x="20" y="508">The payload is <tspan class="noteo">always readable</tspan> — that was never the bug. Security rests entirely on <tspan class="noteb">verifying the</tspan></text>
 <text class="note" x="20" y="525"><tspan class="noteb">signature</tspan> with a pinned algorithm and a strong secret. Reject "none", never hardcode the key.</text>
-<text class="sub" x="20" y="549" style="font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace">fix: solution_app.py L50 (pin alg + require exp/aud) · L10 (strong secret)</text>
+<text class="sub" x="20" y="549" style="font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace">fix: solution_app.py pins alg, requires exp/aud, uses strong secret</text>
 </svg>

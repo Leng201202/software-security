@@ -29,9 +29,10 @@ def index():
 
 @app.route("/login", methods=["POST"])
 def login():
-    user = request.json.get("user")
-    pw = request.json.get("pw")
-    if USERS.get(user) != pw:
+    body = request.get_json(silent=True) or {}
+    user = body.get("user")
+    pw = body.get("pw")
+    if not isinstance(user, str) or user not in USERS or USERS[user] != pw:
         return jsonify(error="bad credentials"), 401
     # FIX: include expiry and audience so tokens are short-lived and scoped.
     payload = {
@@ -47,8 +48,11 @@ def current_user():
     auth = request.headers.get("Authorization", "")
     token = auth.replace("Bearer ", "")
     # FIX CWE-347: pin a single algorithm (no 'none'), verify signature, exp, and audience.
-    data = jwt.decode(token, SECRET, algorithms=["HS256"], audience=AUDIENCE, options={"require": ["exp", "aud"]})
-    return data.get("sub")
+    data = jwt.decode(token, SECRET, algorithms=["HS256"], audience=AUDIENCE, options={"require": ["sub", "exp", "aud"]})
+    user = data["sub"]
+    if not user:
+        raise jwt.InvalidTokenError("subject required")
+    return user
 
 
 @app.route("/api/orders/<int:oid>")
