@@ -76,7 +76,7 @@ Answer in your own words using evidence from the common practical:
 
 ## Assigned AIR-Sec format — 40 points
 
-**Audit the AI (20):** Ask an AI assistant for an XSS and CSRF fix for this lab. Include its answer. Quote one incorrect or incomplete line, correct it, and verify the correction with your normal and attack controls. A claim that SameSite alone solves every CSRF case is a suitable flaw to investigate.
+**Audit the AI (20):** Ask an AI assistant for an XSS and CSRF fix for this lab. Include its answer. Quote one incorrect or incomplete line, correct it, and verify the correction with your normal and attack controls. If its answer appears correct, quote one specific line, test it against an edge case, and explain the result and any remaining limit instead; a correct, independently verified answer can earn full credit. A claim that SameSite alone solves every CSRF case is a suitable flaw to investigate.
 
 **Explain in plain English (10):** In 3–5 sentences explain why a comment can run as code and why a page on port 8081 can submit a request with the port-8080 session cookie.
 
