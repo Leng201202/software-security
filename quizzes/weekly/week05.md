@@ -1,17 +1,21 @@
-# Weekly Quiz — Week 5 (Cross-Site Scripting)
+# Weekly Quiz — Week 5 (XSS and browser request controls)
 
-**~5 min · in-class · 5 questions · low-stakes** (drop lowest). No devices / locked browser.
+**10 minutes · three MCQs.** The hosted Week 5 quiz on learn.zcr.ai is the class quiz. This file is its content reference, checked read-only on 11 Nov 2026. Do not create another quiz from this file.
 
-**Name:** ____________  **Student ID:** ________
+1. **The most reliable XSS defense is:**
+   - a) Input length limits
+   - b) Context-aware output encoding **(correct)**
+   - c) Hiding errors
+   - d) HTTPS
+2. **CSP mitigates XSS by:**
+   - a) Encrypting JavaScript
+   - b) Restricting which scripts the browser will run **(correct)**
+   - c) Blocking all cookies
+   - d) Rate limiting
+3. **`SameSite=Strict` cookies primarily defend against:**
+   - a) XSS
+   - b) CSRF **(correct)**
+   - c) SQL injection
+   - d) Clickjacking
 
-## MCQ (5 × 1)
-1. **Stored** XSS differs from **reflected** XSS because the payload is:
-   a) encrypted  b) saved on the server and served to later victims  c) only in the URL  d) run on the server
-2. XSS code executes in:
-   a) the database  b) the web server  c) the victim's browser  d) the proxy
-3. The primary defense against XSS is:
-   a) input length limits  b) context-aware output encoding (+ CSP)  c) HTTPS  d) renaming parameters
-4. The CWE id for XSS is:
-   a) CWE-89  b) CWE-79  c) CWE-352  d) CWE-611
-5. The `HttpOnly` cookie flag helps because it:
-   a) encrypts the cookie  b) stops JavaScript from reading the cookie  c) blocks all cookies  d) sets SameSite
+**Teaching qualification for Q3:** SameSite restricts **cross-site cookie attachment**; it is not an origin check or a general substitute for a CSRF token. The same-site, cross-origin port-8081 lab shows this limit. The endpoint must also validate the session and token.

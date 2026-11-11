@@ -1,13 +1,10 @@
 services:
   xss-lab:
-    image: python:3.12-slim
+    build: .
     working_dir: /lab
     ports:
       # 127.0.0.1 = this machine only. Lab apps are deliberately vulnerable; keep them off the classroom network.
       - "127.0.0.1:8080:5000"
     volumes:
       - ./:/lab
-    command: >
-      bash -c "pip install --no-cache-dir flask &&
-               echo '--- vulnerable app on :8080 (use fixed_app.py for the secured version) ---' &&
-               python vulnerable_app.py"
+    command: python vulnerable_app.py

@@ -23,6 +23,9 @@ def hello():
 @app.route("/comments", methods=["GET", "POST"])
 def comments():
     if request.method == "POST":
+        # Intentionally vulnerable to CSRF: a cookie is required, but no token is checked.
+        if request.cookies.get("session") != "abc123":
+            return Response("Session required", status=401, mimetype="text/plain")
         # CWE-79: stored XSS — raw comment body persisted, later rendered unescaped.
         COMMENTS.append(request.form.get("body", ""))
     body = "<form method=post><input name=body><input type=submit value=Post></form><hr>"
@@ -36,7 +39,9 @@ def index():
     # No security headers at all: no Content-Security-Policy, cookies set without HttpOnly/SameSite.
     resp = Response("<a href=/hello?name=you>hello</a> | <a href=/comments>comments</a>",
                     mimetype="text/html")
-    # CWE-1004 / CWE-79 amplifier: cookie readable by JS (no HttpOnly) and sent cross-site (no SameSite).
+    # CWE-1004: cookie readable by injected JS. Modern Chromium defaults an
+    # unspecified SameSite to Lax. Our attacker uses a different port on the
+    # same site, so that flag alone does not prevent the forged POST.
     resp.set_cookie("session", "abc123")
     return resp
 

