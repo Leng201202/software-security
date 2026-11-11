@@ -9,6 +9,13 @@
 | Standards | OWASP 2025 **A05 Injection / CWE-79** (XSS); **A01 Broken Access Control / CWE-352** (CSRF) |
 | Assessment | Common practical 60 + one assigned Conventional/AIR-Sec format 40 |
 
+## Learning outcomes and CLOs
+
+- **CLO2:** Reproduce reflected and stored XSS and a cookie-bearing same-site forgery on the authorized local target; explain the HTML sink and origin/site boundary.
+- **CLO3:** Implement the student patch, then demonstrate legitimate behavior and rejected XSS/CSRF controls.
+- **CLO5:** Audit AI advice with an independently checked edge case, explain the mechanisms in plain English, and verify the prompt result.
+- **CLO6:** Keep tests within the sandbox, disclose AI/tool use, and submit original reproducible evidence.
+
 ## Before class
 
 Build the pinned image on each machine while network is available: `docker compose build`. Test `docker compose up --no-build --pull never` offline. Host the supplied `csrf.html` on `localhost:8081`; the target is `localhost:8080`. Check both ports are free. Students prepare the worksheet's concept questions from the slides. The live Week 5 quiz has **three** questions on encoding, CSP and SameSite and a 10-minute limit; do not promise five questions.

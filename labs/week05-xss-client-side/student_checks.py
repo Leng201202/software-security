@@ -16,6 +16,8 @@ check_render(render_name)
 check_render(render_comment)
 assert allow_post("abc123", "known-token", "known-token"), "Valid session and token must work"
 assert not allow_post(None, "known-token", "known-token"), "Missing session must fail"
+assert not allow_post("wrong-session", "known-token", "known-token"), "Wrong session must fail"
 assert not allow_post("abc123", "", "known-token"), "Missing token must fail"
+assert not allow_post("abc123", "", ""), "Empty submitted and expected tokens must fail"
 assert not allow_post("abc123", "wrong", "known-token"), "Wrong token must fail"
 print("Week 5 controls passed")
