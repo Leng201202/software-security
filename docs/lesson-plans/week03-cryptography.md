@@ -1,166 +1,38 @@
-# Lesson Plan — Week 3: Cryptography Used Correctly (and Misused)
+# Lesson Plan — Week 3: Application cryptographic misuse and migration
 
-| | |
+**Software Security 2 (02005094) · Year 4 · Semester 2 AY2026 · Lecture · 150 minutes.**
+**Outcomes:** CLO2–6. Current KOSEN approved policy, updated2026-11-10.
+
+## Purpose and preparation
+
+Retain the current Misuse Hunt: scan/manual-review application code and migrate a successful legacy-MD5 login to Argon2id. Recognize misuse without repeating the separate Cryptography course’s cracking/cipher-attack labs.
+
+Before class: Pre-pull the Semgrep and Gitleaks images and run `docker compose build` in `labs/week03-cryptography` while online. The built `kosen-swsec-week03:local` image contains pinned Python dependencies; test `docker compose up --pull never --no-build` and the supplied offline `semgrep-local.yml` fallback before relying on classroom Wi-Fi. The fallback checks MD5 calls only. Identify `migrate.py` and the complete comparison reference. Full concepts and longer questions remain available for preparation/follow-up. [Worksheet](../../labs/week03-cryptography/worksheet.md) and [README](../../labs/week03-cryptography/README.md) name the commands and bounded student task; [slides](../../slides/week03.md) support the explanation.
+
+## In-class run sheet
+
+| Minutes | Activity |
 |---|---|
-| **Course** | Software Security 2 (02005094, KOSEN-KMITL) |
-| **Week / date** | 3 · ⬚ |
-| **Contact time** | 150 min = 10 quiz + 15 explanation & demo + 115 supervised lab (in class: Tasks 0, 1, 2, 3, 4, 7, 9; homework: Tasks 5, 6, 8) |
-| **Lab folder** | `labs/week03-cryptography` |
-| **Slides** | `slides/week03.md` |
-| **Standards** | OWASP 2025 **A04 Cryptographic Failures** · CWE-327 (broken/risky crypto algorithm — MD5, AES-ECB) · CWE-916 (weak password hashing — unsalted/fast) · CWE-330 (insufficiently random values — predictable token) · CWE-321 (hard-coded cryptographic key) · **A07 Authentication Failures** · CWE-798 (hard-coded credentials — the general case of the hardcoded key) |
-| **CLOs addressed** | **CLO2** exploit · **CLO3** remediate · **CLO5** evaluate & communicate · **CLO6** evidence & ethics |
+| 0–10 | Quiz/review and goal; use the actual published quiz instrument. |
+| 10–25 | Brief explanation/demo of the mechanism and the required observation/control. |
+| 25–125 | Supervised practical core below; circulate and verify individual reasoning. |
+| 125–145 | Compare results, explain limitations and correct one misunderstanding. |
+| 145–150 | Save evidence and next actions. |
 
-> The course-specification schedule row for Week 3 names **CLO2, CLO3**; CLO5 and CLO6 enter through the worksheet's *Audit the AI* and *Evidence & Integrity* sections, which every teaching week carries.
+**100-minute core:** Baseline behavior (5), scanner observations (10), code review (15), token predictability (10), key-handling analysis (10), student rehash-on-login (30), fixed control checks (20).
 
----
+## Evidence and assessment
 
-## 1. Session objectives
+Misuse table with tool blind spots, student rehash-on-login change, successful login/new-hash verification and failed-login control.
 
-By the end of this week a student can:
+Each student completes common practical60 (task/observations20 + correction/control/limitations20 + reproducible evidence/reasoning20) plus one assigned format40: Conventional written40, or AIR-Sec Audit20 + EiPE10 + Prompt10. Raw 100×0.025 gives2.5course points. The other version and practical extensions are reference practice, not another requirement. A technically correct AI answer can earn full audit marks when its correctness is independently verified; no fabricated error is required.
 
-**Knowledge (K)**
-- K1 — Distinguish hashing, encryption and encoding, and name one job each is the wrong tool for.
-- K2 — Explain why a fast hash (MD5/SHA-1) is unfit for password storage, and what a vetted KDF (bcrypt/argon2) provides instead.
-- K3 — State what a salt defends against and why it must be unique per password; and why AES-ECB leaks structure while an authenticated mode (AES-GCM) adds integrity.
+Viva/reproduction checks verify the submitted work within its existing criterion, with no additional mark or automatic-zero gate. Use task-appropriate evidence and ordinary name/ID plus issued-instance requirements where actually applicable. The shared practical is common to both versions. This is one of12 individual graded worksheets; Week 16 is a separate formative project checkpoint.
 
-**Skills (P)**
-- P1 — Recover passwords from unsalted MD5 hashes with a wordlist (`hashcat -m 0` or the `john --format=raw-md5` equivalent), and explain why unsalted MD5 falls so fast.
-- P2 — Demonstrate the ECB structure leak: identical 16-byte plaintext blocks produce identical ciphertext blocks.
-- P3 — Show that a 6-digit `random` reset token is brute-forceable, and identify the hardcoded key as a key-management flaw.
-- P4 — Migrate password storage to argon2id with a rehash-on-login path, and perform an AES-GCM round-trip that fails the tag check on a tampered byte.
-- P5 — Run the fixed skeleton and map each fix to the CWE it closes.
+## Instructor review
 
-**Attitude (A)**
-- A1 — Crack only the hashes provided in `hashes.txt`, on their own machine; wordlists and recovered values stay inside the lab (see the worksheet ethics note and [ETHICS.md](../../ETHICS.md)).
-- A2 — Submit identity-stamped evidence that is their own work, and be able to reproduce it live on request.
-- A3 — Treat AI-generated cryptographic code as something to be verified, not trusted.
+Run the required positive/negative controls before teaching and record actual tool versions/build assumptions and observed failures. A planning budget is not a measured student timing pilot. Record actual completion time and revise within the published course weights. Historical expanded plans are retained privately; existing other-course session/grade records are not rewritten by this KOSEN update.
 
-## 2. Key ideas (the through-line)
+See [agenda](../../AGENDA.md), [syllabus](../../syllabus.md) and [submission rules](../../SUBMISSION.md).
 
-Cryptography here rarely fails because the maths is broken — it fails because a sound primitive is used
-for the wrong job or in the wrong mode. A fast hash stands in for a slow password KDF; a cipher mode
-(ECB) preserves the very structure it was meant to hide; a key is pasted into source; a token comes
-from a non-cryptographic RNG. The fix is never a cleverer tweak of the broken pattern — it is choosing
-the vetted construction for the task (a KDF for passwords, an AEAD for data, a CSPRNG for tokens) and
-keeping keys out of the code.
-
-## 3. Prior knowledge and preparation
-
-- **Students, before class:** Docker Desktop running (Week 1 Lab 0); skim the Week 2 recap. Install
-  `hashcat` **or** `john` on the host and obtain the `rockyou.txt` wordlist — the lab image ships
-  neither, and Task 1 (in class) and Task 5 (homework) need them.
-- **Instructor, before class:** pull the lab image ahead of the session (`docker compose pull` in the
-  lab folder) — a room of students pulling `python:3.12-slim` at once is the most common way to lose
-  time; have the offline fallback ready (see §8). Confirm a working `hashcat`/`john` + `rockyou.txt` is
-  available in the room for Task 1. Task 8 (TLS, now homework) needs outbound TCP 443 to
-  `example.com` wherever students do it — stage a saved cert for anyone whose network blocks it.
-- **Prerequisite concept:** what a hash is versus a cipher, and basic command-line use.
-
-## 4. Pre-class material and in-class explanation — 10 min quiz + 15 min demo
-
-**Before class (students).** The concept material is pre-class: students study `slides/week03.md`
-and answer the worksheet's **Part 2** questions from it before the class starts. The slides carry
-what the 120-min lecture used to teach:
-
-| Block | Content |
-|---|---|
-| Core concept | Hashing vs. encryption vs. encoding — what each is for and the job each is wrong for; why fast hashes fail for passwords and what a KDF (bcrypt/argon2id) adds; salts (why they are not secret, why unique per password) |
-| Deep dive + real cases | The classic misuses: unsalted/fast MD5 (CWE-916/327), the AES-ECB structure leak (CWE-327), hardcoded keys (CWE-798), non-CSPRNG tokens (CWE-330); a short TLS-in-context aside; two brief real breaches (large password-database leaks on fast/unsalted hashes; hardcoded-credential disclosures in shipped software) |
-| Defences | argon2id with automatic per-password salting and a rehash-on-login migration path; AES-GCM authenticated encryption (random 12-byte nonce + auth tag); keys from env/secrets manager, never in source; the `secrets` CSPRNG for tokens; map each defence to the CWE it closes |
-
-**In class**
-
-| Time | Block | Content | Method |
-|---|---|---|---|
-| 0:00–0:10 | Weekly quiz + today's goal | ~10-min retrieval quiz on Week 2 (secure SDLC, tooling & fuzzing); today's goal | Individual quiz, lowest 1–2 dropped |
-| 0:10–0:25 | Explanation + live demo | Live-crack a single unsalted MD5 on the projector, then show the fix beside it — argon2id with automatic per-password salting, so the same password no longer gives the same stored value; brief the game — "Capture the Hash" speedrun: crack the hashes fastest, then flip to the defender side and rebuild the service with a KDF + authenticated encryption | Live coding on the projector |
-
-**Checks for understanding during the demo**
-- Cold-call *"is this hashing, encryption, or encoding — and what is it the wrong tool for?"*
-- Before the lab starts: *"why is a salt not a secret, and why must it be unique per password?"*
-
-## 5. Supervised lab — 115 min in class + homework
-
-Target: `docker compose up` in `labs/week03-cryptography` installs `pycryptodome` + `argon2-cffi` on
-`python:3.12-slim`, then runs `vulnerable_crypto.py` (the misuses) and `solution_skeleton.py` (the fix).
-Locally: `pip install pycryptodome argon2-cffi` then `python vulnerable_crypto.py`. Targets:
-`vulnerable_crypto.py`, `hashes.txt` (four unsalted MD5s), `solution_skeleton.py`. This week publishes
-no web port — the target is a script, not a server.
-
-Only the worksheet's *in class* tasks run here (worksheet Part 3; [AGENDA.md](../../AGENDA.md),
-*How each worksheet is split*). The instructor circulates, checks evidence and reasoning, and runs
-2–3 **viva spot-checks** — a student reproduces and explains an exploit or fix live.
-
-| Time | Task | Student does | Evidence produced |
-|---|---|---|---|
-| 0:25–0:30 | **Task 0 — Onboarding (5 min)** | Run `python vulnerable_crypto.py`; note the md5 digest, the identical ECB ciphertext blocks, and the short token | Screenshot of the program output |
-| 0:30–1:00 | **Task 1 — Capture the Hash (30 min)** | Strip the comment lines from `hashes.txt`, then run `hashcat -m 0 hashes.txt rockyou.txt` (or the `john --format=raw-md5` equivalent); recover all four plaintexts | Screenshot of cracked results (mask any real-looking value) + one line on why unsalted MD5 fell (CWE-916/327) |
-| 1:00–1:20 | **Task 2 — ECB structure leak (20 min)** | Call `encrypt_ecb(b"A"*16 + b"A"*16)` from `vulnerable_crypto.py`; show the two 16-byte ciphertext blocks are identical | Hex output highlighting the repeated block + how it leaks structure (CWE-327) |
-| 1:20–1:35 | **Task 3 — Predictable token (15 min)** | Call `reset_token()` repeatedly; argue why a 6-digit `random` token (10^6 space, non-CSPRNG) is brute-forceable | Sample tokens + a one-line attack estimate (CWE-330) |
-| 1:35–1:40 | **Task 4 — Hardcoded key (5 min)** | Find `HARDCODED_KEY` in `vulnerable_crypto.py`; explain why shipping a key in source is a flaw | The line + a 2-sentence mitigation (CWE-798; its cryptographic-key case is CWE-321) |
-| 1:40–2:00 | **Task 7 — Authenticated encryption round-trip (20 min)** | Encrypt+decrypt a message with **AES-GCM** using a random 12-byte nonce and a key from an env var; then flip one ciphertext byte and show decryption **fails** (tag check) | Round-trip output + the tampered-fails proof |
-| 2:00–2:20 | **Task 9 — Defend / fix it (20 min)** | Run `python solution_skeleton.py`; confirm `store_password`/`verify_password` use argon2id (auto-salted), `encrypt_gcm` uses a random 12-byte nonce + auth tag with a key from `ENC_KEY_HEX` env, and `reset_token` uses `secrets`; map each fix to the CWE it closes | Before/after table (misuse → fix → CWE closed) + screenshot of the fixed script running |
-| 2:20–2:30 | **Slack — feedback and catch-up (10 min)** | Students who fell behind on an in-class task catch up | Instructor feedback on the evidence so far |
-
-**Homework — submitted with the worksheet before the start of the next week's class**
-
-| Task | Student does | Evidence produced |
-|---|---|---|
-| **Task 5 — Crack the project target's hashes (25 min)** | **NoteVault** stores unsalted MD5 hashes; obtain them (via the app's `/admin` once reachable, or from its `seed()` in `project/starter-app/app.py`) and crack them with `hashcat -m 0` | Recovered password(s) + the CWE; record for the [project report](../../project/REPORT-TEMPLATE.md) |
-| **Task 6 — Password storage migration (25 min)** | Write `store_password`/`verify_password` with **argon2id**, plus a **rehash-on-login** path that upgrades a legacy MD5 record to argon2id at next login | The code + a short note on why migration matters |
-| **Task 8 — TLS in practice (15 min)** | Run `openssl s_client -connect example.com:443 </dev/null 2>/dev/null \| tee /tmp/tls.txt \| openssl x509 -noout -issuer -subject -dates`, then `grep -E 'Protocol\|New,' /tmp/tls.txt` for the negotiated version (the version line is printed by `s_client`, not `x509`, so the plain pipe would discard it) | Cert summary (issuer, validity, TLS version) + one line on what TLS protects that hashing/at-rest encryption does not |
-| **Part 4, *Audit the AI*, *Comprehension & Prompt*** | Reflection; critique an AI-written exploit or fix; *Explain-in-Plain-English* and *Prompt Problem* | Written answers |
-
-Worksheet PDF → `learn.zcr.ai/submit`; fixed code → GitHub. Due before the start of the next week's class; late work loses 10% per started day and reaches 0 after 10 days (`syllabus.md` §6).
-
-**Formative checkpoints.** A student stuck on Task 1 after 15 minutes has almost always not stripped
-the comment lines from `hashes.txt` or is missing `rockyou.txt` — check both before anything else.
-Task 7 is the in-class "build the fix" task (the argon2id migration, Task 6, is homework); a student
-still on Task 7 at 2:00 should move to Task 9 (run the skeleton) so they still land the defend
-evidence, and return to Task 7 in the slack or at home.
-
-## 6. Assessment for this week
-
-| Instrument | Evidence | Outcome | Weight |
-|---|---|---|---|
-| Worksheet 3, Parts 1–4 | Cracked hashes, ECB/token/key proof, argon2id + GCM code, before/after CWE mapping, written answers | K1–K3, P1–P5, A2–A3 | Part of the 30% worksheet component |
-| Weekly quiz (start of class) | Quiz score | Recall of Week 2 (SDLC, tooling & fuzzing) | Part of the 10% quiz/participation component |
-| Viva spot-check (during the lab) | Live reproduction and explanation | P1–P5, A2 | Pass/flag for follow-up |
-| Identity-stamped evidence (per-student flag if this lab issues one) | `whoami`/login email/student ID + timestamp on every screenshot | A2 | Integrity control, not a mark |
-
-Grading detail is in the worksheet's own rubric (Part 2 = 20, exploitation + evidence = 40, defence =
-25, reflection = 15). Partial credit is available where a student explains the mechanism correctly but
-could not land the exploit.
-
-## 7. Materials
-
-- Lab: `labs/week03-cryptography/` — `vulnerable_crypto.py`, `solution_skeleton.py`, `hashes.txt`, `docker-compose.yml`, `worksheet.md`, `README.md`
-- Slides: `slides/week03.md`
-- Project target for Task 5 (homework): `project/starter-app/` (NoteVault) — see the [project README](../../project/README.md) and [REPORT-TEMPLATE](../../project/REPORT-TEMPLATE.md)
-- Host tooling students supply: `hashcat` or `john`, and the `rockyou.txt` wordlist
-- References: OWASP Password Storage Cheat Sheet; OWASP Cryptographic Storage Cheat Sheet
-- Submission channels: [SUBMISSION.md](../../SUBMISSION.md) · Rules of engagement: [ETHICS.md](../../ETHICS.md)
-
-## 8. Risks and contingencies
-
-| Risk | Mitigation |
-|---|---|
-| Slow/failed `python:3.12-slim` pull in class | Pre-pull before the session; keep a USB copy of the image (`docker save`/`docker load`) |
-| Student runs `python vulnerable_crypto.py` on the host and hits `ModuleNotFoundError: No module named 'Crypto'` | Use `docker compose up` (installs `pycryptodome` + `argon2-cffi`), or `pip install pycryptodome argon2-cffi` first; this also covers `argon2` for Task 9 and homework Task 6 |
-| Students arrive without `hashcat`/`john` or `rockyou.txt` | The compose image ships neither and `labs/toolbox` does not carry them, so Task 1 (30 min, in class) stalls, and homework Task 5 (25 min) with it; require the install in the pre-class prep, and pair a stuck student with a House member who has the wordlist |
-| `hashcat` may not find a usable GPU backend on some laptops (notably Apple Silicon) | Fall back to `john --format=raw-md5`, which the worksheet lists as the equivalent |
-| Task 8 (homework) needs outbound TCP 443 to `example.com`; campus egress filtering/proxy blocks it | Stage a saved cert or point `s_client` at an allowed internal host; keep the `tee /tmp/tls.txt` + separate `grep -E 'Protocol\|New,'` two-step exactly as written, since the version line comes from `s_client`, not `x509` |
-| Task 5 (homework) depends on NoteVault being reachable | If a student cannot yet reach `/admin`, the seeded unsalted MD5 hashes are readable directly from `seed()` in `project/starter-app/app.py` |
-| A student finishes the exploit tasks early | Extension: implement the rehash-on-login upgrade (homework Task 6) end-to-end (legacy MD5 record → argon2id at next login) and write a test that proves a tampered AES-GCM byte still fails the tag check |
-| Copy-paste of a classmate's cracked value or code | Identity-stamped evidence (and the per-student flag if issued) makes submissions attributable; viva spot-check the pair |
-
-## 9. Post-teaching reflection
-
-*Complete after the session — this also feeds the course's engagement data.*
-
-- Attendance / completion: ⬚
-- Time actually taken per task (vs. plan): ⬚
-- Where the class got stuck, and what unblocked them: ⬚
-- Misconception that showed up in the *Explain-in-Plain-English* answers: ⬚
-- Quality of the *Audit the AI* critiques (did students catch the planted flaw?): ⬚
-- Anything to change before this week runs again: ⬚
+[Complete previous lesson details and commands, retained as reference](../reference/lesson-plans-before-20261110/week03-cryptography.md). Historical timings and required task counts are superseded for current KOSEN.

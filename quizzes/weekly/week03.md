@@ -1,6 +1,8 @@
 # Weekly Quiz — Week 3 (Cryptography)
 
-**~10 min · 6 questions · low-stakes** (lowest scores dropped). Individual.
+**Printable reference set.** The code-based quiz on `learn.zcr.ai/quiz` uses a separate three-MCQ set; do not treat the six questions below as the exact hosted assessment.
+
+**~10 min · 6 questions · low-stakes** (drop the lowest weekly quiz). Individual.
 
 **Name:** ____________  **Student ID:** ________
 

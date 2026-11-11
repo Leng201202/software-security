@@ -1,5 +1,5 @@
 """
-Week 3 — FIX the misuse here. Fill in the TODOs.
+Week 3 — complete secure reference (legacy filename). The student TODO is in migrate.py.
 pip install argon2-cffi pycryptodome
 """
 import os

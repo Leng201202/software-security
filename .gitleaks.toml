@@ -15,6 +15,12 @@ useDefault = true
 
 [allowlist]
 description = "Intentionally planted teaching secrets (students scan these on purpose)"
+regexTarget = "line"
+regexes = [
+  # A prior documentation commit in PR #210 was misread by generic-api-key:
+  # the words "token cases" describe a Week 6 exercise, not a credential.
+  '''IDOR/token cases, ownership/verification correction and positive/negative controls''',
+]
 paths = [
   '''labs/week02-sdlc-tooling/vulnerable-repo/.*''',
   '''labs/week13-cloud-container/Dockerfile\.insecure''',

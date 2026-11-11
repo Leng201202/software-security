@@ -1,0 +1,6 @@
+rules:
+  - id: week03-md5-call
+    languages: [python]
+    severity: WARNING
+    message: MD5 call found. Inspect its use; password storage needs a slow, salted KDF such as Argon2id.
+    pattern: hashlib.md5(...)

@@ -45,4 +45,7 @@ if __name__ == "__main__":
     print("alice after: ", db["alice"])
     for name, ok in checks:
         print("PASS" if ok else "FAIL", "-", name)
-    print("ALL PASS" if all(ok for _, ok in checks) else "Not done yet: fill in the TODO in login().")
+    complete = all(ok for _, ok in checks)
+    print("ALL PASS" if complete else "Not done yet: fill in the TODO in login().")
+    if not complete:
+        raise SystemExit(1)

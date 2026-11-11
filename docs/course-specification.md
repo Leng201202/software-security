@@ -1,182 +1,58 @@
-# Course Specification — Software Security 2 (KOSEN-KMITL 02005094)
+# Course Specification — Software Security 2 (02005094)
 
-Outcome-based (OBE) course specification. It maps what students are expected to be able to do
-(CLOs) to how they are taught and how each outcome is evidenced and graded. Written to satisfy
-the usual programme-review asks (AUN-QA criteria 1–5; the fields a TQF/มคอ.3-style form expects)
-without being tied to one institutional template — sections can be lifted into whichever form the
-faculty issues.
-
-> **Fill before submission.** Fields marked ⬚ are institution-specific and are not recorded
-> anywhere in this repository: section, room, and the programme's own PLO list. Course code, term,
-> credits, class time and instructors follow the official KOSEN-KMITL subject sheet for 02005094.
-
----
-
-## 1. Course identification
-
-| Field | Value |
+| Field | Confirmed value |
 |---|---|
-| Course title | Software Security 2 |
-| Course code | 02005094 (Compulsory, Department of Computer) |
-| Credits | 1.5 (150 minutes of class per week in 3 slots, 20 weeks) |
-| Level | Undergraduate, Year 4 |
-| Prerequisites | Programming (Python/C), Data Structures, Operating Systems basics; Computer Networks recommended |
-| Delivery | On-site supervised laboratory practice with brief explanations and demonstrations; concept material is studied before class; all lab targets run locally in Docker |
-| Instructors | Nutthakorn Chalaemwongwan · Shinya Oyama |
-| Semester / Year | Semester 2, AY2026 |
-| Programme | ⬚ |
+| Level / credits | Year 4 / 1.5 credits |
+| Term / category | Semester 2 AY2026 / Computer / Compulsory |
+| Instructors | Nutthakorn Chalaemwongwan; Shinya Oyama |
+| Format / contact | Lecture with supervised practical work; 20 weekly slots of 150 minutes |
+| Programme alignment | C(2), C(4), G(5); MCC follows the actual weekly topics in the institutional XLSX |
 
-## 2. Course description
+Section, room and calendar dates follow the official timetable; no unconfirmed values are invented. The original XLSX layout and full cell text are preserved.
 
-Students learn how software fails under attack and how to build software that resists it. The
-course pairs timeless fundamentals — memory safety, injection, authentication, cryptographic
-misuse — with the threats that dominate current systems: software supply-chain attacks, cloud and
-container misconfiguration, API abuse, and the security of AI/LLM-powered applications.
+## Outcomes and alignment
 
-Each teaching week is one 150-minute class: a short quiz, a brief explanation and demonstration,
-then about 125 minutes of supervised laboratory built around one *signature exercise* in which
-students first break a deliberately vulnerable target, then defend it and prove the defence holds.
-The concept material is studied before class, and worksheet tasks that do not fit the class are
-homework ([AGENDA.md](../AGENDA.md)). All exploitation is performed against targets
-supplied by the course, inside containers on the student's own machine, under the rules in
-[ETHICS.md](../ETHICS.md).
-
-## 3. Course learning outcomes (CLOs)
-
-On completion, students will be able to:
-
-| # | Outcome | Bloom |
+| CLO | Assessed capability | Principal evidence |
 |---|---|---|
-| **CLO1** | **Model** the security of a software system: identify assets, trust boundaries and attacker goals, and derive the design weaknesses that follow from them. | Analyse |
-| **CLO2** | **Exploit** the major vulnerability classes — injection, XSS, broken authentication and access control, API flaws, memory-safety bugs, container and cloud misconfiguration — against a controlled target, and explain the mechanism that makes each work. | Apply / Analyse |
-| **CLO3** | **Remediate** those vulnerabilities with the control that actually addresses the root cause, and demonstrate empirically that the original attack no longer succeeds. | Create / Evaluate |
-| **CLO4** | **Operate** security tooling across the SDLC — SAST, SCA and dependency review, secret scanning, fuzzing, container and IaC scanning — and interpret, triage and act on its findings, including its false negatives. | Apply / Analyse |
-| **CLO5** | **Evaluate** security work produced by others, including AI-generated code and advice, and communicate a finding, its impact and its fix to both a technical and a non-technical audience. | Evaluate |
-| **CLO6** | **Practise** security work within legal, ethical and professional limits, and produce evidence of their own work that withstands scrutiny. | Apply / Value |
+| 1 | Model assets, boundaries and attacker goals; derive testable requirements | W1 model, project threat model, written scenarios |
+| 2 | Demonstrate and explain controlled vulnerability mechanisms | Practical observations, exam stations, findings |
+| 3 | Implement bounded root-cause corrections and verify both rejection and legitimate behavior | Student patch/configuration, controls, project tests |
+| 4 | Operate/triage tools and verify component/artifact/CI controls with stated limits | W2/W3/W11–15 evidence, project secure-release record |
+| 5 | Evaluate technical/AI claims and communicate justified reasoning | Assigned Conventional/AIR-Sec work, report and explanation |
+| 6 | Work ethically and provide original, reproducible evidence and accountable contribution | Authorized scope, tool/source disclosure and contribution record |
 
-## 4. CLO → assessment alignment
+| Assessment | Course points | Mode / outcomes |
+|---|---:|---|
+| Twelve worksheets, W1–6 and W10–15 | 30 | Individual; CLO1–6; 2.5 points each |
+| Midterm written / practical | 8 / 12 | Individual; CLO1–4,6 |
+| Final written / practical | 10 / 15 | Individual / teams 2–3; CLO1–6 |
+| Secure Build project | 15 | Teams 2–3; CLO1,3–6 |
+| Quiz / participation | 10 | Individual; lowest one weekly quiz dropped |
+| **Total** | **100** | |
 
-Weights follow the course syllabus §6. Every CLO is assessed by at least two independent
-instruments, and every instrument maps to at least one CLO.
+All worksheets have common practical60: task/observations20 + correction/control/limitations20 + reproducible evidence/reasoning20. Add one assigned format40: Conventional written40, or AIR Audit20 + EiPE10 + Prompt10. Raw 100 converts by `score/100×2.5`. The other format is reference practice. Week 1 uses modeling evidence, not forced exploitation or flags. Week 3 retains application-misuse/scanner/rehash scope. Week 16's complete team worksheet is formative project work, not a thirteenth academic worksheet.
 
-| Assessment | Weight | Mode | CLO1 | CLO2 | CLO3 | CLO4 | CLO5 | CLO6 |
-|---|---|---|:--:|:--:|:--:|:--:|:--:|:--:|
-| Weekly lab worksheets (13 graded) | 30% | Individual | ● | ● | ● | ● | ● | ● |
-| Midterm — W8 written + W9 CTF practical | 20% | Individual | ● | ● | ● | ● | | ● |
-| Final — W18 written (individual) + W19 capstone CTF (team) | 25% | Mixed | ● | ● | ● | ● | ● | ● |
-| Term project — secure build, threat model, remediation report | 15% | Team of 2–3 | ● | | ● | ● | ● | ● |
-| Weekly quizzes (drop lowest 1–2) + participation / Houses | 10% | Individual | | ● | | ● | | |
+Viva/reproduction checks verify submitted work within existing criteria, without extra marks or automatic-zero gates. External Agent Breaker is optional; its former8raw points are reassigned within required practice. Games, first-blood and CTFd dynamic scores are engagement-only. Do not use a team ranking as an individual's participation grade.
 
-Within each weekly worksheet, four graded parts recur and carry specific outcomes:
+## Timetable and workload
 
-| Worksheet part | Assesses |
-|---|---|
-| Exploitation tasks | CLO2 |
-| Defend / fix task | CLO3 |
-| **Audit the AI** — critique an AI-generated exploit or fix | CLO5 |
-| **Explain-in-Plain-English + Prompt Problem** | CLO5 |
-| **Evidence & Integrity** — identity-stamped proof, per-student flags | CLO6 |
-| Viva spot-check during the lab | CLO2, CLO3, CLO5 |
+Ordinary slots: quiz/review10 + brief15 + practical100 + debrief20 + capture5 =150. Review slots: cumulativequiz30 + selectedclues20 + boundedmock70 + correction25 + save5. Week 16: brief10 + build/peer100 + clarification30 + notes10. Week 20: returnedwork20 + corrections40 + projectclarification45 + reflection35 + close10.
 
-## 5. CLO → PLO mapping
+Written sittings reserve130task +20administration; practicals130task +20brief/submission. Week 19 has four bounded stations, raw 100, and no project Q&A. Videos≤5 minutes, report and code are due before W19; clarification usesW16/W20. See [AGENDA](../AGENDA.md) and [lesson plans](lesson-plans/).
 
-⬚ Replace `PLO1…PLOn` with the programme's own outcome statements. Contribution level:
-**I** = Introduced, **R** = Reinforced, **M** = Mastered (assessed for mastery).
+| Ability | Midterm | Final | Quiz/participation | Worksheets | Project | Total |
+|---|---:|---:|---:|---:|---:|---:|
+| Basic |10|5|5|0|0|20|
+| Technical |10|20|5|25|10|70|
+| Interdisciplinary |0|0|0|5|5|10|
+| **Total** |20|25|10|30|15|100|
 
-| CLO | ⬚ PLO1 | ⬚ PLO2 | ⬚ PLO3 | ⬚ PLO4 | ⬚ PLO5 |
-|---|:--:|:--:|:--:|:--:|:--:|
-| CLO1 Threat modelling | R | | I | | |
-| CLO2 Exploitation | M | R | | | |
-| CLO3 Remediation | M | M | | R | |
-| CLO4 Security tooling / SDLC | R | M | | R | |
-| CLO5 Evaluation & communication | | | M | | R |
-| CLO6 Ethics & evidence | | | R | | M |
+Midterm written and practical each use rawBasic50/Technical 50 (course 4/4 and6/6). Final written uses50/50 (course 5/5), final practical isTechnical15. These refer to the same marks, not extra scores. Project-adjusted raw marks are capped100 before the15%conversion.
 
-## 6. Weekly schedule
+## Criteria, preparation and review
 
-150 minutes of class per week (3 slots), mostly supervised lab practice; the in-class / homework
-split of each worksheet is in [AGENDA.md](../AGENDA.md). Lab folder names are the canonical
-reference; each folder holds the week's README, worksheet and runnable target.
+The six institutional rubric dimensions remain threat/risk modeling; vulnerability analysis/evidence; remediation/verification; tooling/secure delivery; evaluation/communication; and ethics/integrity/contribution. VeryGood means correct, complete and evidenced; Good means essential reasoning is correct with gaps; Fail means the central work is incorrect or insufficiently evidenced. Apply these through the published point criteria, preserving partial credit for demonstrated work.
 
-| Wk | Topic | Class (min) | Lab folder | Signature exercise | CLOs |
-|---:|---|:--:|---|---|---|
-| 1 | Security mindset & threat modelling | 150 | `labs/week01-threat-modeling` | "Elevation of Privilege" STRIDE card game | 1, 6 |
-| 2 | Secure SDLC, tooling & fuzzing | 150 | `labs/week02-sdlc-tooling` | "Bug Triage Race" | 4 |
-| 3 | Cryptography used correctly (and misused) | 150 | `labs/week03-cryptography` | "Misuse Hunt" (scanner + code review) | 2, 3 |
-| 4 | Injection & input handling | 150 | `labs/week04-injection` | "SQLi Warm-up" | 2, 3 |
-| 5 | XSS & client-side risks | 150 | `labs/week05-xss-client-side` | "XSS Golf" | 2, 3 |
-| 6 | Authentication, sessions & access control | 150 | `labs/week06-authn-authz` | "IDOR Treasure Hunt + JWT Forgery" | 2, 3 |
-| 7 | **Reflection & review** (pre-midterm) | 150 | `labs/week07-review-midterm-prep` | Mock CTF + cumulative quiz | 1–4 |
-| 8 | **Midterm — written** | 150 | `labs/week08-midterm-written` | — | 1–4, 6 |
-| 9 | **Midterm — CTF practical** | 150 | `labs/week09-midterm-practical` | — | 2, 3, 6 |
-| 10 | API security | 150 | `labs/week10-api-security` | "crAPI Raid" (BOLA + mass assignment) | 2, 3 |
-| 11 | Memory safety & exploitation | 150 | `labs/week11-memory-safety-exploitation` | "Fuzzing Race → Pwn the Binary" | 2, 3, 4 |
-| 12 | Software supply-chain security | 150 | `labs/week12-supply-chain` | "Dependency Confusion Heist" | 4, 5 |
-| 13 | Cloud & container security | 150 | `labs/week13-cloud-container` | "Misconfig Hunt" (CloudGoat-style) | 3, 4 |
-| 14 | AI / LLM application security | 150 | `labs/week14-ai-llm-security` | "Gandalf Challenge" + tool poisoning | 2, 3, 5 |
-| 15 | DevSecOps: putting it together | 150 | `labs/week15-devsecops-pipeline` | "Break the Build" (Red vs Blue) | 4, 5 |
-| 16 | Capstone studio & CTF warm-up | 150 | `labs/week16-capstone` | Project work-in-progress review | 1, 3, 5 |
-| 17 | **Reflection & review** (pre-final) | 150 | `labs/week17-review-final-prep` | Mock CTF + cumulative quiz | 1–5 |
-| 18 | **Final — written** (cumulative) | 150 | `labs/week18-final-written` | — | 1–5 |
-| 19 | **Final — capstone CTF + project demos** | 150 | `labs/week19-final-ctf-capstone` | Team tournament + demo | 2, 3, 5, 6 |
-| 20 | **Examination feedback & course reflection** | 150 | — | Corrections + reflection on the CLOs | 5 |
+Preflight architecture/toolchains, images, accounts and prepared CI/signature fixtures before timed work. Static IAM/container review and deterministic AI mocks have explicit limits; they do not prove live cloud enforcement or arbitrary LLM robustness. References/planted defects remain available; student tasks identify the bounded change. The time budgets are plans, not measured student completion guarantees. Record actual time and attainment after teaching.
 
-12 teaching weeks (1–6, 10–15) · 1 capstone week (16) · 2 review weeks (7, 17) · 2 exam blocks (8–9, 18–19) · 1 feedback week (20).
-
-## 7. Teaching and learning methods
-
-- **Break-then-defend laboratories.** Every teaching week's target ships in two forms — a
-  vulnerable app and a correct one. Students exploit the first, then apply and *verify* the fix.
-- **Retrieval practice.** A ~10-minute low-stakes quiz opens each teaching week; the lowest 1–2
-  are dropped. Two cumulative review quizzes run in weeks 7 and 17.
-- **AI-resilient tasks.** Each worksheet asks students to critique an AI-generated answer
-  (*Audit the AI*), restate a mechanism in plain English, and write a prompt that would have
-  produced a correct answer — engaging AI use directly rather than pretending it is absent.
-- **Live accountability.** Random viva spot-checks during the supervised lab require students to
-  reproduce and explain their own submitted work.
-- **Per-student evidence.** Flags are minted per student, so a submitted flag identifies who
-  produced it; screenshots are identity-stamped.
-- **Engagement layer.** Points feed a season-long scoreboard and non-graded Houses, keeping
-  competition motivating without letting a teammate's effort affect an individual's grade.
-
-## 8. Assessment criteria and grading
-
-- Individual work accounts for approximately 75% of the final mark (worksheets, quizzes, written
-  exams, midterm practical). Team-graded work is bounded: the term project (15%) and the Week 19
-  capstone CTF, with each project member's mark scaled by a peer-contribution evaluation.
-- Worksheets are graded against the rubric published in each week's worksheet; partial credit is
-  available for a correct mechanism explained without a working exploit.
-- Grading scale: ⬚ (institutional scale).
-
-## 9. Verification of student achievement
-
-- Every graded worksheet has a written answer key held by the instructor; keys are reviewed
-  against the published worksheet whenever lab content changes.
-- Exams exist in two parallel forms (A/B) drawn from a maintained item bank, supporting make-up
-  sittings and reducing answer sharing.
-- Viva spot-checks during the lab sample submitted work live each week; a student who cannot
-  reproduce their own submission is followed up individually.
-- Flag values are per-student, so a duplicate flag is detectable rather than a matter of judgement.
-- Outcome attainment is reviewed at the end of term by mapping the assessment scores back to the
-  CLO table in §4.
-
-## 10. Resources
-
-- Course repository: labs, worksheets, slides and runnable targets (this repository).
-- `labs/toolbox` — a container image carrying clang/libFuzzer, gdb and recon tools for students
-  whose host OS cannot run them natively.
-- Docker Desktop on the student's own machine; no cloud account required for the core labs.
-- Reading list: [readings.md](../readings.md). Submission channels: [SUBMISSION.md](../SUBMISSION.md).
-- Rules of engagement and legal boundaries: [ETHICS.md](../ETHICS.md).
-
-## 11. Academic integrity and AI policy
-
-AI assistants are permitted and are addressed explicitly by the *Audit the AI*, *Explain-in-Plain-English*
-and *Prompt Problem* tasks. What is assessed is the student's own understanding, which is why
-per-student flags, identity-stamped evidence and live viva spot-checks exist. Passing
-off unverified AI output as one's own work — in particular, submitting a fix a student cannot
-explain or reproduce — is treated as an academic-integrity matter under ⬚ (institutional policy).
-
----
-
-*Weekly lesson plans that instantiate this specification: [`docs/lesson-plans/`](lesson-plans/).*
+Current private KOSEN instruments are under `instructor/exams/kosen-02005094/`; historical/shared and MFU session instruments retain their own scope. This prospective teaching update does not recalculate student grades or claim an updated external research registration. Existing submission deadlines/late rules remain in the [syllabus](../syllabus.md); authorized scope is in [ETHICS](../ETHICS.md).

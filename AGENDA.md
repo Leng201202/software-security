@@ -1,166 +1,79 @@
-# Weekly Agenda & Time Plan — KOSEN-KMITL 02005094
+# Weekly Agenda and Time Plan — KOSEN-KMITL 02005094
 
-**Class time:** **150 min/week** (3 slots) over **20 weeks**, per the official subject sheet
-(Software Security 2, 1.5 credits). Most of the class is supervised lab practice; brief
-explanations and demonstrations support it.
+**Lecture · Year 4 · 1.5 credits · Semester 2 AY2026 · 20 × 150-minute slots.**
+Approved KOSEN policy updated 2026-11-10. See [syllabus](syllabus.md), [submission rules](SUBMISSION.md) and the topic-specific [lesson plans](docs/lesson-plans/).
 
-- **Before class:** the week's slides (the full concept material — what used to be a 120-min
-  lecture) and the worksheet's **Part 2** questions.
-- **In class:** a short quiz, a brief explanation + demo, then the worksheet's *in class* tasks.
-- **After class (homework):** the worksheet's *homework* tasks, Part 4, *Audit the AI* and
-  *Comprehension & Prompt*. Everything is submitted before the next class.
-- **Quizzes:** a short **weekly quiz (~10 min) at the start of every teaching week** (retrieval
-  practice, low-stakes, drop lowest 1–2). Two **cumulative review quizzes** (25 pts) run in the
-  review weeks (W7 pre-midterm, W17 pre-final).
+## Ordinary teaching weeks: 1–6 and 10–15
 
-> **Timetable: one contiguous 150-min block** (3 consecutive slots; confirmed by the owner
-> 2026-10-31). Everything below — the teaching-week template, the Docker start-up, and the 150-min
-> exams in Weeks 9, 18 and 19 — depends on it; re-plan if the timetable ever splits the slots.
+| Minutes | Activity |
+|---|---|
+| 0–10 | Weekly quiz/review and goal |
+| 10–25 | Brief explanation and demonstration |
+| 25–125 | Supervised practical core: investigate/model, perform the assigned bounded change and test controls |
+| 125–145 | Compare evidence, explain the mechanism/limits and receive feedback |
+| 145–150 | Save evidence and next actions |
 
----
+Prepare images, installations, accounts and long reading before class. Complete the common practical 60 plus the assigned Conventional 40 or AIR-Sec 20/10/10. The full questions remain available as preparation/extension; they are not all crammed into the 100-minute practical core. Submit by the published next-class deadline. Drop the lowest one weekly quiz. Viva checks are formative/verification within existing criteria, with no additional marks or automatic-zero gate.
 
-## Standard teaching-week template (Weeks 1–6, 10–15) — 150 min
+| Week | Core inside the 100-minute practical block |
+|---:|---|
+| 1 | Model the provided application: DFD, STRIDE, system-wide abuse cases and mitigation acceptance criteria; no student attack on the sample app |
+| 2 | Scanner/secret-finding triage, one bounded correction, re-scan and limitations; prepared short fuzz checkpoint if assigned |
+| 3 | Scanner/manual crypto-misuse review and legacy-password rehash-on-login, preserving the current application-code scope |
+| 4 | Bounded injection cases, student parameterization/validation and legitimate/attack tests |
+| 5 | XSS cases, student encoding correction, cookie/CSP observations and the remaining CSRF boundary |
+| 6 | IDOR and authentication cases, correct ownership and token validation, then run positive/negative controls |
+| 10 | API observations 45 + bounded authorization/schema patch 35 + positive/negative tests 20 |
+| 11 | Fuzz/crash 20 + build-specific offset/ret2win 30 + hardened control 20 + safe routine change 20 + evidence 10 |
+| 12 | SCA 20 + resolver 15 + SBOM 20 + expected-signer/integrity verification 30 + hash/index control 15 |
+| 13 | Scan 20 + manual review 20 + assigned IAM/Dockerfile change 35 + re-test 25 |
+| 14 | Disclosure 20 + output XSS 20 + validation patch 30 + controls 20 + reasoning 10 |
+| 15 | Fail-open/control 20 + gate/logging patch 20 + prepared red CI run 30 + green control 20 + evidence 10 |
 
-| Time | Block |
-|------|-------|
-| 0:00–0:10 | **Weekly quiz** (retrieval) + today's goal |
-| 0:10–0:25 | **Brief explanation + live demo** of the week's flaw and its fix — the full concepts are pre-class |
-| 0:25–2:30 | **Supervised lab:** the worksheet's *in class* tasks — the signature game, then the defend/fix task (≤125 min). The instructor circulates, checks evidence and reasoning, and runs 2–3 **viva spot-checks** |
+Tool-dependent times require preflight and prepared inputs. The budgets are planning estimates, not a completed student timing pilot. Keep references and extended questions; the worksheet identifies the actual core. Real signing/registry/OIDC work, extended binary analysis, additional AI platforms and a full Red/Blue tournament are preparation/extension when they exceed the block. They add no hidden compulsory marks.
 
-Submission (worksheet PDF → `learn.zcr.ai/submit`, fix → GitHub) is due at **23:59 the night before the next
-week's class** (Monday 23:59 for the Tuesday class), homework tasks included. Late work loses 10% per started day and reaches 0 after 10 days
-(`syllabus.md` §6).
+## Review weeks 7 and 17
 
-> **Why there is no in-class micro-demo any more.** In a 150-min class the time goes to the lab.
-> "Explain it live" is carried by the **viva spot-checks** during the lab — which double as the
-> anti-AI control — and by the capstone (W16 WIP studio + the W19 demo video).
->
-> **Every teaching week's worksheet** has four graded parts beyond the lab tasks:
-> **Evidence & Integrity** (identity-stamped proof), **Audit the AI** (critique an AI answer),
-> **Explain-in-Plain-English** + **Prompt Problem**. The live **CTFd / Houses scoreboard**
-> (if running) is shown at the start/end of class.
+| Minutes | Activity |
+|---|---|
+| 0–30 | Cumulative review quiz, existing 25-point instrument |
+| 30–50 | Selected Jeopardy clues based on errors |
+| 50–120 | Two bounded mock checkpoints from taught topics |
+| 120–145 | Correct and explain controls; exam logistics |
+| 145–150 | Save revision actions |
 
-### How each worksheet is split
+The full mock banks remain optional practice. No thirteenth graded worksheet is created.
 
-Each worksheet's Part 3 now says which tasks are **in class** and which are **homework**. The rule:
-the tasks the subject sheet's *Method* line for that week says happen in class, plus the defend/fix
-task, stay in class; project-target tasks, extensions and write-ups go home. **Week 1 is the
-exception:** its Method line is modelling only (sandbox, trust boundaries, the card exercise), so its
-rank-and-fix Task 8 is homework. **No task's minutes and no rubric changed** — only where each task
-is done.
+## Exams: weeks 8, 9, 18 and 19
 
-| Wk | Worksheet budget | In class | Before class | Homework |
-|----|:---:|---|---|---|
-| 1 | 220 | Tasks 0, 1, 2, 3, 3b, 4 — **125** | — | Tasks 5, 6, 7, 8 — **95** |
-| 2 | 180 | Tasks 0, 1, 2, 3, 4, 7, 8 — **115** | — | Tasks 5, 6 — optional bonus, **65** |
-| 3 | 180 | Tasks 0, 1, 2, 3, 4, 7, 9 — **115** | — | Tasks 5, 6, 8 — **65** |
-| 4 | 150 | Tasks 0, 1, 2, 3, 5 — **125** | — | Task 4 — **25** (Task 5's upload re-test goes with it) |
-| 5 | 150 | Tasks 0, 1, 2, 4, 5 — **125** | — | Task 3 — **25** |
-| 6 | 150 | Tasks 0, 1, 2, 3, 5 — **125** | — | Task 4 — **25** (Task 5's `/api/admin` re-test goes with it) |
-| 10 | 145 | Tasks 0, 1, 2, 3, 5 — **125** | — | Task 4 — optional bonus, **20** |
-| 11 | 145 | Tasks 0, 1, 2, 4 — **120** | — | Task 3 — **25** |
-| 12 | 150 | Tasks 0, 2, 3, 4 — **115** | — | Task 1 — **35** |
-| 13 | 180 | Tasks 1, 2, 4 — **120** | Task 0 — **15** | Tasks 3, 5 — **45** |
-| 14 | 180 | Tasks 0, 1, 2, 5 — **120** | — | Tasks 3, 4 — **60** |
-| 15 | 205 | Tasks 0, 1, 1b, 2 — **110** | — | Tasks 3, 4, 5 — **95** (see the Week 15 note below) |
+| Week | Mode | Task block | Administration | Course points |
+|---:|---|---:|---:|---:|
+| 8 | Individual midterm written | 130 | 20 | 8 |
+| 9 | Individual midterm practical | 130 | 20 | 12 |
+| 18 | Individual final written | 130 | 20 | 10 |
+| 19 | Team final practical, four bounded stations | 130 | 20 | 15 |
 
-Weeks with less than 125 min in class use the slack for feedback and for students who fell behind.
+A practical sitting uses 10 minutes to brief/check targets, 130 for tasks, and 10 for collection. Written sittings likewise reserve 20 minutes for administration. No project Q&A takes time from Week 19. CTFd dynamic points, first-blood and Houses XP remain engagement-only; use the fixed academic rubric and conversion.
 
----
+## Week 16: formative project studio
 
-## Per-week time table
+| Minutes | Activity |
+|---|---|
+| 0–10 | Brief and choose integration priorities |
+| 10–110 | Build/test and paired peer review on the existing Secure Build project |
+| 110–140 | Project clarification and contribution/evidence discussion |
+| 140–150 | Record next actions |
 
-| Wk | Type | Quiz | Demo | Lab (in class) | Exam | Class total | Worksheet homework |
-|----|------|:---:|:---:|:---:|:---:|:---:|:---:|
-| 1 | Teach — Threat Modeling | 10 | 15 | 125 | — | 150 | 95 |
-| 2 | Teach — SDLC + Fuzzing | 10 | 15 | 115 | — | 150 | 65 |
-| 3 | Teach — Cryptography | 10 | 15 | 115 | — | 150 | 65 |
-| 4 | Teach — Injection | 10 | 15 | 125 | — | 150 | 25 |
-| 5 | Teach — XSS | 10 | 15 | 125 | — | 150 | 25 |
-| 6 | Teach — Auth & Access | 10 | 15 | 125 | — | 150 | 25 |
-| 7 | 🔁 Review (pre-midterm) | 30‡ | — | — | — | 150 | — |
-| 8 | 📝 Midterm — Written | — | — | — | 120 | 150 | — |
-| 9 | 📝 Midterm — CTF | — | — | — | 150 | 150 | — |
-| 10 | Teach — API Security | 10 | 15 | 125 | — | 150 | 0 (+20 optional) |
-| 11 | Teach — Memory Safety | 10 | 15 | 120 | — | 150 | 25 |
-| 12 | Teach — Supply Chain | 10 | 15 | 115 | — | 150 | 35 |
-| 13 | Teach — Cloud/Container | 10 | 15 | 120 | — | 150 | 60 (15 before class) |
-| 14 | Teach — AI/LLM | 10 | 15 | 120 | — | 150 | 60 |
-| 15 | Teach — DevSecOps | 10 | 15 | 110 | — | 150 | 95 |
-| 16 | Capstone Studio | — | — | 150 | — | 150 | project |
-| 17 | 🔁 Review (pre-final) | 30‡ | — | — | — | 150 | — |
-| 18 | 📝 Final — Written | — | — | — | 150 | 150 | — |
-| 19 | 📝 Final — CTF + Demos | — | — | — | 150 | 150 | — |
-| 20 | 🗒️ Exam feedback & reflection | — | — | — | — | 150 | — |
+Teams remain 2–3. The studio worksheet remains a complete formative guide and supports the existing 15% project; it adds no 2.5-point worksheet. Submit the final video (at most 5 minutes), report and code before Week 19.
 
-‡Cumulative review quiz (25 pts, 30 min) used to prep for the exam.
-"Worksheet homework" counts only the Part 3 tasks marked homework; Part 2 (before class), Part 4
-and the AI-resilient parts come on top.
+## Week 20: feedback and reflection
 
----
+| Minutes | Activity |
+|---|---|
+| 0–20 | Return results and explain marking |
+| 20–60 | Correct weak items and demonstrate reasoning/controls |
+| 60–105 | Project clarification and contribution feedback |
+| 105–140 | Course reflection and remaining questions |
+| 140–150 | Close and record actions |
 
-## Special-week agendas
-
-### Week 7 & 17 — Review (150 min)
-| Time | Block |
-|------|-------|
-| 0:00–0:30 | **Cumulative review quiz** (quiz1 / quiz2 — 25 pts, 30 min as the quiz files state) |
-| 0:30–1:05 | Security Jeopardy team review |
-| 1:05–2:20 | Mock CTF in the format of the upcoming exam — the first 75 min in class. It is ungraded practice, so students finish the remaining challenges at home |
-| 2:20–2:30 | Debrief: common mistakes + exam logistics |
-
-### Week 8 / 18 — Written exam
-- **120 min (midterm) / 150 min (final)**, unchanged — both are graded, so their length is the
-  instructor's decision, not this plan's. The Week 18 paper fills the class exactly: seat students
-  and hand out papers before the slot starts.
-
-### Week 9 — Midterm CTF practical (150 min)
-- 0:00–0:10 rules + target check · 0:10–2:30 solve challenges · submit flags. This fills the class
-  exactly (graded, length unchanged): bring the targets up before the slot starts.
-
-### Week 16 — Capstone Studio (150 min)
-| Time | Block |
-|------|-------|
-| 0:00–1:00 | Team WIP demos (attack → root cause → fix) + peer review, run as **paired stations**: each team gives its 10-min demo + 5-min Q&A to one other team, then they swap; the instructor circulates |
-| 1:00–2:15 | Practice CTF scrimmage (ungraded; stays open online after class) |
-| 2:15–2:30 | Feedback + finalize checklist before the final |
-
-### Week 19 — Final CTF + project demos (150 min)
-| Time | Block |
-|------|-------|
-| 0:00–2:30 | Capstone CTF tournament (whole term, graded, length unchanged) — fills the class |
-
-> **Demo format (decision 2026-10-24).** There is no per-team live demo or Q&A slot. The demo video
-> is linked in the report and due with it, and graded asynchronously on the project rubric; only
-> teams the instructor flags (report ≠ repo, a similarity hit, work the team can't account for) are
-> called for a short live Q&A, outside the CTF time.
-
-### Week 20 — Examination feedback & course reflection (150 min)
-| Time | Block |
-|------|-------|
-| 0:00–0:45 | Assessment feedback: walk through the final written exam and the capstone CTF |
-| 0:45–1:30 | Corrections: students rework their weakest items and explain the corrected reasoning |
-| 1:30–2:05 | Recurring misconceptions — class discussion |
-| 2:05–2:30 | Course reflection: connect your assessment evidence to the course learning outcomes |
-
-No new content and nothing graded.
-
----
-
-## ⚠️ Note — worksheet budgets vs the 150-min class
-
-Worksheet Part 3 budgets run from 145 to 220 min, and none of them fits a 150-min class whole. They
-are not trimmed: each worksheet marks its tasks *in class* or *homework* (table above).
-
-- **Week 1 adds up to 220 min, not 180.** Task 3b (the systems-level pass) was added after the
-  rest of the worksheet was timed; this file used to list Week 1 as matching a 180-min block.
-- **Week 10's 145 includes a 20-min optional bonus** (Task 4, crAPI Raid), now optional homework,
-  so its required content is 125 — exactly the lab block.
-
-**Week 15 over-books on purpose.** Its task budgets total 205, because Tasks 2–4 are dominated by
-GitHub Actions queue and scan wall-clock rather than classroom work. Do **not** "fix" this by
-re-timing the tasks — Task 4 feeds the Defense score and Task 5 produces the Break-the-Build
-scoreboard, so trimming them silently changes graded work.
-[The lesson plan](docs/lesson-plans/week15-devsecops-pipeline.md) lists three ways to absorb the
-overrun. This plan combines the first two: Tasks 0, 1, 1b and 2 (push the gate) run in class; Tasks
-3–5 wait on Actions runs and the Red/Blue results and are homework. Task 1b stays in class.
+No new graded worksheet or bonus category. Historical expanded plans are retained privately for reference. Existing MFU session records are separate instruments and do not define this KOSEN timetable.

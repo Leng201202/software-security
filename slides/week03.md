@@ -7,13 +7,18 @@ header: "Software Security · Week 3"
 
 # Week 3
 ## Cryptography Used Correctly (and Misused)
-Software Security · Nutthakorn Chalaemwongwan
+Software Security 2 · Nutthakorn Chalaemwongwan · Shinya Oyama
 
 <!-- Hook: put vulnerable_crypto.py on screen (26 lines) and ask "how many crypto mistakes?" Most people say one (MD5). There are four, and a scanner finds only some of them. Today is about finding crypto misuse in code and fixing it with the right library call; how the math works and breaks is the Cryptography course's job. ~2 min. -->
 
 ---
 
 ## Today
+
+**KOSEN class: 150 minutes.** Quiz/review 10 + brief/demo 15 + practical 100 + debrief 20 + capture 5. Full slide explanations are preparation/reference.
+
+**Worksheet:** common practical 60 + assigned Conventional written 40 **or** AIR-Sec Audit 20 / EiPE 10 / Prompt 10. Each totals 100; viva verifies understanding within the rubric. Extensions add no graded points.
+
 
 - Two courses, two angles: Cryptography explains *how it breaks*; we find *where it hides in code*
 - What a scanner catches — and what it misses
@@ -172,15 +177,15 @@ random.choice("0123456789")   # CWE-330      ->  secrets.token_urlsafe(16)
 
 ## Lab 3 — deliverable
 
-> 📋 **Worksheet 3** — `labs/week03-cryptography/worksheet.md` (Part 3) · **kickoff:** `docker compose up`
+> 📋 **Worksheet 3** — `labs/week03-cryptography/worksheet.md` (Part 3) · **before class:** `docker compose build` while online and pre-pull both scanner images · **kickoff:** `docker compose up`
 
 - Tool findings + your judgement of the tool's advice
 - The four-mistake table (line · mistake · CWE · flagged by a tool?) + the repeated ECB block marked
 - Token sample + estimate · key line + git-history point
 - `migrate.py` → `ALL PASS` · fixed version + before/after table
-- Every screenshot: **whoami + student ID + timestamp in-frame** · **+ Audit the AI / EiPE / Prompt** (see worksheet)
+- Every screenshot: **whoami + student ID + timestamp in-frame** · **Assigned AIR-Sec 40: Audit / EiPE / Prompt; Conventional uses written 40** (see worksheet)
 
-<!-- Graded output. Optional bonus (homework): scan NoteVault and record its crypto findings for the project report. -->
+<!-- Graded output. Optional extension (homework): scan NoteVault and record its crypto findings for the project report. -->
 
 ---
 
