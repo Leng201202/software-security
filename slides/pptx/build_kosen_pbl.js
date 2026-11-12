@@ -1,4 +1,4 @@
-// KOSEN Week 10–15 PowerPoint export from the same Markdown used by /learn.
+// KOSEN Week 3–6 and 10–15 PowerPoint export from the Markdown used by /learn.
 // Visual system follows KOSEN69-PBL/slides/pbl4/week03-sprint1/PBL4_W03_Sprint1.pptx:
 // 16:9 light canvas, blue kicker, large navy title, KOSEN-KMITL logo,
 // white evidence cards, orange emphasis and a quiet footer.
@@ -191,8 +191,8 @@ function chunks(items, count) {
 }
 
 async function build(week) {
-  if (!Number.isInteger(week) || week < 10 || week > 15) {
-    throw new Error('This exporter accepts only the fixed KOSEN Week 10–15 range');
+  if (!Number.isInteger(week) || ![3, 4, 5, 6, 10, 11, 12, 13, 14, 15].includes(week)) {
+    throw new Error('This exporter accepts only validated KOSEN weeks');
   }
   const ww = String(week).padStart(2, '0');
   // `week` is validated above and the caller enumerates literal weeks only.
@@ -304,5 +304,8 @@ async function build(week) {
 }
 
 (async () => {
-  for (const week of [10, 11, 12, 13, 14, 15]) await build(week);
+  const weeks = process.env.WEEKS
+    ? process.env.WEEKS.split(',').map(value => Number(value.trim()))
+    : [10, 11, 12, 13, 14, 15];
+  for (const week of weeks) await build(week);
 })().catch(err => { console.error(err); process.exitCode = 1; });
